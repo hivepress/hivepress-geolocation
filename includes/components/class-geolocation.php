@@ -26,6 +26,7 @@ class Geolocation extends \HivePress\Component {
 
 	public function render_field($output, $id, $args, $value) {
 		$output.=hivepress()->form->render_field($id.'[name]', [
+			'placeholder' => $args['placeholder'],
 			'type' => 'text',
 			'attributes' => [
 				'class' => 'hp-js-geocomplete',
