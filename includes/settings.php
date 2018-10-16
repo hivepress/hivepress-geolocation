@@ -61,6 +61,27 @@ $settings = [
 	// Listing component.
 	'listing'     => [
 
+		// Meta boxes.
+		'meta_boxes' => [
+			'attributes' => [
+				'fields' => [
+					'location' => [
+						'name' => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'        => 'location',
+						'order'       => 20,
+					],
+
+					'latitude' => [
+						'type' => 'hidden',
+					],
+
+					'longitude' => [
+						'type' => 'hidden',
+					],
+				],
+			],
+		],
+
 		// Forms.
 		'forms' => [
 			'search' => [
@@ -69,6 +90,14 @@ $settings = [
 						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
 						'type'        => 'location',
 						'order'       => 20,
+					],
+
+					'latitude' => [
+						'type' => 'hidden',
+					],
+
+					'longitude' => [
+						'type' => 'hidden',
 					],
 				],
 			],

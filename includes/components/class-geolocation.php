@@ -19,21 +19,33 @@ class Geolocation extends \HivePress\Component {
 	public function __construct( $settings ) {
 		parent::__construct( $settings );
 
-		add_filter('hivepress/form/field_html/location', [$this, 'render_field'], 10, 4);
+		add_filter( 'hivepress/form/field_html/location', [ $this, 'render_field' ], 10, 4 );
 
-		add_action('wp_footer', [$this, 'load_map']);
+		add_action( 'wp_footer', [ $this, 'load_map' ] );
 	}
 
-	public function render_field($output, $id, $args, $value) {
-		$output.=hivepress()->form->render_field($id.'[name]', [
-			'placeholder' => $args['placeholder'],
-			'type' => 'text',
-			'attributes' => [
-				'class' => 'hp-js-geocomplete',
-			],
-		]);
+	public function render_field( $output, $id, $args, $value ) {
 
-		$output.='<a href="#" class="hp-js-geolocate"><i class="fas fa-location-arrow"></i></a>';
+		// Render HTML attributes.
+		$attributes = hp_replace_placeholders( $args, hp_html_attributes( $args['attributes'] ) );
+
+		$output .= '<div ' . $attributes . '>';
+
+		// Render location field.
+		$output .= hivepress()->form->render_field($id, [
+				//'placeholder' => $args['placeholder'],
+				'type'        => 'text',
+				'default' => $value,
+				'attributes'  => [
+					'class' => 'hp-js-geocomplete',
+				],
+			]
+		);
+
+		// Render location.
+		$output .= '<a href="#" title="'.esc_attr__('Locate Me', 'hivepress-geolocation').'" class="hp-js-geolocate"><i class="fas fa-location-arrow"></i></a>';
+
+		$output .= '</div>';
 
 		return $output;
 	}
