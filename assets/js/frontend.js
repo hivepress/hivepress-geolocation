@@ -1,19 +1,7 @@
 (function($) {
   'use strict';
 
-  /**
-   * Gets prefixed selector.
-   */
-  function getSelector(name) {
-    return '.hp-js-' + name;
-  }
 
-  /**
-   * Gets custom object.
-   */
-  function getObject(name) {
-    return $(getSelector(name));
-  }
 
 	// if(typeof google==='object' && typeof google.maps==='object') {
 	// 	getObject('geolocate').each(function() {
@@ -87,12 +75,26 @@ function initMap() {
 	(function($) {
 	  'use strict';
 
-		$('.hp-js-geocomplete').each(function() {
+		/**
+		 * Gets prefixed selector.
+		 */
+		function getSelector(name) {
+			return '.hp-js-' + name;
+		}
+
+		/**
+		 * Gets custom object.
+		 */
+		function getObject(name) {
+			return $(getSelector(name));
+		}
+
+		getObject('geocomplete').each(function() {
 			var field=$(this);
 
 			field.geocomplete({
 				details: field.closest('form'),
-				detailsAttribute: 'data-geo',
+				detailsAttribute: 'data-type',
 			});
 		});
 

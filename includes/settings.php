@@ -23,7 +23,7 @@ $settings = [
 
 						'fields' => [
 							'gmaps_api_key' => [
-								'name'  => esc_html__( 'API Key', 'hivepress' ),
+								'name'  => esc_html__( 'API Key', 'hivepress-geolocation' ),
 								'type'  => 'text',
 								'order' => 10,
 							],
@@ -45,14 +45,15 @@ $settings = [
 		// Scripts.
 		'scripts' => [
 			'geocomplete' => [
-				'handle' => 'geocomplete',
-				'src'    => HP_GEOLOCATION_URL . '/assets/js/jquery.geocomplete.min.js',
+				'handle'  => 'geocomplete',
+				'src'     => HP_GEOLOCATION_URL . '/assets/js/jquery.geocomplete.min.js',
+				'version' => '1.7.0',
 			],
 
 			'frontend'    => [
-				'handle' => 'hp-geolocation',
-				'src'    => HP_GEOLOCATION_URL . '/assets/js/frontend.min.js',
-				'deps'   => [ 'jquery', 'geocomplete' ],
+				'handle'  => 'hp-geolocation',
+				'src'     => HP_GEOLOCATION_URL . '/assets/js/frontend.min.js',
+				'deps'    => [ 'hp-core', 'geocomplete' ],
 				'version' => HP_GEOLOCATION_VERSION,
 			],
 		],
@@ -65,39 +66,99 @@ $settings = [
 		'meta_boxes' => [
 			'attributes' => [
 				'fields' => [
-					'location' => [
-						'name' => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'        => 'location',
-						'order'       => 20,
+					'location'  => [
+						'name'  => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'  => 'location',
+						'order' => 20,
 					],
 
-					'latitude' => [
-						'type' => 'hidden',
+					'latitude'  => [
+						'type'       => 'hidden',
+						'attributes' => [
+							'data-type' => 'lat',
+						],
 					],
 
 					'longitude' => [
-						'type' => 'hidden',
+						'type'       => 'hidden',
+						'attributes' => [
+							'data-type' => 'lng',
+						],
 					],
 				],
 			],
 		],
 
 		// Forms.
-		'forms' => [
+		'forms'      => [
 			'search' => [
 				'fields' => [
-					'location' => [
+					'location'  => [
 						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
 						'type'        => 'location',
 						'order'       => 20,
 					],
 
-					'latitude' => [
-						'type' => 'hidden',
+					'latitude'  => [
+						'type'       => 'hidden',
+						'attributes' => [
+							'data-type' => 'lat',
+						],
 					],
 
 					'longitude' => [
-						'type' => 'hidden',
+						'type'       => 'hidden',
+						'attributes' => [
+							'data-type' => 'lng',
+						],
+					],
+				],
+			],
+
+			'submit' => [
+				'fields' => [
+					'location'  => [
+						'name'  => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'  => 'location',
+						'order' => 20,
+					],
+
+					'latitude'  => [
+						'type'       => 'hidden',
+						'attributes' => [
+							'data-type' => 'lat',
+						],
+					],
+
+					'longitude' => [
+						'type'       => 'hidden',
+						'attributes' => [
+							'data-type' => 'lng',
+						],
+					],
+				],
+			],
+
+			'update' => [
+				'fields' => [
+					'location'  => [
+						'name'  => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'  => 'location',
+						'order' => 20,
+					],
+
+					'latitude'  => [
+						'type'       => 'hidden',
+						'attributes' => [
+							'data-type' => 'lat',
+						],
+					],
+
+					'longitude' => [
+						'type'       => 'hidden',
+						'attributes' => [
+							'data-type' => 'lng',
+						],
 					],
 				],
 			],
