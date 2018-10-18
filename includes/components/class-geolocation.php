@@ -20,19 +20,123 @@ class Geolocation extends \HivePress\Component {
 		parent::__construct( $settings );
 
 		// Manage location field.
+		add_filter( 'hivepress/form/field_value/location', [ $this, 'sanitize_location_field' ], 10, 2 );
 		add_filter( 'hivepress/form/field_html/location', [ $this, 'render_location_field' ], 10, 4 );
 
+		// Manage coordinate fields.
+		add_filter( 'hivepress/form/field_value/latitude', [ $this, 'sanitize_coordinate_field' ], 10, 2 );
+		add_filter( 'hivepress/form/field_value/longitude', [ $this, 'sanitize_coordinate_field' ], 10, 2 );
+		add_filter( 'hivepress/form/field_html/latitude', [ $this, 'render_coordinate_field' ], 10, 4 );
+		add_filter( 'hivepress/form/field_html/longitude', [ $this, 'render_coordinate_field' ], 10, 4 );
+
+		// todo.
 		add_action( 'hivepress/form/submit_form/listing__update', 'update_listing' );
 
 		if ( ! is_admin() ) {
 
+			// Set search query.
+			add_action( 'pre_get_posts', [ $this, 'set_search_query' ] );
+
 			// Enqueue scripts.
 			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
-
-			add_action( 'pre_get_posts', [ $this, 'set_search_query' ] );
 		}
 	}
 
+	/**
+	 * Sanitize location field.
+	 *
+	 * @param mixed $value
+	 * @param array $args
+	 * @return mixed
+	 */
+	public function sanitize_location_field( $value ) {
+		return sanitize_text_field( $value );
+	}
+
+	/**
+	 * Render location field.
+	 *
+	 * @param string $output
+	 * @param string $id
+	 * @param array  $args
+	 * @param mixed  $value
+	 * @return string
+	 */
+	public function render_location_field( $output, $id, $args, $value ) {
+
+		// Get wrapper class.
+		$class = hp_replace_placeholders( $args, $args['attributes']['class'] );
+
+		$output .= '<div class="' . esc_attr( $class ) . '">';
+
+		// Set field arguments.
+		$args = hp_merge_arrays(
+			$args,
+			[
+				'type'       => 'text',
+				'before'     => '',
+				'after'      => '',
+				'attributes' => [
+					'class' => 'hp-js-geocomplete',
+				],
+			]
+		);
+
+		// Render field.
+		$output .= hivepress()->form->render_field( $id, $args, $value );
+
+		// Render button.
+		$output .= '<a href="#" title="' . esc_attr__( 'Locate Me', 'hivepress-geolocation' ) . '" class="hp-js-geolocate"><i class="fas fa-location-arrow"></i></a>';
+
+		$output .= '</div>';
+
+		return $output;
+	}
+
+	/**
+	 * Sanitize coordinate field.
+	 *
+	 * @param mixed $value
+	 * @param array $args
+	 * @return mixed
+	 */
+	public function sanitize_coordinate_field( $value, $args ) {
+		$value = round( floatval( $value ), 6 );
+
+		if ( ( 'latitude' === $args['type'] && ( $value < -90 || $value > 90 ) ) || ( 'longitude' === $args['type'] && ( $value < -180 || $value > 180 ) ) ) {
+			$value = '';
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Render coordinate field.
+	 *
+	 * @param string $output
+	 * @param string $id
+	 * @param array  $args
+	 * @param mixed  $value
+	 * @return string
+	 */
+	public function render_coordinate_field( $output, $id, $args, $value ) {
+
+		// Set field arguments.
+		if ( 'latitude' === $args['type'] ) {
+			$args['attributes']['data-type'] = 'lat';
+		} else {
+			$args['attributes']['data-type'] = 'lng';
+		}
+
+		$args['type'] = 'hidden';
+
+		// Render field.
+		$output .= hivepress()->form->render_field( $id, $args, $value );
+
+		return $output;
+	}
+
+	// todo.
 	public function update_listing( $values ) {
 
 		// Get listing ID.
@@ -48,36 +152,10 @@ class Geolocation extends \HivePress\Component {
 		if ( 0 !== $listing_id ) {
 
 			// Update location.
+			update_post_meta( $listing_id, 'hp_latitude', $values['latitude'] );
+			update_post_meta( $listing_id, 'hp_longitude', $values['longitude'] );
+			update_post_meta( $listing_id, 'hp_location', $values['location'] );
 		}
-	}
-
-
-	public function render_location_field( $output, $id, $args, $value ) {
-
-		// Render HTML attributes.
-		$attributes = hp_replace_placeholders( $args, hp_html_attributes( $args['attributes'] ) );
-
-		$output .= '<div ' . $attributes . '>';
-
-		// Render location field.
-		$output .= hivepress()->form->render_field(
-			$id,
-			[
-				// 'placeholder' => $args['placeholder'],
-				'type'       => 'text',
-				'default'    => $value,
-				'attributes' => [
-					'class' => 'hp-js-geocomplete',
-				],
-			]
-		);
-
-		// Render location.
-		$output .= '<a href="#" title="' . esc_attr__( 'Locate Me', 'hivepress-geolocation' ) . '" class="hp-js-geolocate"><i class="fas fa-location-arrow"></i></a>';
-
-		$output .= '</div>';
-
-		return $output;
 	}
 
 	/**
@@ -88,37 +166,37 @@ class Geolocation extends \HivePress\Component {
 	public function set_search_query( $query ) {
 		if ( $query->is_main_query() && is_post_type_archive( 'hp_listing' ) && is_search() ) {
 
-			// Get latitude and longitude.
+			// Validate search form.
 			$values = hivepress()->form->validate_form( 'listing__search' );
 
-			$latitude  = floatval( $values['latitude'] );
-			$longitude = floatval( $values['longitude'] );
+			if ( false !== $values && '' !== $values['latitude'] && '' !== $values['longitude'] ) {
 
-			// Calculate location radiuses.
-			$radius           = 15;
-			$latitude_radius  = $radius / 110.574;
-			$longitude_radius = $radius / ( 111.320 * cos( deg2rad( $latitude ) ) );
+				// Calculate coordinate radiuses.
+				$radius           = 15;
+				$latitude_radius  = $radius / 110.574;
+				$longitude_radius = $radius / ( 111.320 * cos( deg2rad( $values['latitude'] ) ) );
 
-			// Get meta query.
-			$meta_query = (array) $query->get( 'meta_query' );
+				// Get meta query.
+				$meta_query = (array) $query->get( 'meta_query' );
 
-			// Add meta filters.
-			$meta_query[] = [
-				'key'     => 'hp_latitude',
-				'value'   => [ $latitude - $latitude_radius, $latitude + $latitude_radius ],
-				'compare' => 'BETWEEN',
-				'type'    => 'DECIMAL(9, 6)',
-			];
+				// Add meta filters.
+				$meta_query[] = [
+					'key'     => 'hp_latitude',
+					'value'   => [ $values['latitude'] - $latitude_radius, $values['latitude'] + $latitude_radius ],
+					'compare' => 'BETWEEN',
+					'type'    => 'DECIMAL(9, 6)',
+				];
 
-			$meta_query[] = [
-				'key'     => 'hp_longitude',
-				'value'   => [ $longitude - $longitude_radius, $longitude + $longitude_radius ],
-				'compare' => 'BETWEEN',
-				'type'    => 'DECIMAL(9, 6)',
-			];
+				$meta_query[] = [
+					'key'     => 'hp_longitude',
+					'value'   => [ $values['longitude'] - $longitude_radius, $values['longitude'] + $longitude_radius ],
+					'compare' => 'BETWEEN',
+					'type'    => 'DECIMAL(9, 6)',
+				];
 
-			// Set meta query.
-			$query->set( 'meta_query', $meta_query );
+				// Set meta query.
+				$query->set( 'meta_query', $meta_query );
+			}
 		}
 	}
 

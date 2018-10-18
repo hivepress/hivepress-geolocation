@@ -62,35 +62,8 @@ $settings = [
 	// Listing component.
 	'listing'     => [
 
-		// Meta boxes.
-		'meta_boxes' => [
-			'attributes' => [
-				'fields' => [
-					'location'  => [
-						'name'  => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'  => 'location',
-						'order' => 20,
-					],
-
-					'latitude'  => [
-						'type'       => 'hidden',
-						'attributes' => [
-							'data-type' => 'lat',
-						],
-					],
-
-					'longitude' => [
-						'type'       => 'hidden',
-						'attributes' => [
-							'data-type' => 'lng',
-						],
-					],
-				],
-			],
-		],
-
 		// Forms.
-		'forms'      => [
+		'forms' => [
 			'search' => [
 				'fields' => [
 					'location'  => [
@@ -100,17 +73,11 @@ $settings = [
 					],
 
 					'latitude'  => [
-						'type'       => 'hidden',
-						'attributes' => [
-							'data-type' => 'lat',
-						],
+						'type' => 'latitude',
 					],
 
 					'longitude' => [
-						'type'       => 'hidden',
-						'attributes' => [
-							'data-type' => 'lng',
-						],
+						'type' => 'longitude',
 					],
 				],
 			],
@@ -124,17 +91,11 @@ $settings = [
 					],
 
 					'latitude'  => [
-						'type'       => 'hidden',
-						'attributes' => [
-							'data-type' => 'lat',
-						],
+						'type' => 'latitude',
 					],
 
 					'longitude' => [
-						'type'       => 'hidden',
-						'attributes' => [
-							'data-type' => 'lng',
-						],
+						'type' => 'longitude',
 					],
 				],
 			],
@@ -148,17 +109,11 @@ $settings = [
 					],
 
 					'latitude'  => [
-						'type'       => 'hidden',
-						'attributes' => [
-							'data-type' => 'lat',
-						],
+						'type' => 'latitude',
 					],
 
 					'longitude' => [
-						'type'       => 'hidden',
-						'attributes' => [
-							'data-type' => 'lng',
-						],
+						'type' => 'longitude',
 					],
 				],
 			],

@@ -1,13 +1,20 @@
 .hp {
 	&-form {
+		&__field-wrapper {
+			&--latitude,
+			&--longitude {
+				display: none;
+			}
+		}
+
 		&__field {
 			&--location {
-				display:flex;
+				display: flex;
 				position: relative;
 
 				input[type="text"] {
-					flex:1;
-					padding-right:3rem;
+					flex: 1;
+					padding-right: 3rem;
 				}
 
 				a {
