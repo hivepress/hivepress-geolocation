@@ -29,8 +29,9 @@ class Geolocation extends \HivePress\Component {
 		add_filter( 'hivepress/form/field_html/latitude', [ $this, 'render_coordinate_field' ], 10, 4 );
 		add_filter( 'hivepress/form/field_html/longitude', [ $this, 'render_coordinate_field' ], 10, 4 );
 
-		// todo.
-		add_action( 'hivepress/form/submit_form/listing__update', 'update_listing' );
+		// Update location.
+		add_action( 'hivepress/form/submit_form/listing__submit', [ $this, 'update_location' ] );
+		add_action( 'hivepress/form/submit_form/listing__update', [ $this, 'update_location' ] );
 
 		if ( ! is_admin() ) {
 
@@ -71,6 +72,9 @@ class Geolocation extends \HivePress\Component {
 
 		// Set field arguments.
 		$args = hp_merge_arrays(
+			[
+				'placeholder' => '',
+			],
 			$args,
 			[
 				'type'       => 'text',
@@ -101,10 +105,12 @@ class Geolocation extends \HivePress\Component {
 	 * @return mixed
 	 */
 	public function sanitize_coordinate_field( $value, $args ) {
-		$value = round( floatval( $value ), 6 );
+		if ( '' !== $value ) {
+			$value = round( floatval( $value ), 6 );
 
-		if ( ( 'latitude' === $args['type'] && ( $value < -90 || $value > 90 ) ) || ( 'longitude' === $args['type'] && ( $value < -180 || $value > 180 ) ) ) {
-			$value = '';
+			if ( ( 'latitude' === $args['type'] && ( $value < -90 || $value > 90 ) ) || ( 'longitude' === $args['type'] && ( $value < -180 || $value > 180 ) ) ) {
+				$value = '';
+			}
 		}
 
 		return $value;
@@ -136,14 +142,19 @@ class Geolocation extends \HivePress\Component {
 		return $output;
 	}
 
-	// todo.
-	public function update_listing( $values ) {
+	/**
+	 * Updates location.
+	 *
+	 * @param array $values
+	 */
+	public function update_location( $values ) {
 
 		// Get listing ID.
 		$listing_id = hp_get_post_id(
 			[
 				'post_type'   => 'hp_listing',
-				'post_status' => [ 'draft', 'publish' ],
+				'post_status' => [ 'auto-draft', 'draft', 'publish' ],
+				'post_parent' => 0,
 				'post__in'    => [ absint( $values['post_id'] ) ],
 				'author'      => get_current_user_id(),
 			]
@@ -151,10 +162,15 @@ class Geolocation extends \HivePress\Component {
 
 		if ( 0 !== $listing_id ) {
 
-			// Update location.
-			update_post_meta( $listing_id, 'hp_latitude', $values['latitude'] );
-			update_post_meta( $listing_id, 'hp_longitude', $values['longitude'] );
-			update_post_meta( $listing_id, 'hp_location', $values['location'] );
+			if ( '' === $values['latitude'] || '' === $values['longitude'] ) {
+				hivepress()->form->add_error( esc_html__( '"Location" is required.', 'hivepress-geolocation' ) );
+			} else {
+
+				// Update location.
+				update_post_meta( $listing_id, 'hp_latitude', $values['latitude'] );
+				update_post_meta( $listing_id, 'hp_longitude', $values['longitude'] );
+				update_post_meta( $listing_id, 'hp_location', $values['location'] );
+			}
 		}
 	}
 

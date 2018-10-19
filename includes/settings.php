@@ -63,12 +63,13 @@ $settings = [
 	'listing'     => [
 
 		// Forms.
-		'forms' => [
+		'forms'     => [
 			'search' => [
 				'fields' => [
 					'location'  => [
 						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
 						'type'        => 'location',
+						'max_length'  => 256,
 						'order'       => 20,
 					],
 
@@ -85,9 +86,11 @@ $settings = [
 			'submit' => [
 				'fields' => [
 					'location'  => [
-						'name'  => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'  => 'location',
-						'order' => 20,
+						'name'       => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'       => 'location',
+						'max_length' => 256,
+						'required'   => true,
+						'order'      => 20,
 					],
 
 					'latitude'  => [
@@ -103,9 +106,11 @@ $settings = [
 			'update' => [
 				'fields' => [
 					'location'  => [
-						'name'  => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'  => 'location',
-						'order' => 20,
+						'name'       => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'       => 'location',
+						'max_length' => 256,
+						'required'   => true,
+						'order'      => 20,
 					],
 
 					'latitude'  => [
@@ -114,6 +119,42 @@ $settings = [
 
 					'longitude' => [
 						'type' => 'longitude',
+					],
+				],
+			],
+		],
+
+		// Templates.
+		'templates' => [
+			'archive_listing' => [
+				'areas' => [
+					'summary' => [
+						'todo' => [
+							'path'  => 'todo',
+							'order' => 15,
+						],
+					],
+				],
+			],
+
+			'single_listing'  => [
+				'areas' => [
+					'summary' => [
+						'todo' => [
+							'path'  => 'todo2',
+							'order' => 15,
+						],
+					],
+				],
+			],
+
+			'listing_archive' => [
+				'areas' => [
+					'sidebar' => [
+						'todo' => [
+							'path'  => 'todo3',
+							'order' => 15,
+						],
 					],
 				],
 			],
