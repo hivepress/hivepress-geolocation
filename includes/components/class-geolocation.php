@@ -29,6 +29,10 @@ class Geolocation extends \HivePress\Component {
 		add_filter( 'hivepress/form/field_html/latitude', [ $this, 'render_coordinate_field' ], 10, 4 );
 		add_filter( 'hivepress/form/field_html/longitude', [ $this, 'render_coordinate_field' ], 10, 4 );
 
+		// Set location.
+		add_filter( 'hivepress/form/form_values/listing__submit', [ $this, 'set_location' ] );
+		add_filter( 'hivepress/form/form_values/listing__update', [ $this, 'set_location' ] );
+
 		// Update location.
 		add_action( 'hivepress/form/submit_form/listing__submit', [ $this, 'update_location' ] );
 		add_action( 'hivepress/form/submit_form/listing__update', [ $this, 'update_location' ] );
@@ -44,7 +48,7 @@ class Geolocation extends \HivePress\Component {
 	}
 
 	/**
-	 * Sanitize location field.
+	 * Sanitizes location field.
 	 *
 	 * @param mixed $value
 	 * @param array $args
@@ -55,7 +59,7 @@ class Geolocation extends \HivePress\Component {
 	}
 
 	/**
-	 * Render location field.
+	 * Renders location field.
 	 *
 	 * @param string $output
 	 * @param string $id
@@ -98,7 +102,7 @@ class Geolocation extends \HivePress\Component {
 	}
 
 	/**
-	 * Sanitize coordinate field.
+	 * Sanitizes coordinate field.
 	 *
 	 * @param mixed $value
 	 * @param array $args
@@ -117,7 +121,7 @@ class Geolocation extends \HivePress\Component {
 	}
 
 	/**
-	 * Render coordinate field.
+	 * Renders coordinate field.
 	 *
 	 * @param string $output
 	 * @param string $id
@@ -140,6 +144,28 @@ class Geolocation extends \HivePress\Component {
 		$output .= hivepress()->form->render_field( $id, $args, $value );
 
 		return $output;
+	}
+
+	/**
+	 * Sets location.
+	 *
+	 * @param array $values
+	 * @return array
+	 */
+	public function set_location( $values ) {
+
+		// Get listing ID.
+		$listing_id = absint( hp_get_array_value( $values, 'post_id' ) );
+
+		if ( 0 !== $listing_id ) {
+
+			// Set location.
+			$values['location']  = get_post_meta( $listing_id, 'hp_location', true );
+			$values['latitude']  = get_post_meta( $listing_id, 'hp_latitude', true );
+			$values['longitude'] = get_post_meta( $listing_id, 'hp_longitude', true );
+		}
+
+		return $values;
 	}
 
 	/**
@@ -214,6 +240,47 @@ class Geolocation extends \HivePress\Component {
 				$query->set( 'meta_query', $meta_query );
 			}
 		}
+	}
+
+	/**
+	 * Renders map.
+	 *
+	 * @return string
+	 */
+	public function render_map() {
+		$output = '';
+
+		// Set map data.
+		$data = [];
+
+		rewind_posts();
+
+		while ( have_posts() ) {
+			the_post();
+
+			// Get coordinates.
+			$latitude  = get_post_meta( get_the_ID(), 'hp_latitude', true );
+			$longitude = get_post_meta( get_the_ID(), 'hp_longitude', true );
+
+			// Set location.
+			if ( '' !== $latitude && '' !== $longitude ) {
+				$data[] = [
+					'latitude'  => round( floatval( $latitude ), 6 ),
+					'longitude' => round( floatval( $longitude ), 6 ),
+					'title'     => get_the_title(),
+					'content'   => hivepress()->template->render_template( 'archive_listing' ),
+				];
+			}
+		}
+
+		rewind_posts();
+
+		// Render map.
+		if ( ! empty( $data ) ) {
+			$output .= '<div class="hp-js-map" data-json="' . esc_attr( wp_json_encode( $data ) ) . '"></div>';
+		}
+
+		return $output;
 	}
 
 	/**

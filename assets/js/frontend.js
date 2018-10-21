@@ -63,14 +63,19 @@ function initMap() {
 					}],
 				});
 
-			$.each($(this).data('todo'), function(index, data) {
+			$(this).css('height', '333px');
+
+			$.each($(this).data('json'), function(index, data) {
 				var next_infowindow=new google.maps.InfoWindow({
 						content: data.content,
 					}),
 					marker=new google.maps.Marker({
-						title: data.title,
-						position: data.position,
 						map: map,
+						title: data.title,
+						position: {
+							lat: data.latitude,
+							lng: data.longitude,
+						},
 					});
 
 				marker.addListener('click', function() {

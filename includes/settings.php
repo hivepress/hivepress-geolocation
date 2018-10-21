@@ -47,7 +47,7 @@ $settings = [
 			'geocomplete' => [
 				'handle'  => 'geocomplete',
 				'src'     => HP_GEOLOCATION_URL . '/assets/js/jquery.geocomplete.min.js',
-				'version' => '1.7.0',
+				'version' => HP_GEOLOCATION_VERSION,
 			],
 
 			'frontend'    => [
@@ -62,8 +62,22 @@ $settings = [
 	// Listing component.
 	'listing'     => [
 
+		// Meta boxes.
+		'meta_boxes' => [
+			'attributes' => [
+				'fields' => [
+					'location' => [
+						'name'       => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'       => 'text',
+						'max_length' => 256,
+						'order'      => 10,
+					],
+				],
+			],
+		],
+
 		// Forms.
-		'forms'     => [
+		'forms'      => [
 			'search' => [
 				'fields' => [
 					'location'  => [
@@ -90,7 +104,7 @@ $settings = [
 						'type'       => 'location',
 						'max_length' => 256,
 						'required'   => true,
-						'order'      => 20,
+						'order'      => 40,
 					],
 
 					'latitude'  => [
@@ -110,7 +124,7 @@ $settings = [
 						'type'       => 'location',
 						'max_length' => 256,
 						'required'   => true,
-						'order'      => 20,
+						'order'      => 40,
 					],
 
 					'latitude'  => [
@@ -125,13 +139,13 @@ $settings = [
 		],
 
 		// Templates.
-		'templates' => [
+		'templates'  => [
 			'archive_listing' => [
 				'areas' => [
 					'summary' => [
-						'todo' => [
-							'path'  => 'todo',
-							'order' => 15,
+						'location' => [
+							'path'  => 'listing/parts/location',
+							'order' => 25,
 						],
 					],
 				],
@@ -140,9 +154,16 @@ $settings = [
 			'single_listing'  => [
 				'areas' => [
 					'summary' => [
-						'todo' => [
-							'path'  => 'todo2',
-							'order' => 15,
+						'location' => [
+							'path'  => 'listing/parts/location',
+							'order' => 25,
+						],
+					],
+
+					'sidebar' => [
+						'map' => [
+							'path'  => 'geolocation/parts/map',
+							'order' => 25,
 						],
 					],
 				],
@@ -151,9 +172,9 @@ $settings = [
 			'listing_archive' => [
 				'areas' => [
 					'sidebar' => [
-						'todo' => [
-							'path'  => 'todo3',
-							'order' => 15,
+						'map' => [
+							'path'  => 'geolocation/parts/map',
+							'order' => 30,
 						],
 					],
 				],
