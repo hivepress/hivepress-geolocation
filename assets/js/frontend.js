@@ -1,96 +1,87 @@
-function initMap() {
-	(function($) {
-	  'use strict';
+hivepress.initMap = function() {
+  (function($) {
+    'use strict';
 
-		/**
-		 * Gets prefixed selector.
-		 */
-		function getSelector(name) {
-			return '.hp-js-' + name;
-		}
+    // Geocomplete
+    hivepress.getObject('geocomplete').each(function() {
+      var field = $(this);
 
-		/**
-		 * Gets custom object.
-		 */
-		function getObject(name) {
-			return $(getSelector(name));
-		}
+      field.geocomplete({
+        details: field.closest('form'),
+        detailsAttribute: 'data-type',
+      });
+    });
 
-		getObject('geocomplete').each(function() {
-			var field=$(this);
+    // Geolocate
+    hivepress.getObject('geolocate').each(function() {
+      var button = $(this);
 
-			field.geocomplete({
-				details: field.closest('form'),
-				detailsAttribute: 'data-type',
-			});
-		});
+      if (navigator.geolocation) {
+        button.on('click', function(e) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            button.closest('form').find(hivepress.getSelector('geocomplete')).geocomplete('find', position.coords.latitude + ' ' + position.coords.longitude);
+          });
 
-		getObject('geolocate').each(function() {
-			var button=$(this);
+          e.preventDefault();
+        });
+      } else {
+        button.hide();
+      }
+    });
 
-			if(navigator.geolocation) {
-				button.on('click', function(e) {
-					navigator.geolocation.getCurrentPosition(function(position) {
-						button.closest('form').find('.hp-js-geocomplete').geocomplete('find', position.coords.latitude+' '+position.coords.longitude);
-					});
+    // Map
+    hivepress.getObject('map').each(function() {
+      var container = $(this),
+        prevWindow = false,
+        bounds = new google.maps.LatLngBounds(),
+        map = new google.maps.Map(container.get(0), {
+          zoom: 3,
+          minZoom: 3,
+          maxZoom: 15,
+          mapTypeControl: false,
+          streetViewControl: false,
+          center: {
+            lat: 0,
+            lng: 0,
+          },
+          styles: [{
+            featureType: 'poi',
+            stylers: [{
+              visibility: 'off',
+            }],
+          }],
+        });
 
-					e.preventDefault();
-				});
-			} else {
-				button.hide();
-			}
-		});
+      $(document).ready(function() {
+        container.height(container.width());
+      });
 
-		// Google map
-		getObject('map').each(function() {
-			var prev_infowindow=false,
-				bounds=new google.maps.LatLngBounds(),
-				map=new google.maps.Map($(this).get(0), {
-					zoom: 3,
-					minZoom: 3,
-					maxZoom: 15,
-					mapTypeControl: false,
-					streetViewControl: false,
-					center: {
-						lat: 0,
-						lng: 0,
-					},
-					styles: [{
-						featureType: 'poi',
-						stylers: [{
-							visibility: 'off',
-						}],
-					}],
-				});
+      $.each(container.data('json'), function(index, data) {
+        var nextWindow = new google.maps.InfoWindow({
+            content: data.content,
+          }),
+          marker = new google.maps.Marker({
+            map: map,
+            title: data.title,
+            position: {
+              lat: data.latitude,
+              lng: data.longitude,
+            },
+          });
 
-			$(this).css('height', '333px');
+        marker.addListener('click', function() {
+          if (prevWindow) {
+            prevWindow.close();
+          }
 
-			$.each($(this).data('json'), function(index, data) {
-				var next_infowindow=new google.maps.InfoWindow({
-						content: data.content,
-					}),
-					marker=new google.maps.Marker({
-						map: map,
-						title: data.title,
-						position: {
-							lat: data.latitude,
-							lng: data.longitude,
-						},
-					});
+          prevWindow = nextWindow;
+          nextWindow.open(map, marker);
+        });
 
-				marker.addListener('click', function() {
-					if(prev_infowindow) {
-						prev_infowindow.close();
-					}
+        bounds.extend(marker.getPosition());
+      });
 
-					prev_infowindow=next_infowindow;
-					next_infowindow.open(map, marker);
-				});
-
-				bounds.extend(marker.getPosition());
-			});
-
-			map.fitBounds(bounds);
-		});
-	})(jQuery);
+      map.fitBounds(bounds);
+    });
+  })(jQuery);
 }

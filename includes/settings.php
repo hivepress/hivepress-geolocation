@@ -104,7 +104,7 @@ $settings = [
 						'type'       => 'location',
 						'max_length' => 256,
 						'required'   => true,
-						'order'      => 40,
+						'order'      => 15,
 					],
 
 					'latitude'  => [
@@ -124,7 +124,7 @@ $settings = [
 						'type'       => 'location',
 						'max_length' => 256,
 						'required'   => true,
-						'order'      => 40,
+						'order'      => 15,
 					],
 
 					'latitude'  => [
@@ -145,7 +145,7 @@ $settings = [
 					'summary' => [
 						'location' => [
 							'path'  => 'listing/parts/location',
-							'order' => 25,
+							'order' => 15,
 						],
 					],
 				],
@@ -156,7 +156,7 @@ $settings = [
 					'summary' => [
 						'location' => [
 							'path'  => 'listing/parts/location',
-							'order' => 25,
+							'order' => 15,
 						],
 					],
 
@@ -174,7 +174,7 @@ $settings = [
 					'sidebar' => [
 						'map' => [
 							'path'  => 'geolocation/parts/map',
-							'order' => 30,
+							'order' => 25,
 						],
 					],
 				],

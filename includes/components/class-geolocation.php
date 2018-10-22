@@ -267,8 +267,8 @@ class Geolocation extends \HivePress\Component {
 				$data[] = [
 					'latitude'  => round( floatval( $latitude ), 6 ),
 					'longitude' => round( floatval( $longitude ), 6 ),
-					'title'     => get_the_title(),
-					'content'   => hivepress()->template->render_template( 'archive_listing' ),
+					'title'     => esc_html( get_the_title() ),
+					'content'   => '<h4><a href="' . esc_url( get_permalink( get_the_ID() ) ) . '">' . esc_html( get_the_title() ) . '</a></h4>',
 				];
 			}
 		}
@@ -299,7 +299,7 @@ class Geolocation extends \HivePress\Component {
 				'https://maps.googleapis.com/maps/api/js?' . http_build_query(
 					[
 						'libraries' => 'places',
-						'callback'  => 'initMap',
+						'callback'  => 'hivepress.initMap',
 						'key'       => $api_key,
 					]
 				),
