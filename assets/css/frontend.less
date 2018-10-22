@@ -1,0 +1,44 @@
+.hp {
+	/*--------------------------------------------------------------
+	Forms
+	--------------------------------------------------------------*/
+	&-form {
+		&__field-wrapper {
+			&--latitude,
+			&--longitude {
+				display: none;
+			}
+		}
+
+		&__field {
+			&--location {
+				display: flex;
+				position: relative;
+
+				input[type="text"] {
+					flex: 1;
+					padding-right: 3rem;
+				}
+
+				a {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 3rem;
+					position: absolute;
+					right: 0;
+					top: 0;
+					bottom: 0;
+				}
+			}
+		}
+	}
+	/*--------------------------------------------------------------
+	Listings
+	--------------------------------------------------------------*/
+	&-listing {
+		&__location {
+			margin-bottom: 0.5rem;
+		}
+	}
+}
