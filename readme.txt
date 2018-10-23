@@ -16,6 +16,8 @@ HivePress Geolocation is an add-on for [HivePress](https://wordpress.org/plugins
 
 [Demo](https://demo.hivepress.co/) | [Documentation](https://docs.hivepress.co/article/hivepress-geolocation/) | [Support](https://github.com/hivepress/hivepress-geolocation/issues)
 
+This add-on uses [Google Maps](https://cloud.google.com/maps-platform/) platform and requires an [API key](https://developers.google.com/maps/documentation/embed/get-api-key), which can be set in **HivePress > Settings > Integrations** section. Please check [Terms of Service](https://cloud.google.com/maps-platform/terms/) before using Google Maps platform.
+
 == Installation ==
 
 = Automatic installation =
