@@ -121,6 +121,15 @@ install_test_suite() {
 
 }
 
+install_hp() {
+		cd $TRAVIS_BUILD_DIR
+		cd ..
+		git clone https://github.com/hivepress/hivepress.git
+		cd hivepress
+		git checkout master
+		cd -
+}
+
 install_db() {
 
 	if [ ${SKIP_DB_CREATE} = "true" ]; then
@@ -149,4 +158,7 @@ install_db() {
 
 install_wp
 install_test_suite
+if [ "$TRAVIS" == true ]; then
+	install_hp
+fi
 install_db
