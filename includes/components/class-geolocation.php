@@ -31,6 +31,7 @@ class Geolocation extends \HivePress\Component {
 
 		// Set location.
 		add_filter( 'hivepress/admin/meta_box_fields/listing__attributes', [ $this, 'set_location_fields' ] );
+		add_filter( 'hivepress/form/form_fields/listing__search', [ $this, 'set_location_fields' ] );
 		add_filter( 'hivepress/form/form_fields/listing__submit', [ $this, 'set_location_fields' ] );
 		add_filter( 'hivepress/form/form_values/listing__submit', [ $this, 'set_location_values' ] );
 		add_filter( 'hivepress/form/form_fields/listing__update', [ $this, 'set_location_fields' ] );
@@ -230,7 +231,7 @@ class Geolocation extends \HivePress\Component {
 	 * @param WP_Query $query
 	 */
 	public function set_search_query( $query ) {
-		if ( $query->is_main_query() && is_post_type_archive( 'hp_listing' ) && is_search() ) {
+		if ( get_option( 'hp_gmaps_api_key' ) !== '' && $query->is_main_query() && is_post_type_archive( 'hp_listing' ) && is_search() ) {
 
 			// Validate search form.
 			$values = hivepress()->form->validate_form( 'listing__search' );
