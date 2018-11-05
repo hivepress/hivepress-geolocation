@@ -6,29 +6,29 @@
 		&__field-wrapper {
 			&--latitude,
 			&--longitude {
-				display: none;
+				display: none!important;
 			}
 		}
 
 		&__field {
 			&--location {
-				display: flex;
 				position: relative;
+				display: flex;
 
-				input[type="text"] {
-					flex: 1;
+				input[type='text'] {
 					padding-right: 3rem;
+					flex: 1;
 				}
 
 				a {
+					position: absolute;
+					top: 0;
+					right: 0;
+					bottom: 0;
 					display: flex;
+					width: 3rem;
 					align-items: center;
 					justify-content: center;
-					width: 3rem;
-					position: absolute;
-					right: 0;
-					top: 0;
-					bottom: 0;
 				}
 			}
 		}

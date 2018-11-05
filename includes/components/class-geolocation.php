@@ -30,8 +30,11 @@ class Geolocation extends \HivePress\Component {
 		add_filter( 'hivepress/form/field_html/longitude', [ $this, 'render_coordinate_field' ], 10, 4 );
 
 		// Set location.
-		add_filter( 'hivepress/form/form_values/listing__submit', [ $this, 'set_location' ] );
-		add_filter( 'hivepress/form/form_values/listing__update', [ $this, 'set_location' ] );
+		add_filter( 'hivepress/admin/meta_box_fields/listing__attributes', [ $this, 'set_location_fields' ] );
+		add_filter( 'hivepress/form/form_fields/listing__submit', [ $this, 'set_location_fields' ] );
+		add_filter( 'hivepress/form/form_values/listing__submit', [ $this, 'set_location_values' ] );
+		add_filter( 'hivepress/form/form_fields/listing__update', [ $this, 'set_location_fields' ] );
+		add_filter( 'hivepress/form/form_values/listing__update', [ $this, 'set_location_values' ] );
 
 		// Update location.
 		add_action( 'hivepress/form/submit_form/listing__submit', [ $this, 'update_location' ] );
@@ -147,12 +150,30 @@ class Geolocation extends \HivePress\Component {
 	}
 
 	/**
-	 * Sets location.
+	 * Sets location fields.
+	 *
+	 * @param array $fields
+	 * @return array
+	 */
+	public function set_location_fields( $fields ) {
+
+		// Unset location fields.
+		if ( get_option( 'hp_gmaps_api_key' ) === '' ) {
+			unset( $fields['location'] );
+			unset( $fields['latitude'] );
+			unset( $fields['longitude'] );
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Sets location values.
 	 *
 	 * @param array $values
 	 * @return array
 	 */
-	public function set_location( $values ) {
+	public function set_location_values( $values ) {
 
 		// Get listing ID.
 		$listing_id = absint( hp_get_array_value( $values, 'post_id' ) );
@@ -175,27 +196,30 @@ class Geolocation extends \HivePress\Component {
 	 */
 	public function update_location( $values ) {
 
-		// Get listing ID.
-		$listing_id = hp_get_post_id(
-			[
-				'post_type'   => 'hp_listing',
-				'post_status' => [ 'auto-draft', 'draft', 'publish' ],
-				'post_parent' => 0,
-				'post__in'    => [ absint( $values['post_id'] ) ],
-				'author'      => get_current_user_id(),
-			]
-		);
+		if ( get_option( 'hp_gmaps_api_key' ) !== '' ) {
 
-		if ( 0 !== $listing_id ) {
+			// Get listing ID.
+			$listing_id = hp_get_post_id(
+				[
+					'post_type'   => 'hp_listing',
+					'post_status' => [ 'auto-draft', 'draft', 'publish' ],
+					'post_parent' => 0,
+					'post__in'    => [ absint( $values['post_id'] ) ],
+					'author'      => get_current_user_id(),
+				]
+			);
 
-			if ( '' === $values['latitude'] || '' === $values['longitude'] ) {
-				hivepress()->form->add_error( esc_html__( '"Location" is required.', 'hivepress-geolocation' ) );
-			} else {
+			if ( 0 !== $listing_id ) {
 
-				// Update location.
-				update_post_meta( $listing_id, 'hp_latitude', $values['latitude'] );
-				update_post_meta( $listing_id, 'hp_longitude', $values['longitude'] );
-				update_post_meta( $listing_id, 'hp_location', $values['location'] );
+				if ( '' === $values['latitude'] || '' === $values['longitude'] ) {
+					hivepress()->form->add_error( esc_html__( '"Location" is required.', 'hivepress-geolocation' ) );
+				} else {
+
+					// Update location.
+					update_post_meta( $listing_id, 'hp_latitude', $values['latitude'] );
+					update_post_meta( $listing_id, 'hp_longitude', $values['longitude'] );
+					update_post_meta( $listing_id, 'hp_location', $values['location'] );
+				}
 			}
 		}
 	}
