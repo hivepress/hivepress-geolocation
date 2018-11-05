@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HivePress Geolocation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-12 11:43+0000\n"
+"POT-Creation-Date: 2018-10-22 11:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -14,16 +14,33 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/"
 
+#: includes/settings.php:26
+msgid "API Key"
+msgstr ""
+
+#: includes/settings.php:70 includes/settings.php:84 includes/settings.php:103
+#: includes/settings.php:123
+msgid "Location"
+msgstr ""
+
+#: includes/components/class-geolocation.php:97
+msgid "Locate Me"
+msgstr ""
+
+#: includes/components/class-geolocation.php:192
+msgid "\"Location\" is required."
+msgstr ""
+
+#. Name of the plugin
+msgid "HivePress Geolocation"
+msgstr ""
+
 #. Description of the plugin
 msgid "Geolocation add-on for HivePress plugin."
 msgstr ""
 
 #. Author of the plugin
 msgid "HivePress"
-msgstr ""
-
-#. Name of the plugin
-msgid "HivePress Geolocation"
 msgstr ""
 
 #. Author URI of the plugin
