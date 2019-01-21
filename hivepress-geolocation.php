@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HivePress Geolocation
  * Description: Geolocation add-on for HivePress plugin.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: HivePress
  * Author URI: https://hivepress.co/
  * Text Domain: hivepress-geolocation
