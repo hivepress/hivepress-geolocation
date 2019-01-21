@@ -89,7 +89,7 @@ class Geolocation extends \HivePress\Component {
 				'before'     => '',
 				'after'      => '',
 				'attributes' => [
-					'class' => 'hp-js-geocomplete',
+					'class' => 'hp-form__field hp-form__field--location hp-js-geocomplete',
 				],
 			]
 		);

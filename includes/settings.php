@@ -39,6 +39,7 @@ $settings = [
 				'handle'  => 'hp-geolocation',
 				'src'     => HP_GEOLOCATION_URL . '/assets/css/frontend.min.css',
 				'version' => HP_GEOLOCATION_VERSION,
+				'editor'  => true,
 			],
 		],
 
