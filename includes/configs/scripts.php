@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 return [
 	'geocomplete'          => [
 		'handle'  => 'geocomplete',
-		'src'     => HP_GEOLOCATION_URL . '/assets/js/geocomplete.min.js',
+		'src'     => HP_GEOLOCATION_URL . '/assets/js/jquery.geocomplete.min.js',
 		'version' => HP_GEOLOCATION_VERSION,
 	],
 
