@@ -1,0 +1,28 @@
+.hp {
+	/*--------------------------------------------------------------
+	Forms
+	--------------------------------------------------------------*/
+	&-field {
+		&--location {
+			display: flex;
+
+			input[type=text] {
+				flex: 1;
+				padding-right: 3rem;
+			}
+
+			a {
+				flex: 0 0 3rem;
+				margin-left: -3rem;
+				text-decoration: none;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+
+				&:not(:hover) {
+					color: inherit;
+				}
+			}
+		}
+	}
+}
