@@ -50,7 +50,7 @@ class Map extends Block {
 	public function render() {
 		$output = '';
 
-		if ( get_option( 'gmaps_api_key' ) ) {
+		if ( get_option( 'hp_gmaps_api_key' ) ) {
 
 			// Get markers.
 			$markers = [];
