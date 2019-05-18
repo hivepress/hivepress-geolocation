@@ -1,6 +1,6 @@
 <?php
 /**
- * Location field.
+ * Latitude field.
  *
  * @package HivePress\Fields
  */
@@ -13,11 +13,11 @@ use HivePress\Helpers as hp;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Location field class.
+ * Latitude field class.
  *
- * @class Location
+ * @class Latitude
  */
-class Location extends Text {
+class Latitude extends Number {
 
 	/**
 	 * Field type.
@@ -50,14 +50,32 @@ class Location extends Text {
 	}
 
 	/**
+	 * Class constructor.
+	 *
+	 * @param array $args Field arguments.
+	 */
+	public function __construct( $args = [] ) {
+		$args = hp\merge_arrays(
+			[
+				'decimals'  => 6,
+				'min_value' => -90,
+				'max_value' => 90,
+			],
+			$args
+		);
+
+		parent::__construct( $args );
+	}
+
+	/**
 	 * Bootstraps field properties.
 	 */
 	protected function bootstrap() {
 		$this->attributes = hp\merge_arrays(
-			$this->attributes,
 			[
-				'data-component' => 'location',
-			]
+				'data-coordinate' => 'lat',
+			],
+			$this->attributes
 		);
 
 		parent::bootstrap();
@@ -69,13 +87,11 @@ class Location extends Text {
 	 * @return string
 	 */
 	public function render() {
+		// todo.
 		$output = '<div ' . hp\html_attributes( $this->attributes ) . '>';
 
 		// Render field.
-		$output .= ( new Text( array_merge( $this->args, [ 'default' => $this->value ] ) ) )->render();
-
-		// Render button.
-		$output .= '<a href="#" title="' . esc_attr__( 'Locate Me', 'hivepress-geolocation' ) . '"><i class="hp-icon fas fa-location-arrow"></i></a>';
+		$output .= ( new Hidden( array_merge( $this->args, [ 'default' => $this->value ] ) ) )->render();
 
 		$output .= '</div>';
 
