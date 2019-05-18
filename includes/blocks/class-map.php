@@ -30,7 +30,25 @@ class Map extends Block {
 	 * Bootstraps block properties.
 	 */
 	protected function bootstrap() {
-		$attributes = [];
+
+		// Set attributes.
+		$this->attributes = hp\merge_arrays(
+			$this->attributes,
+			[
+				'class' => [ 'hp-map' ],
+			]
+		);
+
+		parent::bootstrap();
+	}
+
+	/**
+	 * Renders block HTML.
+	 *
+	 * @return string
+	 */
+	public function render() {
+		$output = '';
 
 		// Get markers.
 		$markers = [];
@@ -57,24 +75,10 @@ class Map extends Block {
 
 		rewind_posts();
 
-		// Set attributes.
-		$attributes['data-component'] = 'map';
-
 		if ( ! empty( $markers ) ) {
-			$attributes['data-markers'] = wp_json_encode( $markers );
+			$output .= '<div data-component="map" data-markers="' . esc_attr( wp_json_encode( $markers ) ) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
 		}
 
-		$this->attributes = hp\merge_arrays( $this->attributes, $attributes );
-
-		parent::bootstrap();
-	}
-
-	/**
-	 * Renders block HTML.
-	 *
-	 * @return string
-	 */
-	public function render() {
-		return '<div ' . hp\html_attributes( $this->attributes ) . '></div>';
+		return $output;
 	}
 }

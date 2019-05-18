@@ -1,19 +1,11 @@
-// todo
-initMap = function() {
+hivepress.initGeolocation = function() {
 	(function($) {
 		'use strict';
-
-		/**
-		 * Gets jQuery component.
-		 */
-		function getComponent(name) {
-			return $('[data-component=' + name + ']');
-		}
 
 		$(document).ready(function() {
 
 			// Location
-			getComponent('location').each(function() {
+			hivepress.getComponent('location').each(function() {
 				var field = $(this).find('input[type=text]'),
 					button = $(this).find('a');
 
@@ -36,7 +28,7 @@ initMap = function() {
 			});
 
 			// Map
-			getComponent('map').each(function() {
+			hivepress.getComponent('map').each(function() {
 				var container = $(this),
 					prevWindow = false,
 					bounds = new google.maps.LatLngBounds(),

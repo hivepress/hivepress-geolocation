@@ -50,6 +50,23 @@ class Location extends Text {
 	}
 
 	/**
+	 * Class constructor.
+	 *
+	 * @param array $args Field arguments.
+	 */
+	public function __construct( $args = [] ) {
+		$args = hp\merge_arrays(
+			[
+				'placeholder' => '',
+				'max_length'  => 256,
+			],
+			$args
+		);
+
+		parent::__construct( $args );
+	}
+
+	/**
 	 * Bootstraps field properties.
 	 */
 	protected function bootstrap() {
@@ -60,7 +77,7 @@ class Location extends Text {
 			]
 		);
 
-		parent::bootstrap();
+		Field::bootstrap();
 	}
 
 	/**

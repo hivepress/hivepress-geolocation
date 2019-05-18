@@ -50,36 +50,40 @@ final class Geolocation {
 	 * @return array
 	 */
 	public function add_attributes( $attributes ) {
-		return array_merge(
-			$attributes,
-			[
-				'location'  => [
-					'model'      => 'listing',
-					'editable'   => true,
-					'edit_field' => [
-						'label' => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'  => 'location',
-						'order' => 25,
+		if ( get_option( 'hp_gmaps_api_key' ) ) {
+			$attributes = array_merge(
+				$attributes,
+				[
+					'location'  => [
+						'model'      => 'listing',
+						'editable'   => true,
+						'edit_field' => [
+							'label' => esc_html__( 'Location', 'hivepress-geolocation' ),
+							'type'  => 'location',
+							'order' => 25,
+						],
 					],
-				],
 
-				'latitude'  => [
-					'model'      => 'listing',
-					'editable'   => true,
-					'edit_field' => [
-						'type' => 'latitude',
+					'latitude'  => [
+						'model'      => 'listing',
+						'editable'   => true,
+						'edit_field' => [
+							'type' => 'latitude',
+						],
 					],
-				],
 
-				'longitude' => [
-					'model'      => 'listing',
-					'editable'   => true,
-					'edit_field' => [
-						'type' => 'longitude',
+					'longitude' => [
+						'model'      => 'listing',
+						'editable'   => true,
+						'edit_field' => [
+							'type' => 'longitude',
+						],
 					],
-				],
-			]
-		);
+				]
+			);
+		}
+
+		return $attributes;
 	}
 
 	/**
@@ -89,10 +93,10 @@ final class Geolocation {
 	 * @return array
 	 */
 	public function add_search_fields( $form ) {
-		return hp\merge_arrays(
-			$form,
-			[
-				'fields' => [
+		if ( get_option( 'hp_gmaps_api_key' ) ) {
+			$form['fields'] = array_merge(
+				$form['fields'],
+				[
 					'location'  => [
 						'label' => esc_html__( 'Location', 'hivepress-geolocation' ),
 						'type'  => 'location',
@@ -106,9 +110,11 @@ final class Geolocation {
 					'longitude' => [
 						'type' => 'longitude',
 					],
-				],
-			]
-		);
+				]
+			);
+		}
+
+		return $form;
 	}
 
 	/**
@@ -117,7 +123,7 @@ final class Geolocation {
 	 * @param WP_Query $query Search query.
 	 */
 	public function set_search_query( $query ) {
-		if ( $query->is_main_query() && is_post_type_archive( 'hp_listing' ) && $query->is_search ) {
+		if ( get_option( 'hp_gmaps_api_key' ) && $query->is_main_query() && is_post_type_archive( 'hp_listing' ) && $query->is_search ) {
 
 			// Get coordinates.
 			$latitude_field  = new Fields\Latitude();
@@ -171,7 +177,7 @@ final class Geolocation {
 				'https://maps.googleapis.com/maps/api/js?' . http_build_query(
 					[
 						'libraries' => 'places',
-						'callback'  => 'initMap',
+						'callback'  => 'hivepress.initGeolocation',
 						'key'       => get_option( 'hp_gmaps_api_key' ),
 					]
 				),

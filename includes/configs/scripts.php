@@ -21,6 +21,6 @@ return [
 		'handle'  => 'hp-geolocation-frontend',
 		'src'     => HP_GEOLOCATION_URL . '/assets/js/frontend.min.js',
 		'version' => HP_GEOLOCATION_VERSION,
-		'deps'    => [ 'geocomplete' ],
+		'deps'    => [ 'hp-core-frontend', 'geocomplete' ],
 	],
 ];

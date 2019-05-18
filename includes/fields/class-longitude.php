@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @class Longitude
  */
-class Longitude extends Latitude {
+class Longitude extends Number {
 
 	/**
 	 * Field type.
@@ -57,6 +57,7 @@ class Longitude extends Latitude {
 	public function __construct( $args = [] ) {
 		$args = hp\merge_arrays(
 			[
+				'decimals'  => 6,
 				'min_value' => -180,
 				'max_value' => 180,
 			],
@@ -67,16 +68,19 @@ class Longitude extends Latitude {
 	}
 
 	/**
-	 * Bootstraps field properties.
+	 * Renders field HTML.
+	 *
+	 * @return string
 	 */
-	protected function bootstrap() {
-		$this->attributes = hp\merge_arrays(
-			[
-				'data-coordinate' => 'lng',
-			],
-			$this->attributes
-		);
-
-		parent::bootstrap();
+	public function render() {
+		return ( new Hidden(
+			array_merge(
+				$this->args,
+				[
+					'default'    => $this->value,
+					'attributes' => [ 'data-coordinate' => 'lng' ],
+				]
+			)
+		) )->render();
 	}
 }

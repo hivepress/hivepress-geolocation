@@ -68,33 +68,19 @@ class Latitude extends Number {
 	}
 
 	/**
-	 * Bootstraps field properties.
-	 */
-	protected function bootstrap() {
-		$this->attributes = hp\merge_arrays(
-			[
-				'data-coordinate' => 'lat',
-			],
-			$this->attributes
-		);
-
-		parent::bootstrap();
-	}
-
-	/**
 	 * Renders field HTML.
 	 *
 	 * @return string
 	 */
 	public function render() {
-		// todo.
-		$output = '<div ' . hp\html_attributes( $this->attributes ) . '>';
-
-		// Render field.
-		$output .= ( new Hidden( array_merge( $this->args, [ 'default' => $this->value ] ) ) )->render();
-
-		$output .= '</div>';
-
-		return $output;
+		return ( new Hidden(
+			array_merge(
+				$this->args,
+				[
+					'default'    => $this->value,
+					'attributes' => [ 'data-coordinate' => 'lat' ],
+				]
+			)
+		) )->render();
 	}
 }
