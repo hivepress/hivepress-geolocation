@@ -58,9 +58,10 @@ final class Geolocation {
 						'model'      => 'listing',
 						'editable'   => true,
 						'edit_field' => [
-							'label' => esc_html__( 'Location', 'hivepress-geolocation' ),
-							'type'  => 'location',
-							'order' => 25,
+							'label'    => esc_html__( 'Location', 'hivepress-geolocation' ),
+							'type'     => 'location',
+							'required' => true,
+							'order'    => 25,
 						],
 					],
 

@@ -50,33 +50,36 @@ class Map extends Block {
 	public function render() {
 		$output = '';
 
-		// Get markers.
-		$markers = [];
+		if ( get_option( 'gmaps_api_key' ) ) {
 
-		rewind_posts();
+			// Get markers.
+			$markers = [];
 
-		while ( have_posts() ) {
-			the_post();
+			rewind_posts();
 
-			// Get coordinates.
-			$latitude  = get_post_meta( get_the_ID(), 'hp_latitude', true );
-			$longitude = get_post_meta( get_the_ID(), 'hp_longitude', true );
+			while ( have_posts() ) {
+				the_post();
 
-			// Add marker.
-			if ( '' !== $latitude && '' !== $longitude ) {
-				$markers[] = [
-					'title'     => esc_html( get_the_title() ),
-					'content'   => '<h4><a href="' . esc_url( get_permalink( get_the_ID() ) ) . '">' . esc_html( get_the_title() ) . '</a></h4>',
-					'latitude'  => round( floatval( $latitude ), 6 ),
-					'longitude' => round( floatval( $longitude ), 6 ),
-				];
+				// Get coordinates.
+				$latitude  = get_post_meta( get_the_ID(), 'hp_latitude', true );
+				$longitude = get_post_meta( get_the_ID(), 'hp_longitude', true );
+
+				// Add marker.
+				if ( '' !== $latitude && '' !== $longitude ) {
+					$markers[] = [
+						'title'     => esc_html( get_the_title() ),
+						'content'   => '<h4><a href="' . esc_url( get_permalink( get_the_ID() ) ) . '">' . esc_html( get_the_title() ) . '</a></h4>',
+						'latitude'  => round( floatval( $latitude ), 6 ),
+						'longitude' => round( floatval( $longitude ), 6 ),
+					];
+				}
 			}
-		}
 
-		rewind_posts();
+			rewind_posts();
 
-		if ( ! empty( $markers ) ) {
-			$output .= '<div data-component="map" data-markers="' . esc_attr( wp_json_encode( $markers ) ) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
+			if ( ! empty( $markers ) ) {
+				$output .= '<div data-component="map" data-markers="' . esc_attr( wp_json_encode( $markers ) ) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
+			}
 		}
 
 		return $output;
