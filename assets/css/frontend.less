@@ -27,10 +27,6 @@
 				display: flex;
 				justify-content: center;
 				align-items: center;
-
-				&:not(:hover) {
-					color: inherit;
-				}
 			}
 		}
 	}
@@ -41,10 +37,15 @@
 		&__location {
 			display: flex;
 			align-items: center;
-			white-space: nowrap;
 
 			i {
 				margin-right: 0.5rem;
+			}
+
+			span {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 		}
 	}
