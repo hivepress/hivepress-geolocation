@@ -8,8 +8,6 @@
 namespace HivePress\Components;
 
 use HivePress\Helpers as hp;
-use HivePress\Models;
-use HivePress\Emails;
 use HivePress\Fields;
 
 // Exit if accessed directly.
