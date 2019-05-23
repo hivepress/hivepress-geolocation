@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 return [
 	'blocks' => [
-		'container' => [
+		'page_content' => [
 			'blocks' => [
 				'columns' => [
 					'blocks' => [

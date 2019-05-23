@@ -12,16 +12,20 @@ defined( 'ABSPATH' ) || exit;
 
 return [
 	'blocks' => [
-		'columns' => [
+		'page_content' => [
 			'blocks' => [
-				'sidebar' => [
+				'columns' => [
 					'blocks' => [
-						'map' => [
-							'type'       => 'map',
-							'order'      => 15,
+						'sidebar' => [
+							'blocks' => [
+								'map' => [
+									'type'       => 'map',
+									'order'      => 15,
 
-							'attributes' => [
-								'class' => [ 'widget' ],
+									'attributes' => [
+										'class' => [ 'widget' ],
+									],
+								],
 							],
 						],
 					],
