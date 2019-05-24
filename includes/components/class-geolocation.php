@@ -30,6 +30,8 @@ final class Geolocation {
 
 		// Add search fields.
 		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'add_search_fields' ] );
+		add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'add_search_fields' ] );
+		add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'add_search_fields' ] );
 
 		if ( ! is_admin() ) {
 
@@ -93,24 +95,29 @@ final class Geolocation {
 	 */
 	public function add_search_fields( $form ) {
 		if ( get_option( 'hp_gmaps_api_key' ) ) {
-			$form['fields'] = array_merge(
-				$form['fields'],
-				[
-					'location'  => [
-						'label' => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'  => 'location',
-						'order' => 20,
-					],
+			$fields = [
+				'location'  => [
+					'label' => esc_html__( 'Location', 'hivepress-geolocation' ),
+					'type'  => 'location',
+					'order' => 20,
+				],
 
-					'latitude'  => [
-						'type' => 'latitude',
-					],
+				'latitude'  => [
+					'type' => 'latitude',
+				],
 
-					'longitude' => [
-						'type' => 'longitude',
-					],
-				]
-			);
+				'longitude' => [
+					'type' => 'longitude',
+				],
+			];
+
+			if ( 'listing_search' !== $form['name'] ) {
+				foreach ( $fields as $field_name => $field_args ) {
+					$fields[ $field_name ]['type'] = 'hidden';
+				}
+			}
+
+			$form['fields'] = array_merge( $form['fields'], $fields );
 		}
 
 		return $form;
