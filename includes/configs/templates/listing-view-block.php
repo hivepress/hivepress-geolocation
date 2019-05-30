@@ -12,9 +12,9 @@ defined( 'ABSPATH' ) || exit;
 
 return [
 	'blocks' => [
-		'page_container' => [
+		'listing_container' => [
 			'blocks' => [
-				'page_content' => [
+				'listing_content' => [
 					'blocks' => [
 						'listing_details_primary' => [
 							'blocks' => [

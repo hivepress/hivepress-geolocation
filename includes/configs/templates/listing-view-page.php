@@ -14,25 +14,25 @@ return [
 	'blocks' => [
 		'page_container' => [
 			'blocks' => [
-				'columns' => [
+				'page_columns' => [
 					'blocks' => [
-						'content' => [
+						'page_content' => [
 							'blocks' => [
-								'details_primary' => [
+								'listing_details_primary' => [
 									'blocks' => [
-										'location' => [
-											'type'      => 'element',
+										'listing_location' => [
+											'type'     => 'element',
 											'filepath' => 'listing/view/location',
-											'order'     => 5,
+											'order'    => 5,
 										],
 									],
 								],
 							],
 						],
 
-						'sidebar' => [
+						'page_sidebar' => [
 							'blocks' => [
-								'map' => [
+								'listing_map' => [
 									'type'       => 'map',
 									'order'      => 25,
 
