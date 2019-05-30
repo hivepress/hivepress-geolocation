@@ -20,7 +20,7 @@ return [
 							'blocks' => [
 								'location' => [
 									'type'      => 'element',
-									'file_path' => 'listing/view/location',
+									'filepath' => 'listing/view/location',
 									'order'     => 5,
 								],
 							],
