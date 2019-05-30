@@ -12,13 +12,13 @@ defined( 'ABSPATH' ) || exit;
 
 return [
 	'blocks' => [
-		'page_content' => [
+		'page_container' => [
 			'blocks' => [
-				'columns' => [
+				'page_columns' => [
 					'blocks' => [
-						'sidebar' => [
+						'page_sidebar' => [
 							'blocks' => [
-								'map' => [
+								'listing_map' => [
 									'type'       => 'map',
 									'order'      => 15,
 

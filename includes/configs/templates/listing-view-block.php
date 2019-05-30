@@ -12,16 +12,16 @@ defined( 'ABSPATH' ) || exit;
 
 return [
 	'blocks' => [
-		'container' => [
+		'page_container' => [
 			'blocks' => [
-				'content' => [
+				'page_content' => [
 					'blocks' => [
-						'details_primary' => [
+						'listing_details_primary' => [
 							'blocks' => [
-								'location' => [
-									'type'      => 'element',
+								'listing_location' => [
+									'type'     => 'element',
 									'filepath' => 'listing/view/location',
-									'order'     => 5,
+									'order'    => 5,
 								],
 							],
 						],
