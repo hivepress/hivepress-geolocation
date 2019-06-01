@@ -2,7 +2,7 @@
 Contributors: hivepress
 Tags: hivepress, geolocation, directory, listings, classifieds
 Requires at least: 4.7
-Tested up to: 5.0
+Tested up to: 5.2.1
 Requires PHP: 5.6
 Stable tag: 1.1.0
 License: GPLv3
@@ -14,7 +14,7 @@ Geolocation extension for HivePress plugin.
 
 HivePress Geolocation is an extension for [HivePress](https://wordpress.org/plugins/hivepress/) plugin. It allows users to search listings by location.
 
-[Demo](https://demo.hivepress.io/) | [Documentation](https://hivepress.io/docs/) | [Support](https://hivepress.io/support/)
+[Demo](https://demo.hivepress.co/) | [Documentation](https://docs.hivepress.co/) | [Support](https://github.com/hivepress/hivepress/issues)
 
 == Installation ==
 
