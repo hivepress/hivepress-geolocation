@@ -57,6 +57,7 @@ final class Geolocation {
 					'location'  => [
 						'model'      => 'listing',
 						'editable'   => true,
+
 						'edit_field' => [
 							'label'    => esc_html__( 'Location', 'hivepress-geolocation' ),
 							'type'     => 'location',
@@ -68,6 +69,7 @@ final class Geolocation {
 					'latitude'  => [
 						'model'      => 'listing',
 						'editable'   => true,
+
 						'edit_field' => [
 							'type' => 'latitude',
 						],
@@ -76,6 +78,7 @@ final class Geolocation {
 					'longitude' => [
 						'model'      => 'listing',
 						'editable'   => true,
+
 						'edit_field' => [
 							'type' => 'longitude',
 						],
