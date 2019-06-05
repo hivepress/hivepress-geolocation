@@ -26,7 +26,7 @@ final class Geolocation {
 	public function __construct() {
 
 		// Add attributes.
-		add_filter( 'hivepress/v1/attributes', [ $this, 'add_attributes' ] );
+		add_filter( 'hivepress/v1/models/listing/attributes', [ $this, 'add_attributes' ] );
 
 		// Add search fields.
 		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'add_search_fields' ] );
@@ -60,7 +60,6 @@ final class Geolocation {
 				$attributes,
 				[
 					'location'  => [
-						'model'      => 'listing',
 						'editable'   => true,
 
 						'edit_field' => [
@@ -72,7 +71,6 @@ final class Geolocation {
 					],
 
 					'latitude'  => [
-						'model'      => 'listing',
 						'editable'   => true,
 
 						'edit_field' => [
@@ -81,7 +79,6 @@ final class Geolocation {
 					],
 
 					'longitude' => [
-						'model'      => 'listing',
 						'editable'   => true,
 
 						'edit_field' => [
