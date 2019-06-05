@@ -33,6 +33,11 @@ final class Geolocation {
 		add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'add_search_fields' ] );
 		add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'add_search_fields' ] );
 
+		// todo
+		add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'todo1' ] );
+		add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'todo2' ] );
+		add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'todo3' ] );
+
 		if ( ! is_admin() ) {
 
 			// Set search query.
@@ -41,6 +46,85 @@ final class Geolocation {
 			// Enqueue scripts.
 			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		}
+	}
+
+	// todo
+	public function todo1( $template ) {
+		return hp\merge_trees(
+			$template,
+			[
+				'blocks' => [
+					'listing_details_primary' => [
+						'blocks' => [
+							'listing_location' => [
+								'type'     => 'element',
+								'filepath' => 'listing/view/location',
+								'order'    => 5,
+							],
+						],
+					],
+				],
+			],
+			'blocks'
+		);
+	}
+
+	// todo
+	public function todo2( $template ) {
+		return hp\merge_trees(
+			$template,
+			[
+				'blocks' => [
+					'listing_details_primary' => [
+						'blocks' => [
+							'listing_location' => [
+								'type'     => 'element',
+								'filepath' => 'listing/view/location',
+								'order'    => 5,
+							],
+						],
+					],
+
+					'page_sidebar'            => [
+						'blocks' => [
+							'listing_map' => [
+								'type'       => 'map',
+								'order'      => 25,
+
+								'attributes' => [
+									'class' => [ 'hp-listing__map', 'widget' ],
+								],
+							],
+						],
+					],
+				],
+			],
+			'blocks'
+		);
+	}
+
+	// todo
+	public function todo3( $template ) {
+		return hp\merge_trees(
+			$template,
+			[
+				'blocks' => [
+					'page_sidebar' => [
+						'blocks' => [
+							'listing_map' => [
+								'type'       => 'map',
+								'order'      => 15,
+
+								'attributes' => [
+									'class' => [ 'widget' ],
+								],
+							],
+						],
+					],
+				],
+			],
+			'blocks'
+		);
 	}
 
 	/**
