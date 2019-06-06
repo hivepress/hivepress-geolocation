@@ -1,4 +1,4 @@
-geolocation<?php
+<?php
 /**
  * PHPUnit bootstrap file
  *

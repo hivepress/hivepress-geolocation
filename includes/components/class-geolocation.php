@@ -26,7 +26,7 @@ final class Geolocation {
 	public function __construct() {
 
 		// Add attributes.
-		add_filter( 'hivepress/v1/attributes', [ $this, 'add_attributes' ] );
+		add_filter( 'hivepress/v1/models/listing/attributes', [ $this, 'add_attributes' ] );
 
 		// Add search fields.
 		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'add_search_fields' ] );
@@ -40,6 +40,11 @@ final class Geolocation {
 
 			// Enqueue scripts.
 			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+
+			// Alter templates.
+			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
+			add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
+			add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
 		}
 	}
 
@@ -55,8 +60,8 @@ final class Geolocation {
 				$attributes,
 				[
 					'location'  => [
-						'model'      => 'listing',
 						'editable'   => true,
+
 						'edit_field' => [
 							'label'    => esc_html__( 'Location', 'hivepress-geolocation' ),
 							'type'     => 'location',
@@ -66,16 +71,16 @@ final class Geolocation {
 					],
 
 					'latitude'  => [
-						'model'      => 'listing',
 						'editable'   => true,
+
 						'edit_field' => [
 							'type' => 'latitude',
 						],
 					],
 
 					'longitude' => [
-						'model'      => 'listing',
 						'editable'   => true,
+
 						'edit_field' => [
 							'type' => 'longitude',
 						],
@@ -195,5 +200,99 @@ final class Geolocation {
 			wp_script_add_data( 'google-maps', 'async', true );
 			wp_script_add_data( 'google-maps', 'defer', true );
 		}
+	}
+
+	/**
+	 * Alters listing view block.
+	 *
+	 * @param array $template Template arguments.
+	 * @return array
+	 */
+	public function alter_listing_view_block( $template ) {
+		return hp\merge_trees(
+			$template,
+			[
+				'blocks' => [
+					'listing_details_primary' => [
+						'blocks' => [
+							'listing_location' => [
+								'type'     => 'element',
+								'filepath' => 'listing/view/listing-location',
+								'order'    => 5,
+							],
+						],
+					],
+				],
+			],
+			'blocks'
+		);
+	}
+
+	/**
+	 * Alters listing view page.
+	 *
+	 * @param array $template Template arguments.
+	 * @return array
+	 */
+	public function alter_listing_view_page( $template ) {
+		return hp\merge_trees(
+			$template,
+			[
+				'blocks' => [
+					'listing_details_primary' => [
+						'blocks' => [
+							'listing_location' => [
+								'type'     => 'element',
+								'filepath' => 'listing/view/listing-location',
+								'order'    => 5,
+							],
+						],
+					],
+
+					'page_sidebar'            => [
+						'blocks' => [
+							'listing_map' => [
+								'type'       => 'map',
+								'order'      => 25,
+
+								'attributes' => [
+									'class' => [ 'hp-listing__map', 'widget' ],
+								],
+							],
+						],
+					],
+				],
+			],
+			'blocks'
+		);
+	}
+
+	/**
+	 * Alters listings view page.
+	 *
+	 * @param array $template Template arguments.
+	 * @return array
+	 */
+	public function alter_listings_view_page( $template ) {
+		return hp\merge_trees(
+			$template,
+			[
+				'blocks' => [
+					'page_sidebar' => [
+						'blocks' => [
+							'listing_map' => [
+								'type'       => 'map',
+								'order'      => 15,
+
+								'attributes' => [
+									'class' => [ 'widget' ],
+								],
+							],
+						],
+					],
+				],
+			],
+			'blocks'
+		);
 	}
 }
