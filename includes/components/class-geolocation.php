@@ -217,7 +217,7 @@ final class Geolocation {
 						'blocks' => [
 							'listing_location' => [
 								'type'     => 'element',
-								'filepath' => 'listing/view/location',
+								'filepath' => 'listing/view/listing-location',
 								'order'    => 5,
 							],
 						],
@@ -243,7 +243,7 @@ final class Geolocation {
 						'blocks' => [
 							'listing_location' => [
 								'type'     => 'element',
-								'filepath' => 'listing/view/location',
+								'filepath' => 'listing/view/listing-location',
 								'order'    => 5,
 							],
 						],
