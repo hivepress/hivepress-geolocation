@@ -75,7 +75,7 @@ class Map extends Block {
 				if ( '' !== $latitude && '' !== $longitude ) {
 					$markers[] = [
 						'title'     => esc_html( get_the_title() ),
-						'content'   => '<h4><a href="' . esc_url( get_permalink( get_the_ID() ) ) . '">' . esc_html( get_the_title() ) . '</a></h4>',
+						'content'   => '<h5><a href="' . esc_url( get_permalink( get_the_ID() ) ) . '">' . esc_html( get_the_title() ) . '</a></h5>',
 						'latitude'  => round( floatval( $latitude ), 6 ),
 						'longitude' => round( floatval( $longitude ), 6 ),
 					];
