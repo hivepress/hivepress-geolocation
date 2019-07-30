@@ -102,9 +102,9 @@ final class Geolocation {
 		if ( get_option( 'hp_gmaps_api_key' ) ) {
 			$fields = [
 				'location'  => [
-					'label' => esc_html__( 'Location', 'hivepress-geolocation' ),
-					'type'  => 'location',
-					'order' => 20,
+					'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
+					'type'        => 'location',
+					'order'       => 20,
 				],
 
 				'latitude'  => [
