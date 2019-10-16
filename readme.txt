@@ -1,7 +1,7 @@
 === HivePress Geolocation ===
 Contributors: hivepress
 Tags: hivepress, geolocation, directory, listings, classifieds
-Requires at least: 4.7
+Requires at least: 4.9
 Tested up to: 5.2
 Requires PHP: 5.6
 Stable tag: 1.1.2
