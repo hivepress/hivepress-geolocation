@@ -181,6 +181,11 @@ final class Geolocation {
 	 * Enqueues scripts.
 	 */
 	public function enqueue_scripts() {
+
+		// Get locale.
+		$locale = explode( '_', get_locale() );
+
+		// Enqueue script.
 		wp_enqueue_script(
 			'google-maps',
 			'https://maps.googleapis.com/maps/api/js?' . http_build_query(
@@ -188,6 +193,8 @@ final class Geolocation {
 					'libraries' => 'places',
 					'callback'  => 'hivepress.initGeolocation',
 					'key'       => get_option( 'hp_gmaps_api_key' ),
+					'language'  => reset( $locale ),
+					'region'    => end( $locale ),
 				]
 			),
 			[],
