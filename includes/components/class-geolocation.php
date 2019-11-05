@@ -50,6 +50,10 @@ final class Geolocation {
 			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
 			add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
 			add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
+		} else {
+
+			// Enqueue scripts.
+			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		}
 	}
 
