@@ -1,14 +1,14 @@
 === HivePress Geolocation ===
 Contributors: hivepress
 Tags: hivepress, geolocation, directory, listings, classifieds
-Requires at least: 4.7
+Requires at least: 4.9
 Tested up to: 5.2
 Requires PHP: 5.6
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Geolocation extension for HivePress plugin.
+Allow users to search listings by location.
 
 == Description ==
 
