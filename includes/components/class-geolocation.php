@@ -38,22 +38,19 @@ final class Geolocation {
 		add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'add_search_fields' ] );
 		add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'add_search_fields' ] );
 
+		// Enqueue scripts.
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+
 		if ( ! is_admin() ) {
 
 			// Set search query.
 			add_action( 'pre_get_posts', [ $this, 'set_search_query' ] );
 
-			// Enqueue scripts.
-			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
-
 			// Alter templates.
 			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
 			add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
 			add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
-		} else {
-
-			// Enqueue scripts.
-			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		}
 	}
 
