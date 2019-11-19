@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: HivePress Geolocation
- * Description: Geolocation extension for HivePress plugin.
- * Version: 1.1.3
+ * Description: Allow users to search listings by location.
+ * Version: 1.1.4
  * Author: HivePress
  * Author URI: https://hivepress.io/
  * Text Domain: hivepress-geolocation
