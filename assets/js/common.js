@@ -6,12 +6,19 @@ hivepress.initGeolocation = function() {
 
 			// Location
 			hivepress.getComponent('location').each(function() {
-				var field = $(this).find('input[type=text]'),
-					button = $(this).find('a');
+				var container = $(this),
+					field = container.find('input[type=text]'),
+					button = container.find('a');
 
 				field.geocomplete({
 					details: field.closest('form'),
 					detailsAttribute: 'data-coordinate',
+				});
+
+				field.on('input', function() {
+					if (!field.val()) {
+						container.closest('form').find('input[data-coordinate]').val('');
+					}
 				});
 
 				if (navigator.geolocation) {
