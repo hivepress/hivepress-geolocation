@@ -65,9 +65,10 @@ final class Geolocation {
 			$attributes,
 			[
 				'location'  => [
-					'editable'   => true,
+					'editable'     => true,
+					'search_field' => [],
 
-					'edit_field' => [
+					'edit_field'   => [
 						'label'    => esc_html__( 'Location', 'hivepress-geolocation' ),
 						'type'     => 'location',
 						'required' => true,
@@ -76,17 +77,19 @@ final class Geolocation {
 				],
 
 				'latitude'  => [
-					'editable'   => true,
+					'editable'     => true,
+					'search_field' => [],
 
-					'edit_field' => [
+					'edit_field'   => [
 						'type' => 'latitude',
 					],
 				],
 
 				'longitude' => [
-					'editable'   => true,
+					'editable'     => true,
+					'search_field' => [],
 
-					'edit_field' => [
+					'edit_field'   => [
 						'type' => 'longitude',
 					],
 				],
