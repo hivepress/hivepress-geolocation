@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HivePress Geolocation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-19 12:28+0000\n"
+"POT-Creation-Date: 2019-11-20 12:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -18,10 +18,6 @@ msgstr ""
 #: includes/components/class-geolocation.php:72
 #: includes/components/class-geolocation.php:109
 msgid "Location"
-msgstr ""
-
-#: includes/configs/settings.php:22
-msgid "API Key"
 msgstr ""
 
 #: includes/fields/class-location.php:95

@@ -19,7 +19,7 @@ return [
 
 				'fields' => [
 					'gmaps_api_key' => [
-						'label'      => esc_html__( 'API Key', 'hivepress-geolocation' ),
+						'label'      => hivepress()->translator->get_string( 'api_key' ),
 						'type'       => 'text',
 						'max_length' => 256,
 						'order'      => 10,
