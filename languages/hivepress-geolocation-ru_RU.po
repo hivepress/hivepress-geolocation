@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: HivePress Geolocation\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-11-20 12:03+0000\n"
-"PO-Revision-Date: 2019-11-21 20:25+0000\n"
+"PO-Revision-Date: 2019-11-22 11:24+0000\n"
 "Last-Translator: admin <admin@admin.com>\n"
 "Language-Team: Русский\n"
 "Language: ru_RU\n"
@@ -30,12 +30,12 @@ msgstr "HivePress Геолокация"
 
 #. Description of the plugin
 msgid "Allow users to search listings by location."
-msgstr "Дайте пользователям возможность искать позиции по местоположению."
+msgstr "Дайте пользователям возможность искать объявления по местоположению."
 
 #. Author of the plugin
 msgid "HivePress"
-msgstr ""
+msgstr "HivePress"
 
 #. Author URI of the plugin
 msgid "https://hivepress.io/"
-msgstr ""
+msgstr "https://hivepress.io/"
