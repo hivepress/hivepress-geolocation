@@ -20,13 +20,6 @@ defined( 'ABSPATH' ) || exit;
 class Map extends Block {
 
 	/**
-	 * Block type.
-	 *
-	 * @var string
-	 */
-	protected static $type;
-
-	/**
 	 * Map attributes.
 	 *
 	 * @var array
