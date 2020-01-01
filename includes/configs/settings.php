@@ -15,14 +15,14 @@ return [
 		'sections' => [
 			'gmaps' => [
 				'title'  => 'Google Maps',
-				'order'  => 20,
+				'_order' => 20,
 
 				'fields' => [
 					'gmaps_api_key' => [
 						'label'      => hivepress()->translator->get_string( 'api_key' ),
 						'type'       => 'text',
 						'max_length' => 256,
-						'order'      => 10,
+						'_order'     => 10,
 					],
 				],
 			],

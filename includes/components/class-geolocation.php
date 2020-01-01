@@ -72,7 +72,7 @@ final class Geolocation {
 						'label'    => esc_html__( 'Location', 'hivepress-geolocation' ),
 						'type'     => 'location',
 						'required' => true,
-						'order'    => 25,
+						'_order'   => 25,
 					],
 				],
 
@@ -108,7 +108,7 @@ final class Geolocation {
 			'location'  => [
 				'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
 				'type'        => 'location',
-				'order'       => 20,
+				'_order'      => 20,
 			],
 
 			'latitude'  => [
@@ -224,9 +224,9 @@ final class Geolocation {
 					'listing_details_primary' => [
 						'blocks' => [
 							'listing_location' => [
-								'type'     => 'element',
-								'filepath' => 'listing/view/listing-location',
-								'order'    => 5,
+								'type'   => 'part',
+								'path'   => 'listing/view/listing-location',
+								'_order' => 5,
 							],
 						],
 					],
@@ -250,9 +250,9 @@ final class Geolocation {
 					'listing_details_primary' => [
 						'blocks' => [
 							'listing_location' => [
-								'type'     => 'element',
-								'filepath' => 'listing/view/listing-location',
-								'order'    => 5,
+								'type'   => 'part',
+								'path'   => 'listing/view/listing-location',
+								'_order' => 5,
 							],
 						],
 					],
@@ -261,7 +261,7 @@ final class Geolocation {
 						'blocks' => [
 							'listing_map' => [
 								'type'       => 'map',
-								'order'      => 25,
+								'_order'     => 25,
 
 								'attributes' => [
 									'class' => [ 'hp-listing__map', 'widget' ],
@@ -290,7 +290,7 @@ final class Geolocation {
 						'blocks' => [
 							'listing_map' => [
 								'type'       => 'map',
-								'order'      => 15,
+								'_order'     => 15,
 
 								'attributes' => [
 									'class' => [ 'widget' ],
