@@ -231,8 +231,7 @@ final class Geolocation {
 						],
 					],
 				],
-			],
-			'blocks'
+			]
 		);
 	}
 
@@ -270,8 +269,7 @@ final class Geolocation {
 						],
 					],
 				],
-			],
-			'blocks'
+			]
 		);
 	}
 
@@ -299,8 +297,7 @@ final class Geolocation {
 						],
 					],
 				],
-			],
-			'blocks'
+			]
 		);
 	}
 }
