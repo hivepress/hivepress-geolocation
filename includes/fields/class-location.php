@@ -62,7 +62,7 @@ class Location extends Text {
 	/**
 	 * Bootstraps field properties.
 	 */
-	protected function bootstrap() {
+	protected function boot() {
 		$this->attributes = hp\merge_arrays(
 			$this->attributes,
 			[
@@ -70,7 +70,7 @@ class Location extends Text {
 			]
 		);
 
-		Field::bootstrap();
+		Field::boot();
 	}
 
 	/**

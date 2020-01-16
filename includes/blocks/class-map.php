@@ -29,7 +29,7 @@ class Map extends Block {
 	/**
 	 * Bootstraps block properties.
 	 */
-	protected function bootstrap() {
+	protected function boot() {
 
 		// Set attributes.
 		$this->attributes = hp\merge_arrays(
@@ -39,7 +39,7 @@ class Map extends Block {
 			]
 		);
 
-		parent::bootstrap();
+		parent::boot();
 	}
 
 	/**
