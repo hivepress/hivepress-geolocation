@@ -12,14 +12,14 @@ defined( 'ABSPATH' ) || exit;
 
 return [
 	'geolocation_backend'  => [
-		'handle'  => 'hp-geolocation-backend',
+		'handle'  => 'hivepress-geolocation-backend',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/css/backend.min.css',
 		'version' => hivepress()->get_version( 'geolocation' ),
 		'scope'   => 'backend',
 	],
 
 	'geolocation_frontend' => [
-		'handle'  => 'hp-geolocation-frontend',
+		'handle'  => 'hivepress-geolocation-frontend',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/css/frontend.min.css',
 		'version' => hivepress()->get_version( 'geolocation' ),
 		'scope'   => [ 'frontend', 'editor' ],

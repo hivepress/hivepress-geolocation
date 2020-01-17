@@ -20,26 +20,28 @@ defined( 'ABSPATH' ) || exit;
 class Latitude extends Number {
 
 	/**
-	 * Field title.
+	 * Latitude radius.
 	 *
-	 * @var string
+	 * @var int
 	 */
-	protected static $title;
+	protected $radius = 15;
 
 	/**
 	 * Class initializer.
 	 *
-	 * @param array $args Field arguments.
+	 * @param array $meta Field meta.
 	 */
-	public static function init( $args = [] ) {
-		$args = hp\merge_arrays(
+	public static function init( $meta = [] ) {
+		$meta = hp\merge_arrays(
 			[
-				'title' => null,
+				'label'    => null,
+				'type'     => 'DECIMAL(8,6)',
+				'sortable' => false,
 			],
-			$args
+			$meta
 		);
 
-		parent::init( $args );
+		parent::init( $meta );
 	}
 
 	/**
@@ -49,31 +51,50 @@ class Latitude extends Number {
 	 */
 	public function __construct( $args = [] ) {
 		$args = hp\merge_arrays(
+			$args,
 			[
-				'decimals'  => 6,
-				'min_value' => -90,
-				'max_value' => 90,
-			],
-			$args
+				'display_type' => 'hidden',
+				'decimals'     => 6,
+				'min_value'    => -90,
+				'max_value'    => 90,
+			]
 		);
 
 		parent::__construct( $args );
 	}
 
 	/**
-	 * Renders field HTML.
-	 *
-	 * @return string
+	 * Bootstraps field properties.
 	 */
-	public function render() {
-		return ( new Hidden(
-			array_merge(
-				$this->args,
-				[
-					'default'    => $this->value,
-					'attributes' => [ 'data-coordinate' => 'lat' ],
-				]
-			)
-		) )->render();
+	protected function boot() {
+
+		// Set attributes.
+		$this->attributes = hp\merge_arrays(
+			$this->attributes,
+			[
+				'data-coordinate' => 'lat',
+			]
+		);
+
+		Field::boot();
+	}
+
+	/**
+	 * Adds field filter.
+	 */
+	protected function add_filter() {
+		parent::add_filter();
+
+		// Get radius.
+		$radius = round( $this->radius / 110.574, 6 );
+
+		// Set filter.
+		$this->filter = array_merge(
+			$this->filter,
+			[
+				'operator' => 'BETWEEN',
+				'value'    => [ $this->value - $radius, $this->value + $radius ],
+			]
+		);
 	}
 }
