@@ -60,6 +60,7 @@ final class Geolocation extends Component {
 			$attributes,
 			[
 				'location'  => [
+					'label'        => esc_html__( 'Location', 'hivepress-geolocation' ),
 					'editable'     => true,
 					'searchable'   => true,
 
