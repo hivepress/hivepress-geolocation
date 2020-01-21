@@ -70,7 +70,7 @@ class Map extends Block {
 					// Add marker.
 					$markers[] = [
 						'title'     => esc_html( $listing->get_title() ),
-						'content'   => '<h5><a href="' . esc_url( get_permalink() ) . '">' . esc_html( $listing->get_title() ) . '</a></h5>',
+						'content'   => '<h5><a href="' . esc_url( hivepress()->router->get_url( 'listing_view_page', [ 'listing_id' => $listing->get_id() ] ) ) . '">' . esc_html( $listing->get_title() ) . '</a></h5>',
 						'latitude'  => $listing->get_latitude(),
 						'longitude' => $listing->get_longitude(),
 					];

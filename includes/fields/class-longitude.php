@@ -86,7 +86,11 @@ class Longitude extends Number {
 		parent::add_filter();
 
 		// Get divisor.
-		$divisor = 111.320 * cos( deg2rad( $this->parent_value ) );
+		$divisor = 0;
+
+		if ( ! is_null( $this->parent_value ) ) {
+			$divisor = 111.320 * cos( deg2rad( $this->parent_value ) );
+		}
 
 		// Get radius.
 		$radius = 0;
