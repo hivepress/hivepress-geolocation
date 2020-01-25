@@ -20,33 +20,21 @@ defined( 'ABSPATH' ) || exit;
 class Location extends Text {
 
 	/**
-	 * Field type.
-	 *
-	 * @var string
-	 */
-	protected static $type;
-
-	/**
-	 * Field title.
-	 *
-	 * @var string
-	 */
-	protected static $title;
-
-	/**
 	 * Class initializer.
 	 *
-	 * @param array $args Field arguments.
+	 * @param array $meta Field meta.
 	 */
-	public static function init( $args = [] ) {
-		$args = hp\merge_arrays(
+	public static function init( $meta = [] ) {
+		$meta = hp\merge_arrays(
 			[
-				'title' => null,
+				'label'      => null,
+				'filterable' => false,
+				'sortable'   => false,
 			],
-			$args
+			$meta
 		);
 
-		parent::init( $args );
+		parent::init( $meta );
 	}
 
 	/**
@@ -69,7 +57,9 @@ class Location extends Text {
 	/**
 	 * Bootstraps field properties.
 	 */
-	protected function bootstrap() {
+	protected function boot() {
+
+		// Set attributes.
 		$this->attributes = hp\merge_arrays(
 			$this->attributes,
 			[
@@ -77,7 +67,7 @@ class Location extends Text {
 			]
 		);
 
-		Field::bootstrap();
+		Field::boot();
 	}
 
 	/**
@@ -89,7 +79,16 @@ class Location extends Text {
 		$output = '<div ' . hp\html_attributes( $this->attributes ) . '>';
 
 		// Render field.
-		$output .= ( new Text( array_merge( $this->args, [ 'default' => $this->value ] ) ) )->render();
+		$output .= ( new Text(
+			array_merge(
+				$this->args,
+				[
+					'display_type' => 'text',
+					'default'      => $this->value,
+					'attributes'   => [],
+				]
+			)
+		) )->render();
 
 		// Render button.
 		$output .= '<a href="#" title="' . esc_attr__( 'Locate Me', 'hivepress-geolocation' ) . '"><i class="hp-icon fas fa-location-arrow"></i></a>';

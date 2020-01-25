@@ -11,18 +11,18 @@ use HivePress\Helpers as hp;
 defined( 'ABSPATH' ) || exit;
 
 return [
-	'geocomplete'        => [
+	'geocomplete' => [
 		'handle'  => 'geocomplete',
-		'src'     => HP_GEOLOCATION_URL . '/assets/js/jquery.geocomplete.min.js',
-		'version' => HP_GEOLOCATION_VERSION,
+		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/jquery.geocomplete.min.js',
+		'version' => hivepress()->get_version( 'geolocation' ),
 		'scope'   => [ 'frontend', 'backend' ],
 	],
 
-	'geolocation_common' => [
-		'handle'  => 'hp-geolocation-common',
-		'src'     => HP_GEOLOCATION_URL . '/assets/js/common.min.js',
-		'version' => HP_GEOLOCATION_VERSION,
-		'deps'    => [ 'hp-core-common', 'geocomplete' ],
+	'geolocation' => [
+		'handle'  => 'hivepress-geolocation',
+		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/common.min.js',
+		'version' => hivepress()->get_version( 'geolocation' ),
+		'deps'    => [ 'hivepress-core', 'geocomplete' ],
 		'scope'   => [ 'frontend', 'backend' ],
 	],
 ];

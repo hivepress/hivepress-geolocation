@@ -8,6 +8,7 @@
 namespace HivePress\Blocks;
 
 use HivePress\Helpers as hp;
+use Hivepress\Models;
 
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
@@ -20,13 +21,6 @@ defined( 'ABSPATH' ) || exit;
 class Map extends Block {
 
 	/**
-	 * Block type.
-	 *
-	 * @var string
-	 */
-	protected static $type;
-
-	/**
 	 * Map attributes.
 	 *
 	 * @var array
@@ -36,17 +30,18 @@ class Map extends Block {
 	/**
 	 * Bootstraps block properties.
 	 */
-	protected function bootstrap() {
+	protected function boot() {
 
 		// Set attributes.
 		$this->attributes = hp\merge_arrays(
 			$this->attributes,
 			[
-				'class' => [ 'hp-map' ],
+				'class'          => [ 'hp-map' ],
+				'data-component' => 'map',
 			]
 		);
 
-		parent::bootstrap();
+		parent::boot();
 	}
 
 	/**
@@ -67,25 +62,25 @@ class Map extends Block {
 			while ( have_posts() ) {
 				the_post();
 
-				// Get coordinates.
-				$latitude  = get_post_meta( get_the_ID(), 'hp_latitude', true );
-				$longitude = get_post_meta( get_the_ID(), 'hp_longitude', true );
+				// Get listing.
+				$listing = Models\Listing::query()->get_by_id( get_post() );
 
-				// Add marker.
-				if ( '' !== $latitude && '' !== $longitude ) {
+				if ( $listing && ! is_null( $listing->get_latitude() ) && ! is_null( $listing->get_longitude() ) ) {
+
+					// Add marker.
 					$markers[] = [
-						'title'     => esc_html( get_the_title() ),
-						'content'   => '<h5><a href="' . esc_url( get_permalink( get_the_ID() ) ) . '">' . esc_html( get_the_title() ) . '</a></h5>',
-						'latitude'  => round( floatval( $latitude ), 6 ),
-						'longitude' => round( floatval( $longitude ), 6 ),
+						'title'     => esc_html( $listing->get_title() ),
+						'content'   => '<h5><a href="' . esc_url( hivepress()->router->get_url( 'listing_view_page', [ 'listing_id' => $listing->get_id() ] ) ) . '">' . esc_html( $listing->get_title() ) . '</a></h5>',
+						'latitude'  => $listing->get_latitude(),
+						'longitude' => $listing->get_longitude(),
 					];
 				}
 			}
 
 			rewind_posts();
 
-			if ( ! empty( $markers ) ) {
-				$output .= '<div data-component="map" data-markers="' . esc_attr( wp_json_encode( $markers ) ) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
+			if ( $markers ) {
+				$output .= '<div data-markers="' . esc_attr( wp_json_encode( $markers ) ) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
 			}
 		}
 
