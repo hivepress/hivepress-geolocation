@@ -1,1 +1,1 @@
-.hp-field--location a{display:none}
+.hp-field--location input[type=text]{padding-right:30px}.hp-field--location a{margin-left:-24px}.hp-field--location a:focus{box-shadow:none;outline:0}.hp-field--location a i{font-size:14px}
