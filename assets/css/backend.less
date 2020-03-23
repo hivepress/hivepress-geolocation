@@ -4,8 +4,21 @@
 	--------------------------------------------------------------*/
 	&-field {
 		&--location {
+			input[type=text] {
+				padding-right: 30px;
+			}
+
 			a {
-				display: none;
+				margin-left: -24px;
+
+				&:focus {
+					box-shadow: none;
+					outline: none;
+				}
+
+				i {
+					font-size: 14px;
+				}
 			}
 		}
 	}
