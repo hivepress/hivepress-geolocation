@@ -122,9 +122,18 @@ class Map extends Block {
 			// Set marker.
 			$marker = [
 				'title'     => esc_html( $listing->get_title() ),
-				'content'   => '<h5><a href="' . esc_url( hivepress()->router->get_url( 'listing_view_page', [ 'listing_id' => $listing->get_id() ] ) ) . '">' . esc_html( $listing->get_title() ) . '</a></h5>',
 				'latitude'  => $listing->get_latitude(),
 				'longitude' => $listing->get_longitude(),
+
+				'content'   => ( new Template(
+					[
+						'template' => 'listing_map_block',
+
+						'context'  => [
+							'listing' => $listing,
+						],
+					]
+				) )->render(),
 			];
 		}
 
