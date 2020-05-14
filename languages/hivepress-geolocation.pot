@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HivePress Geolocation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-20 12:03+0000\n"
+"POT-Creation-Date: 2020-05-14 10:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -15,12 +15,29 @@ msgstr ""
 "X-Generator: Loco https://localise.biz/\n"
 "X-Loco-Version: 2.2.2; wp-5.2"
 
-#: includes/components/class-geolocation.php:72
-#: includes/components/class-geolocation.php:109
+#: includes/components/class-geolocation.php:70
+#: includes/components/class-geolocation.php:75
+#: includes/components/class-geolocation.php:83
 msgid "Location"
 msgstr ""
 
-#: includes/fields/class-location.php:95
+#: includes/configs/settings.php:17
+msgid "Geolocation"
+msgstr ""
+
+#: includes/configs/settings.php:22
+msgid "Countries"
+msgstr ""
+
+#: includes/configs/settings.php:30
+msgid "Radius"
+msgstr ""
+
+#: includes/configs/settings.php:31
+msgid "km"
+msgstr ""
+
+#: includes/fields/class-location.php:102
 msgid "Locate Me"
 msgstr ""
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Map block.
+ * Listing map block.
  *
  * @package HivePress\Blocks
  */
@@ -14,11 +14,11 @@ use Hivepress\Models;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Map block class.
+ * Listing map block class.
  *
- * @class Map
+ * @class Listing_Map
  */
-class Map extends Block {
+class Listing_Map extends Block {
 
 	/**
 	 * Map attributes.

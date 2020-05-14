@@ -192,7 +192,7 @@ final class Geolocation extends Component {
 					'page_sidebar'            => [
 						'blocks' => [
 							'listing_map' => [
-								'type'       => 'map',
+								'type'       => 'listing_map',
 								'_order'     => 25,
 
 								'attributes' => [
@@ -220,7 +220,7 @@ final class Geolocation extends Component {
 					'page_sidebar' => [
 						'blocks' => [
 							'listing_map' => [
-								'type'       => 'map',
+								'type'       => 'listing_map',
 								'_order'     => 15,
 
 								'attributes' => [
