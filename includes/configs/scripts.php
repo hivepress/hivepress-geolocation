@@ -31,5 +31,9 @@ return [
 		'version' => hivepress()->get_version( 'geolocation' ),
 		'deps'    => [ 'hivepress-core', 'geocomplete', 'markerclustererplus' ],
 		'scope'   => [ 'frontend', 'backend' ],
+
+		'data'    => [
+			'assetURL' => hivepress()->get_url( 'geolocation' ) . '/assets',
+		],
 	],
 ];
