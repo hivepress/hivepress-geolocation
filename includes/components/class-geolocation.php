@@ -56,6 +56,13 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function add_attributes( $attributes ) {
+
+		// Get countries.
+		$countries = array_filter( (array) get_option( 'hp_geolocation_countries' ) );
+
+		// Get radius.
+		$radius = absint( get_option( 'hp_geolocation_radius', 15 ) );
+
 		return array_merge(
 			$attributes,
 			[
@@ -65,15 +72,17 @@ final class Geolocation extends Component {
 					'searchable'   => true,
 
 					'edit_field'   => [
-						'label'    => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'     => 'location',
-						'required' => true,
-						'_order'   => 25,
+						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'      => 'location',
+						'countries' => $countries,
+						'required'  => true,
+						'_order'    => 25,
 					],
 
 					'search_field' => [
 						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
 						'type'        => 'location',
+						'countries'   => $countries,
 						'_order'      => 20,
 					],
 				],
@@ -87,7 +96,8 @@ final class Geolocation extends Component {
 					],
 
 					'search_field' => [
-						'type' => 'latitude',
+						'type'   => 'latitude',
+						'radius' => $radius,
 					],
 				],
 
@@ -101,6 +111,7 @@ final class Geolocation extends Component {
 
 					'search_field' => [
 						'type'    => 'longitude',
+						'radius'  => $radius,
 						'_parent' => 'latitude',
 					],
 				],

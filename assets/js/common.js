@@ -13,6 +13,9 @@ hivepress.initGeolocation = function() {
 				field.geocomplete({
 					details: field.closest('form'),
 					detailsAttribute: 'data-coordinate',
+					componentRestrictions: {
+						'country': container.data('countries'),
+					},
 				});
 
 				field.on('input', function() {
