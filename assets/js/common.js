@@ -13,6 +13,9 @@ hivepress.initGeolocation = function() {
 				field.geocomplete({
 					details: field.closest('form'),
 					detailsAttribute: 'data-coordinate',
+					componentRestrictions: {
+						'country': container.data('countries'),
+					},
 				});
 
 				field.on('input', function() {
@@ -38,6 +41,7 @@ hivepress.initGeolocation = function() {
 			hivepress.getComponent('map').each(function() {
 				var container = $(this),
 					prevWindow = false,
+					markers = [],
 					bounds = new google.maps.LatLngBounds(),
 					map = new google.maps.Map(container.get(0), {
 						zoom: 3,
@@ -64,7 +68,6 @@ hivepress.initGeolocation = function() {
 							content: data.content,
 						}),
 						marker = new google.maps.Marker({
-							map: map,
 							title: data.title,
 							position: {
 								lat: data.latitude,
@@ -82,9 +85,15 @@ hivepress.initGeolocation = function() {
 					});
 
 					bounds.extend(marker.getPosition());
+
+					markers.push(marker);
 				});
 
 				map.fitBounds(bounds);
+
+				var clusterer = new MarkerClusterer(map, markers, {
+					imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
+				});
 			});
 		});
 	})(jQuery);

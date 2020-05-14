@@ -20,6 +20,13 @@ defined( 'ABSPATH' ) || exit;
 class Location extends Text {
 
 	/**
+	 * Country codes.
+	 *
+	 * @var array
+	 */
+	protected $countries = [];
+
+	/**
 	 * Class initializer.
 	 *
 	 * @param array $meta Field meta.
@@ -58,14 +65,15 @@ class Location extends Text {
 	 * Bootstraps field properties.
 	 */
 	protected function boot() {
+		$attributes = [];
 
-		// Set attributes.
-		$this->attributes = hp\merge_arrays(
-			$this->attributes,
-			[
-				'data-component' => 'location',
-			]
-		);
+		// Set countries.
+		$attributes['data-countries'] = wp_json_encode( $this->countries );
+
+		// Set component.
+		$attributes['data-component'] = 'location';
+
+		$this->attributes = hp\merge_arrays( $this->attributes, $attributes );
 
 		Field::boot();
 	}
