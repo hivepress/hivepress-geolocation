@@ -45,8 +45,8 @@ hivepress.initGeolocation = function() {
 					bounds = new google.maps.LatLngBounds(),
 					map = new google.maps.Map(container.get(0), {
 						zoom: 3,
-						minZoom: 3,
-						maxZoom: 15,
+						minZoom: 2,
+						maxZoom: 18,
 						mapTypeControl: false,
 						streetViewControl: false,
 						center: {
