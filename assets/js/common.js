@@ -8,15 +8,23 @@ hivepress.initGeolocation = function() {
 			hivepress.getComponent('location').each(function() {
 				var container = $(this),
 					field = container.find('input[type=text]'),
-					button = container.find('a');
+					button = container.find('a'),
+					settings = {
+						details: field.closest('form'),
+						detailsAttribute: 'data-coordinate',
+					};
 
-				field.geocomplete({
-					details: field.closest('form'),
-					detailsAttribute: 'data-coordinate',
-					componentRestrictions: {
+				if (container.data('countries')) {
+					settings['componentRestrictions'] = {
 						'country': container.data('countries'),
-					},
-				});
+					};
+				}
+
+				if (container.data('types')) {
+					settings['types'] = container.data('types');
+				}
+
+				field.geocomplete(settings);
 
 				field.on('input', function() {
 					if (!field.val()) {
