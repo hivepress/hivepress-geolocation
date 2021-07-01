@@ -67,6 +67,11 @@ hivepress.initGeolocation = function() {
 								visibility: 'off',
 							}],
 						}],
+					}),
+					oms = new OverlappingMarkerSpiderfier(map, {
+						markersWontMove: true,
+						markersWontHide: true,
+						basicFormatEvents: true,
 					});
 
 				container.height(container.width());
@@ -83,7 +88,7 @@ hivepress.initGeolocation = function() {
 							},
 						});
 
-					marker.addListener('click', function() {
+					marker.addListener('spider_click', function() {
 						if (prevWindow) {
 							prevWindow.close();
 						}
@@ -92,15 +97,17 @@ hivepress.initGeolocation = function() {
 						nextWindow.open(map, marker);
 					});
 
-					bounds.extend(marker.getPosition());
-
 					markers.push(marker);
+					oms.addMarker(marker);
+
+					bounds.extend(marker.getPosition());
 				});
 
 				map.fitBounds(bounds);
 
 				var clusterer = new MarkerClusterer(map, markers, {
 					imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
+					maxZoom: 17,
 				});
 			});
 		});

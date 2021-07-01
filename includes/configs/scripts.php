@@ -25,6 +25,13 @@ return [
 		'scope'   => [ 'frontend', 'backend' ],
 	],
 
+	'markerspiderfier'    => [
+		'handle'  => 'markerspiderfier',
+		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/oms.min.js',
+		'version' => hivepress()->get_version( 'geolocation' ),
+		'scope'   => [ 'frontend', 'backend' ],
+	],
+
 	'geolocation'         => [
 		'handle'  => 'hivepress-geolocation',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/common.min.js',
