@@ -8,15 +8,23 @@ hivepress.initGeolocation = function() {
 			hivepress.getComponent('location').each(function() {
 				var container = $(this),
 					field = container.find('input[type=text]'),
-					button = container.find('a');
+					button = container.find('a'),
+					settings = {
+						details: field.closest('form'),
+						detailsAttribute: 'data-coordinate',
+					};
 
-				field.geocomplete({
-					details: field.closest('form'),
-					detailsAttribute: 'data-coordinate',
-					componentRestrictions: {
+				if (container.data('countries')) {
+					settings['componentRestrictions'] = {
 						'country': container.data('countries'),
-					},
-				});
+					};
+				}
+
+				if (container.data('types')) {
+					settings['types'] = container.data('types');
+				}
+
+				field.geocomplete(settings);
 
 				field.on('input', function() {
 					if (!field.val()) {
@@ -41,12 +49,13 @@ hivepress.initGeolocation = function() {
 			hivepress.getComponent('map').each(function() {
 				var container = $(this),
 					prevWindow = false,
+					maxZoom = container.data('max-zoom'),
 					markers = [],
 					bounds = new google.maps.LatLngBounds(),
 					map = new google.maps.Map(container.get(0), {
 						zoom: 3,
 						minZoom: 2,
-						maxZoom: 18,
+						maxZoom: maxZoom,
 						mapTypeControl: false,
 						streetViewControl: false,
 						center: {
@@ -59,6 +68,11 @@ hivepress.initGeolocation = function() {
 								visibility: 'off',
 							}],
 						}],
+					}),
+					oms = new OverlappingMarkerSpiderfier(map, {
+						markersWontMove: true,
+						markersWontHide: true,
+						basicFormatEvents: true,
 					});
 
 				container.height(container.width());
@@ -75,7 +89,7 @@ hivepress.initGeolocation = function() {
 							},
 						});
 
-					marker.addListener('click', function() {
+					marker.addListener('spider_click', function() {
 						if (prevWindow) {
 							prevWindow.close();
 						}
@@ -84,15 +98,17 @@ hivepress.initGeolocation = function() {
 						nextWindow.open(map, marker);
 					});
 
-					bounds.extend(marker.getPosition());
-
 					markers.push(marker);
+					oms.addMarker(marker);
+
+					bounds.extend(marker.getPosition());
 				});
 
 				map.fitBounds(bounds);
 
 				var clusterer = new MarkerClusterer(map, markers, {
 					imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
+					maxZoom: maxZoom - 1,
 				});
 			});
 		});

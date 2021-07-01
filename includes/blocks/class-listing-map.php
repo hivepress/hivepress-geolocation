@@ -38,6 +38,7 @@ class Listing_Map extends Block {
 			[
 				'class'          => [ 'hp-map' ],
 				'data-component' => 'map',
+				'data-max-zoom'  => absint( get_option( 'hp_geolocation_max_zoom', 18 ) ),
 			]
 		);
 
@@ -98,7 +99,12 @@ class Listing_Map extends Block {
 			$markers = array_filter( $markers );
 
 			if ( $markers ) {
-				$output .= '<div data-markers="' . esc_attr( wp_json_encode( $markers ) ) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
+				$output .= '<div data-markers="' . _wp_specialchars(
+					wp_json_encode( $markers ),
+					ENT_QUOTES,
+					'UTF-8',
+					true
+				) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
 			}
 		}
 
@@ -121,7 +127,7 @@ class Listing_Map extends Block {
 
 			// Set marker.
 			$marker = [
-				'title'     => esc_html( $listing->get_title() ),
+				'title'     => $listing->get_title(),
 				'latitude'  => $listing->get_latitude(),
 				'longitude' => $listing->get_longitude(),
 
