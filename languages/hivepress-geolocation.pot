@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HivePress Geolocation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-14 10:34+0000\n"
+"POT-Creation-Date: 2021-07-01 16:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -15,22 +15,28 @@ msgstr ""
 "X-Generator: Loco https://localise.biz/\n"
 "X-Loco-Version: 2.2.2; wp-5.2"
 
-#: includes/components/class-geolocation.php:70
-#: includes/components/class-geolocation.php:75
-#: includes/components/class-geolocation.php:83
-msgid "Location"
-msgstr ""
-
-#: includes/configs/settings.php:17
-msgid "Geolocation"
+#. Description of the plugin
+msgid "Allow users to search listings by location."
 msgstr ""
 
 #: includes/configs/settings.php:22
 msgid "Countries"
 msgstr ""
 
-#: includes/configs/settings.php:30
-msgid "Radius"
+#: includes/configs/settings.php:17
+msgid "Geolocation"
+msgstr ""
+
+#. Author of the plugin
+msgid "HivePress"
+msgstr ""
+
+#. Name of the plugin
+msgid "HivePress Geolocation"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://hivepress.io/"
 msgstr ""
 
 #: includes/configs/settings.php:31
@@ -41,18 +47,16 @@ msgstr ""
 msgid "Locate Me"
 msgstr ""
 
-#. Name of the plugin
-msgid "HivePress Geolocation"
+#: includes/components/class-geolocation.php:70
+#: includes/components/class-geolocation.php:75
+#: includes/components/class-geolocation.php:83
+msgid "Location"
 msgstr ""
 
-#. Description of the plugin
-msgid "Allow users to search listings by location."
+#: includes/configs/settings.php:30
+msgid "Radius"
 msgstr ""
 
-#. Author of the plugin
-msgid "HivePress"
-msgstr ""
-
-#. Author URI of the plugin
-msgid "https://hivepress.io/"
+#: includes/configs/settings.php:40
+msgid "Zoom"
 msgstr ""
