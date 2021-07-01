@@ -38,6 +38,7 @@ class Listing_Map extends Block {
 			[
 				'class'          => [ 'hp-map' ],
 				'data-component' => 'map',
+				'data-max-zoom'  => absint( get_option( 'hp_geolocation_max_zoom', 18 ) ),
 			]
 		);
 

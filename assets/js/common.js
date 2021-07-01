@@ -49,12 +49,13 @@ hivepress.initGeolocation = function() {
 			hivepress.getComponent('map').each(function() {
 				var container = $(this),
 					prevWindow = false,
+					maxZoom = container.data('max-zoom'),
 					markers = [],
 					bounds = new google.maps.LatLngBounds(),
 					map = new google.maps.Map(container.get(0), {
 						zoom: 3,
 						minZoom: 2,
-						maxZoom: 18,
+						maxZoom: maxZoom,
 						mapTypeControl: false,
 						streetViewControl: false,
 						center: {
@@ -107,7 +108,7 @@ hivepress.initGeolocation = function() {
 
 				var clusterer = new MarkerClusterer(map, markers, {
 					imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
-					maxZoom: 17,
+					maxZoom: maxZoom - 1,
 				});
 			});
 		});

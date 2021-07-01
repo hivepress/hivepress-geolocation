@@ -35,6 +35,16 @@ return [
 						'required'  => true,
 						'_order'    => 20,
 					],
+
+					'geolocation_max_zoom'  => [
+						'label'     => esc_html__( 'Zoom', 'hivepress-geolocation' ),
+						'type'      => 'number',
+						'min_value' => 2,
+						'max_value' => 20,
+						'default'   => 18,
+						'required'  => true,
+						'_order'    => 30,
+					],
 				],
 			],
 		],
