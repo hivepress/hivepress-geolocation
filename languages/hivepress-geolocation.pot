@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HivePress Geolocation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-01 16:30+0000\n"
+"POT-Creation-Date: 2021-07-21 23:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -15,6 +15,10 @@ msgstr ""
 "X-Generator: Loco https://localise.biz/\n"
 "X-Loco-Version: 2.2.2; wp-5.2"
 
+#: includes/configs/settings.php:50
+msgid "Address"
+msgstr ""
+
 #. Description of the plugin
 msgid "Allow users to search listings by location."
 msgstr ""
@@ -25,6 +29,10 @@ msgstr ""
 
 #: includes/configs/settings.php:17
 msgid "Geolocation"
+msgstr ""
+
+#: includes/configs/settings.php:51
+msgid "Hide the exact address"
 msgstr ""
 
 #. Author of the plugin
