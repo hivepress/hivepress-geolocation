@@ -99,12 +99,7 @@ class Listing_Map extends Block {
 			$markers = array_filter( $markers );
 
 			if ( $markers ) {
-				$output .= '<div data-markers="' . _wp_specialchars(
-					wp_json_encode( $markers ),
-					ENT_QUOTES,
-					'UTF-8',
-					true
-				) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
+				$output .= '<div data-markers="' . hp\esc_json( wp_json_encode( $markers ) ) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
 			}
 		}
 
