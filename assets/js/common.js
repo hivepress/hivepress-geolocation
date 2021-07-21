@@ -73,7 +73,16 @@ hivepress.initGeolocation = function() {
 						markersWontMove: true,
 						markersWontHide: true,
 						basicFormatEvents: true,
-					});
+					}),
+					iconSettings = {
+						path: google.maps.SymbolPath.CIRCLE,
+						fillColor: '#3a77ff',
+						fillOpacity: 0.25,
+						strokeColor: '#3a77ff',
+						strokeWeight: 1,
+						strokeOpacity: 0.75,
+						scale: 10,
+					};
 
 				container.height(container.width());
 
@@ -81,13 +90,19 @@ hivepress.initGeolocation = function() {
 					var nextWindow = new google.maps.InfoWindow({
 							content: data.content,
 						}),
-						marker = new google.maps.Marker({
+						markerSettings = {
 							title: data.title,
 							position: {
 								lat: data.latitude,
 								lng: data.longitude,
 							},
-						});
+						};
+
+					if (container.data('scatter')) {
+						markerSettings['icon'] = iconSettings;
+					}
+
+					var marker = new google.maps.Marker(markerSettings);
 
 					marker.addListener('spider_click', function() {
 						if (prevWindow) {
@@ -110,6 +125,16 @@ hivepress.initGeolocation = function() {
 					imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
 					maxZoom: maxZoom - 1,
 				});
+
+				if (container.data('scatter')) {
+					map.addListener('zoom_changed', function() {
+						iconSettings['scale'] = Math.pow(1.3125, map.getZoom());
+
+						$.each(markers, function(index, marker) {
+							markers[index].setIcon(iconSettings);
+						});
+					});
+				}
 			});
 		});
 	})(jQuery);
