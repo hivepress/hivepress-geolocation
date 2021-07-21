@@ -18,7 +18,7 @@ return [
 				'_order' => 100,
 
 				'fields' => [
-					'geolocation_countries' => [
+					'geolocation_countries'    => [
 						'label'    => esc_html__( 'Countries', 'hivepress-geolocation' ),
 						'type'     => 'select',
 						'options'  => 'countries',
@@ -26,7 +26,7 @@ return [
 						'_order'   => 10,
 					],
 
-					'geolocation_radius'    => [
+					'geolocation_radius'       => [
 						'label'     => esc_html__( 'Radius', 'hivepress-geolocation' ),
 						'statuses'  => [ esc_html__( 'km', 'hivepress-geolocation' ) ],
 						'type'      => 'number',
@@ -36,7 +36,7 @@ return [
 						'_order'    => 20,
 					],
 
-					'geolocation_max_zoom'  => [
+					'geolocation_max_zoom'     => [
 						'label'     => esc_html__( 'Zoom', 'hivepress-geolocation' ),
 						'type'      => 'number',
 						'min_value' => 2,
@@ -44,6 +44,13 @@ return [
 						'default'   => 18,
 						'required'  => true,
 						'_order'    => 30,
+					],
+
+					'geolocation_hide_address' => [
+						'label'   => esc_html__( 'Address', 'hivepress-geolocation' ),
+						'caption' => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
+						'type'    => 'checkbox',
+						'_order'  => 40,
 					],
 				],
 			],

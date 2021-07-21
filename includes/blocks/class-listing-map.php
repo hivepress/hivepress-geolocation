@@ -31,16 +31,23 @@ class Listing_Map extends Block {
 	 * Bootstraps block properties.
 	 */
 	protected function boot() {
+		$attributes = [];
 
-		// Set attributes.
-		$this->attributes = hp\merge_arrays(
-			$this->attributes,
-			[
-				'class'          => [ 'hp-map' ],
-				'data-component' => 'map',
-				'data-max-zoom'  => absint( get_option( 'hp_geolocation_max_zoom', 18 ) ),
-			]
-		);
+		// Set zoom.
+		$attributes['data-max-zoom'] = absint( get_option( 'hp_geolocation_max_zoom', 18 ) );
+
+		// Set scattering.
+		if ( get_option( 'hp_geolocation_hide_address' ) ) {
+			$attributes['data-scatter'] = 'true';
+		}
+
+		// Set component.
+		$attributes['data-component'] = 'map';
+
+		// Set class.
+		$attributes['class'] = [ 'hp-map' ];
+
+		$this->attributes = hp\merge_arrays( $this->attributes, $attributes );
 
 		parent::boot();
 	}
@@ -99,12 +106,7 @@ class Listing_Map extends Block {
 			$markers = array_filter( $markers );
 
 			if ( $markers ) {
-				$output .= '<div data-markers="' . _wp_specialchars(
-					wp_json_encode( $markers ),
-					ENT_QUOTES,
-					'UTF-8',
-					true
-				) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
+				$output .= '<div data-markers="' . hp\esc_json( wp_json_encode( $markers ) ) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
 			}
 		}
 

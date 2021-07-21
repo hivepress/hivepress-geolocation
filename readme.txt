@@ -3,9 +3,9 @@ Contributors: hivepress
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7785WBVGMNB44&source=url
 Tags: hivepress, geolocation, directory, listings, classifieds
 Requires at least: 4.9
-Tested up to: 5.7
+Tested up to: 5.8
 Requires PHP: 5.6
-Stable tag: 1.2.4
+Stable tag: 1.2.5
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
