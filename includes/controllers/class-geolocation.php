@@ -46,12 +46,18 @@ final class Geolocation extends Controller {
 	 * @return string
 	 */
 	public function get_location_view_url( $params ) {
-		return add_query_arg(
-			[
-				'api'   => 1,
-				'query' => hp\get_array_value( $params, 'latitude' ) . ',' . hp\get_array_value( $params, 'longitude' ),
-			],
-			'https://www.google.com/maps/search/'
-		);
+		$url = '#';
+
+		if ( ! get_option( 'hp_geolocation_hide_address' ) ) {
+			$url = add_query_arg(
+				[
+					'api'   => 1,
+					'query' => hp\get_array_value( $params, 'latitude' ) . ',' . hp\get_array_value( $params, 'longitude' ),
+				],
+				'https://www.google.com/maps/search/'
+			);
+		}
+
+		return $url;
 	}
 }
