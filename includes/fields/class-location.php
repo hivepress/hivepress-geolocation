@@ -67,6 +67,11 @@ class Location extends Text {
 	protected function boot() {
 		$attributes = [];
 
+		// Set scattering.
+		if ( get_option( 'hp_geolocation_hide_address' ) ) {
+			$attributes['data-scatter'] = 'true';
+		}
+
 		// Set countries.
 		$attributes['data-countries'] = wp_json_encode( $this->countries );
 

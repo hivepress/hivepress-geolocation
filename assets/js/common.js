@@ -26,6 +26,29 @@ hivepress.initGeolocation = function() {
 
 				field.geocomplete(settings);
 
+				if (container.data('scatter')) {
+					field.bind('geocode:result', function(event, result) {
+						var parts = [],
+							types = [
+								'route',
+								'locality',
+								'administrative_area_level_1',
+								'administrative_area_level_2',
+								'country',
+							];
+
+						$.each(result.address_components, function(index, component) {
+							if (component.types.filter(function(type) {
+									return types.indexOf(type) !== -1;
+								}).length) {
+								parts.push(component.long_name);
+							}
+						});
+
+						field.val(parts.join(', '));
+					});
+				}
+
 				field.on('input', function() {
 					if (!field.val()) {
 						container.closest('form').find('input[data-coordinate]').val('');
