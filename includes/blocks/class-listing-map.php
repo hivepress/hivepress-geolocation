@@ -28,6 +28,13 @@ class Listing_Map extends Block {
 	protected $attributes = [];
 
 	/**
+	 * Scattering flag.
+	 *
+	 * @var bool
+	 */
+	protected $scatter = false;
+
+	/**
 	 * Bootstraps block properties.
 	 */
 	protected function boot() {
@@ -37,7 +44,9 @@ class Listing_Map extends Block {
 		$attributes['data-max-zoom'] = absint( get_option( 'hp_geolocation_max_zoom', 18 ) );
 
 		// Set scattering.
-		if ( get_option( 'hp_geolocation_hide_address' ) ) {
+		$this->scatter = (bool) get_option( 'hp_geolocation_hide_address' );
+
+		if ( $this->scatter ) {
 			$attributes['data-scatter'] = 'true';
 		}
 
@@ -127,11 +136,20 @@ class Listing_Map extends Block {
 
 		if ( $listing && ! is_null( $listing->get_latitude() ) && ! is_null( $listing->get_longitude() ) ) {
 
+			// Get position.
+			$latitude  = $listing->get_latitude();
+			$longitude = $listing->get_longitude();
+
+			if ( $this->scatter ) {
+				$longitude += round( wp_rand( -100, 100 ) / 111320, 6 );
+				$latitude  += round( wp_rand( -100, 100 ) / 110574, 6 );
+			}
+
 			// Set marker.
 			$marker = [
 				'title'     => $listing->get_title(),
-				'latitude'  => $listing->get_latitude(),
-				'longitude' => $listing->get_longitude(),
+				'latitude'  => $latitude,
+				'longitude' => $longitude,
 
 				'content'   => ( new Template(
 					[
