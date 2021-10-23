@@ -71,6 +71,7 @@ hivepress.initGeolocation = function() {
 			// Map
 			hivepress.getComponent('map').each(function() {
 				var container = $(this),
+					height = container.width(),
 					prevWindow = false,
 					maxZoom = container.data('max-zoom'),
 					markers = [],
@@ -107,7 +108,11 @@ hivepress.initGeolocation = function() {
 						scale: 10,
 					};
 
-				container.height(container.width());
+				if (container.is('[data-height]')) {
+					height = container.data('height');
+				}
+
+				container.height(height);
 
 				$.each(container.data('markers'), function(index, data) {
 					var nextWindow = new google.maps.InfoWindow({
@@ -143,6 +148,14 @@ hivepress.initGeolocation = function() {
 				});
 
 				map.fitBounds(bounds);
+
+				var observer = new MutationObserver(function(mutations) {
+					map.fitBounds(bounds);
+				});
+
+				observer.observe(container.get(0), {
+					attributes: true,
+				});
 
 				var clusterer = new MarkerClusterer(map, markers, {
 					imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
