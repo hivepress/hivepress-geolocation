@@ -149,6 +149,14 @@ hivepress.initGeolocation = function() {
 
 				map.fitBounds(bounds);
 
+				var observer = new MutationObserver(function(mutations) {
+					map.fitBounds(bounds);
+				});
+
+				observer.observe(container.get(0), {
+					attributes: true,
+				});
+
 				var clusterer = new MarkerClusterer(map, markers, {
 					imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
 					maxZoom: maxZoom - 1,
