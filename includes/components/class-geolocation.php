@@ -40,6 +40,9 @@ final class Geolocation extends Component {
 
 		if ( ! is_admin() ) {
 
+			// Alter forms.
+			add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_filter_form' ], 100 );
+
 			// Alter templates.
 			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
 			add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
@@ -231,5 +234,35 @@ final class Geolocation extends Component {
 				],
 			]
 		);
+	}
+
+	/**
+	 * Alters listing filter form.
+	 *
+	 * @param array $form Form arguments.
+	 * @return array
+	 */
+	public function alter_listing_filter_form( $form ) {
+		if ( get_option( 'geolocation_allow_radius' ) ) {
+			$form['fields']['_radius'] = [
+				'label'      => esc_html__( 'Radius', 'hivepress-geolocation' ),
+				'type'       => 'number',
+				'min_value'  => 1,
+				'max_value'  => 100,
+				'default'    => get_option( 'hp_geolocation_radius' ),
+				'_order'     => 15,
+
+				'statuses'   => [
+					'optional' => null,
+					'km'       => esc_html__( 'km', 'hivepress-geolocation' ),
+				],
+
+				'attributes' => [
+					'data-component' => 'radius-slider',
+				],
+			];
+		}
+
+		return $form;
 	}
 }
