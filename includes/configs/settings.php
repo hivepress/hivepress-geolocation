@@ -54,7 +54,7 @@ return [
 					],
 
 					'geolocation_allow_radius' => [
-						'label'   => esc_html__( 'Adjust radius', 'hivepress-geolocation' ),
+						'label'   => esc_html__( 'Radius', 'hivepress-geolocation' ),
 						'caption' => esc_html__( 'Allow users to adjust radius', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
 						'_order'  => 50,

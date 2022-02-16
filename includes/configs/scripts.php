@@ -33,7 +33,7 @@ return [
 	],
 
 	'geolocation_frontend' => [
-		'handle'  => 'geolocation-frontend',
+		'handle'  => 'hivepress-geolocation-frontend',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/frontend.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
 		'deps'    => [ 'hivepress-core-frontend' ],

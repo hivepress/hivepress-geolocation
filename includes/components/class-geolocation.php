@@ -243,7 +243,7 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function alter_listing_filter_form( $form ) {
-		if ( get_option( 'geolocation_allow_radius' ) ) {
+		if ( get_option( 'hp_geolocation_allow_radius' ) ) {
 			$form['fields']['_radius'] = [
 				'label'      => esc_html__( 'Radius', 'hivepress-geolocation' ),
 				'type'       => 'number',
