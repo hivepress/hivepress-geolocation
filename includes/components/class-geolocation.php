@@ -327,13 +327,14 @@ final class Geolocation extends Component {
 				if ( $term ) {
 					$parent_id = $term['term_id'];
 				} else {
-					$parent_id = wp_insert_term(
+					wp_insert_term(
 						$region,
 						$taxonomy,
 						array(
 							'parent' => $parent_id,
 						)
-					)['term_id'];
+					);
+					$parent_id = get_term_by( 'name', $region, $taxonomy, 'ARRAY_A' )['term_id'];
 				}
 
 				// Set listing to term.
