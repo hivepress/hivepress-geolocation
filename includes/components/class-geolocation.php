@@ -310,9 +310,11 @@ final class Geolocation extends Component {
 			// Term id.
 			$parent_id = null;
 
+			// Taxonomy.
+			$taxonomy = 'hp_listing_region';
+
 			foreach ( $regions as $region ) {
-				$taxonomy = 'hp_listing_region';
-				$term     = term_exists( $region, $taxonomy, $parent_id );
+				$term = term_exists( $region, $taxonomy, $parent_id );
 
 				// Check term is existed.
 				if ( $term ) {
