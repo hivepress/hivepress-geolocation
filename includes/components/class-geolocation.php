@@ -41,6 +41,7 @@ final class Geolocation extends Component {
 		// Alter forms.
 		add_filter( 'hivepress/v1/forms/listing_update', [ $this, 'alter_listing_update_form' ], 100, 2 );
 		add_filter( 'hivepress/v1/forms/listing_update/errors', [ $this, 'get_listing_regions_form' ], 1000, 2 );
+		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_search_form' ], 1000, 2 );
 
 		if ( ! is_admin() ) {
 
@@ -51,6 +52,9 @@ final class Geolocation extends Component {
 			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
 			add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
 			add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
+
+			// Set search query.
+			add_action( 'pre_get_posts', [ $this, 'set_search_query' ], 5 );
 		}
 
 		parent::__construct( $args );
@@ -338,5 +342,82 @@ final class Geolocation extends Component {
 		}
 
 		return $errors;
+	}
+
+	/**
+	 * Alters listing search form.
+	 *
+	 * @param array  $form_args Form arguments.
+	 * @param object $form Form object.
+	 * @return array
+	 */
+	public function alter_listing_search_form( $form_args, $form ) {
+		$form_args['fields']['_regions'] = [
+			'type'   => 'hidden',
+			'_order' => 90,
+		];
+
+		return $form_args;
+	}
+
+	/**
+	 * Sets search query.
+	 *
+	 * @param WP_Query $query Query object.
+	 * @return string
+	 */
+	public function set_search_query( $query ) {
+
+		// Check query.
+		if ( ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
+			return;
+		}
+
+		$region_field = hp\get_array_value( $_GET, '_regions' );
+
+		// Check filter.
+		if ( ! $region_field ) {
+			return;
+		}
+
+		// Change region sort to country - state - city.
+		$regions = array_reverse( explode( ',', $region_field ) );
+
+		// Term id.
+		$term_id = null;
+
+		// Taxonomy.
+		$taxonomy = 'hp_listing_region';
+
+		foreach ( $regions as $region ) {
+			$term = term_exists( $region, $taxonomy, $term_id );
+
+			// Check term is existed.
+			if ( ! $term ) {
+				break;
+			}
+
+			$term_id = $term['term_id'];
+		}
+
+		if ( $term_id ) {
+
+			// Get meta query.
+			$tax_query = array_filter( (array) $query->get( 'tax_query' ) );
+
+			// Add meta clause.
+			$tax_query[] = [
+				'relation' => 'AND',
+
+				[
+					'taxonomy' => $taxonomy,
+					'field'    => 'id',
+					'terms'    => $term_id,
+				],
+			];
+
+			// Set meta query.
+			$query->set( 'tax_query', $tax_query );
+		}
 	}
 }

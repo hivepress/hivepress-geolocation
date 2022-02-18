@@ -32,11 +32,11 @@ hivepress.initGeolocation = function() {
 							'administrative_area_level_2',
 							'country',
 						];
-
+						
 					$.each(result.address_components, function(index, component) {
 						if (component.types.filter(function(type) {
 								return types.indexOf(type) !== -1;
-							}).length) {
+							}).length && types.indexOf('route') === -1) {
 							parts.push(component.long_name);
 						}
 					});
