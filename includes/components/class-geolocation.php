@@ -38,6 +38,9 @@ final class Geolocation extends Component {
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 
+		// Alter forms.
+		add_filter( 'hivepress/v1/forms/listing_update', [ $this, 'alter_listing_update_form' ], 100, 2 );
+
 		if ( ! is_admin() ) {
 
 			// Alter forms.
@@ -264,5 +267,21 @@ final class Geolocation extends Component {
 		}
 
 		return $form;
+	}
+
+	/**
+	 * Alters listing update form.
+	 *
+	 * @param array $form Form arguments.
+	 * @return array
+	 */
+	public function alter_listing_update_form( $form_args, $form ) {
+		$form_args['fields']['_regions'] = [
+			'type'      => 'hidden',
+			'_separate' => true,
+			'_order'    => 90,
+		];
+
+		return $form_args;
 	}
 }

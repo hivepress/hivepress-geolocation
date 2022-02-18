@@ -24,7 +24,25 @@ hivepress.initGeolocation = function() {
 					settings['types'] = container.data('types');
 				}
 
-				field.geocomplete(settings);
+				field.geocomplete(settings).bind("geocode:result", function(event, result){
+					var parts = [],
+						types = [
+							'locality',
+							'administrative_area_level_1',
+							'administrative_area_level_2',
+							'country',
+						];
+
+					$.each(result.address_components, function(index, component) {
+						if (component.types.filter(function(type) {
+								return types.indexOf(type) !== -1;
+							}).length) {
+							parts.push(component.long_name);
+						}
+					});
+
+					$('input.hp-field--hidden[name="_regions"]').val(parts.join(', '));
+				});
 
 				if (container.data('scatter')) {
 					field.bind('geocode:result', function(event, result) {
@@ -36,7 +54,7 @@ hivepress.initGeolocation = function() {
 								'administrative_area_level_2',
 								'country',
 							];
-
+							
 						$.each(result.address_components, function(index, component) {
 							if (component.types.filter(function(type) {
 									return types.indexOf(type) !== -1;
