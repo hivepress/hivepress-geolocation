@@ -41,7 +41,7 @@ hivepress.initGeolocation = function() {
 						}
 					});
 
-					$('input.hp-field--hidden[name="_regions"]').val(parts.join(', '));
+					$('input.hp-field--hidden[name="_regions"]').val(parts.join(','));
 				});
 
 				if (container.data('scatter')) {
@@ -54,7 +54,7 @@ hivepress.initGeolocation = function() {
 								'administrative_area_level_2',
 								'country',
 							];
-							
+
 						$.each(result.address_components, function(index, component) {
 							if (component.types.filter(function(type) {
 									return types.indexOf(type) !== -1;

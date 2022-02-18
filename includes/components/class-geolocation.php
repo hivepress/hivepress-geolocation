@@ -40,6 +40,7 @@ final class Geolocation extends Component {
 
 		// Alter forms.
 		add_filter( 'hivepress/v1/forms/listing_update', [ $this, 'alter_listing_update_form' ], 100, 2 );
+		add_filter( 'hivepress/v1/forms/listing_update/errors', [ $this, 'get_listing_regions_form' ], 1000, 2 );
 
 		if ( ! is_admin() ) {
 
@@ -272,7 +273,8 @@ final class Geolocation extends Component {
 	/**
 	 * Alters listing update form.
 	 *
-	 * @param array $form Form arguments.
+	 * @param array  $form_args Form arguments.
+	 * @param object $form Form object.
 	 * @return array
 	 */
 	public function alter_listing_update_form( $form_args, $form ) {
@@ -283,5 +285,53 @@ final class Geolocation extends Component {
 		];
 
 		return $form_args;
+	}
+
+	/**
+	 * Get listing regions.
+	 *
+	 * @param array  $errors Form errors.
+	 * @param object $form Form object.
+	 * @return array
+	 */
+	public function get_listing_regions_form( $errors, $form ) {
+
+		// Get listing id.
+		$listing_id = $form->get_model()->get_id();
+
+		// Get regions form data.
+		$regions_field = hp\get_array_value( $form->get_fields(), '_regions' );
+
+		if ( empty( $errors ) && $listing_id && $regions_field ) {
+
+			// Change region sort to country - state - city.
+			$regions = array_reverse( explode( ',', $regions_field->get_value() ) );
+
+			// Term id.
+			$parent_id = null;
+
+			foreach ( $regions as $region ) {
+				$taxonomy = 'hp_listing_region';
+				$term     = term_exists( $region, $taxonomy, $parent_id );
+
+				// Check term is existed.
+				if ( $term ) {
+					$parent_id = $term['term_id'];
+				} else {
+					$parent_id = wp_insert_term(
+						$region,
+						$taxonomy,
+						array(
+							'parent' => $parent_id,
+						)
+					)['term_id'];
+				}
+
+				// Set listing to term.
+				wp_set_object_terms( $listing_id, intval( $parent_id ), $taxonomy, true );
+			}
+		}
+
+		return $errors;
 	}
 }
