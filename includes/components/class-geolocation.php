@@ -313,6 +313,9 @@ final class Geolocation extends Component {
 			// Taxonomy.
 			$taxonomy = 'hp_listing_region';
 
+			// Delete old term.
+			wp_delete_object_term_relationships( $listing_id, $taxonomy );
+
 			foreach ( $regions as $region ) {
 				$term = term_exists( $region, $taxonomy, $parent_id );
 
