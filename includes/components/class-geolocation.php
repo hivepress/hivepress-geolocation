@@ -40,8 +40,11 @@ final class Geolocation extends Component {
 
 		// Alter forms.
 		add_filter( 'hivepress/v1/forms/listing_update', [ $this, 'alter_listing_update_form' ], 100, 2 );
-		add_filter( 'hivepress/v1/forms/listing_update/errors', [ $this, 'get_listing_regions_form' ], 1000, 2 );
-		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_search_form' ], 1000, 2 );
+		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_filter_search_forms' ], 1000, 2 );
+		add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_filter_search_forms' ], 1000, 2 );
+
+		// Validate forms.
+		add_filter( 'hivepress/v1/forms/listing_update/errors', [ $this, 'validate_listing_update_form' ], 1000, 2 );
 
 		if ( ! is_admin() ) {
 
@@ -72,7 +75,7 @@ final class Geolocation extends Component {
 		$countries = array_filter( (array) get_option( 'hp_geolocation_countries' ) );
 
 		// Get radius.
-		$radius = absint( get_option( 'hp_geolocation_radius', 15 ) );
+		$radius = absint( hp\get_array_value( $_GET, '_radius', get_option( 'hp_geolocation_radius', 15 ) ) );
 
 		return array_merge(
 			$attributes,
@@ -285,61 +288,69 @@ final class Geolocation extends Component {
 		$form_args['fields']['_regions'] = [
 			'type'      => 'hidden',
 			'_separate' => true,
-			'_order'    => 90,
 		];
 
 		return $form_args;
 	}
 
 	/**
-	 * Get listing regions.
+	 * Validate listing update form.
 	 *
 	 * @param array  $errors Form errors.
 	 * @param object $form Form object.
 	 * @return array
 	 */
-	public function get_listing_regions_form( $errors, $form ) {
+	public function validate_listing_update_form( $errors, $form ) {
+
+		if ( $errors ) {
+			return $errors;
+		}
 
 		// Get listing id.
 		$listing_id = $form->get_model()->get_id();
 
+		if ( ! $listing_id ) {
+			return $errors;
+		}
+
 		// Get regions form data.
 		$regions_field = hp\get_array_value( $form->get_fields(), '_regions' );
 
-		if ( empty( $errors ) && $listing_id && $regions_field ) {
+		if ( ! $regions_field ) {
+			return $errors;
+		}
 
-			// Change region sort to country - state - city.
-			$regions = array_reverse( explode( ',', $regions_field->get_value() ) );
+		// Change region sort to country - state - city.
+		$regions = array_reverse( explode( '|', $regions_field->get_value() ) );
 
-			// Term id.
-			$parent_id = null;
+		// Term id.
+		$parent_id = null;
 
-			// Taxonomy.
-			$taxonomy = 'hp_listing_region';
+		// Taxonomy.
+		$taxonomy = 'hp_listing_region';
 
-			// Delete old term.
-			wp_delete_object_term_relationships( $listing_id, $taxonomy );
+		// Delete old term.
+		wp_delete_object_term_relationships( $listing_id, $taxonomy );
 
-			foreach ( $regions as $region ) {
-				$term = term_exists( $region, $taxonomy, $parent_id );
+		foreach ( $regions as $region ) {
+			$term = term_exists( $region, $taxonomy, $parent_id );
 
-				// Check term is existed.
-				if ( $term ) {
-					$parent_id = $term['term_id'];
-				} else {
-					wp_insert_term(
-						$region,
-						$taxonomy,
-						array(
-							'parent' => $parent_id,
-						)
-					);
-					$parent_id = get_term_by( 'name', $region, $taxonomy, 'ARRAY_A' )['term_id'];
-				}
-
-				// Set listing to term.
-				wp_set_object_terms( $listing_id, intval( $parent_id ), $taxonomy, true );
+			// Check term is existed.
+			if ( $term ) {
+				$parent_id = $term['term_id'];
+			} else {
+				wp_insert_term(
+					$region,
+					$taxonomy,
+					array(
+						'parent' => $parent_id,
+					)
+				);
+				$parent_id = term_exists( $region, $taxonomy, $parent_id )['term_id'];
 			}
+
+			// Set listing to term.
+			wp_set_object_terms( $listing_id, intval( $parent_id ), $taxonomy, true );
 		}
 
 		return $errors;
@@ -352,10 +363,9 @@ final class Geolocation extends Component {
 	 * @param object $form Form object.
 	 * @return array
 	 */
-	public function alter_listing_search_form( $form_args, $form ) {
+	public function alter_listing_filter_search_forms( $form_args, $form ) {
 		$form_args['fields']['_regions'] = [
-			'type'   => 'hidden',
-			'_order' => 90,
+			'type' => 'hidden',
 		];
 
 		return $form_args;
@@ -381,8 +391,17 @@ final class Geolocation extends Component {
 			return;
 		}
 
+		// Get meta query.
+		$meta_query = (array) $query->get( 'meta_query' );
+
+		foreach ( $meta_query as $key => $value ) {
+			if ( $value && in_array( $value['key'], [ 'hp_latitude', 'hp_longitude' ], true ) ) {
+				unset( $meta_query[ $key ] );
+			}
+		}
+
 		// Change region sort to country - state - city.
-		$regions = array_reverse( explode( ',', $region_field ) );
+		$regions = array_reverse( explode( '|', $region_field ) );
 
 		// Term id.
 		$term_id = null;
@@ -408,13 +427,9 @@ final class Geolocation extends Component {
 
 			// Add meta clause.
 			$tax_query[] = [
-				'relation' => 'AND',
-
-				[
-					'taxonomy' => $taxonomy,
-					'field'    => 'id',
-					'terms'    => $term_id,
-				],
+				'taxonomy' => $taxonomy,
+				'field'    => 'id',
+				'terms'    => $term_id,
 			];
 
 			// Set meta query.

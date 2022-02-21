@@ -9,8 +9,9 @@ hivepress.initGeolocation = function() {
 				var container = $(this),
 					field = container.find('input[type=text]'),
 					button = container.find('a'),
+					currentForm = field.closest('form'),
 					settings = {
-						details: field.closest('form'),
+						details: currentForm,
 						detailsAttribute: 'data-coordinate',
 					};
 
@@ -32,16 +33,22 @@ hivepress.initGeolocation = function() {
 							'administrative_area_level_2',
 							'country',
 						];
-						
+
 					$.each(result.address_components, function(index, component) {
+
+						if(component.types.indexOf('route') >= 0 && currentForm.hasClass('hp-form--listing-search')){
+							parts = [];
+							return false;
+						}
+
 						if (component.types.filter(function(type) {
 								return types.indexOf(type) !== -1;
-							}).length && types.indexOf('route') === -1) {
+							}).length) {
 							parts.push(component.long_name);
 						}
 					});
 
-					$('input.hp-field--hidden[name="_regions"]').val(parts.join(','));
+					$('input[name="_regions"]').val(parts.join('|'));
 				});
 
 				if (container.data('scatter')) {
