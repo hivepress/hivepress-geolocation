@@ -39,12 +39,12 @@ final class Geolocation extends Component {
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 
 		// Alter forms.
-		add_filter( 'hivepress/v1/forms/listing_update', [ $this, 'alter_listing_update_form' ], 100, 2 );
 		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_filter_search_forms' ], 1000, 2 );
 		add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_filter_search_forms' ], 1000, 2 );
+		add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_sort_form' ], 1000, 2 );
 
-		// Validate forms.
-		add_filter( 'hivepress/v1/forms/listing_update/errors', [ $this, 'validate_listing_update_form' ], 1000, 2 );
+		// Update models fields.
+		add_action( 'hivepress/v1/models/listing/update', [ $this, 'update_listing_model' ], 1000, 2 );
 
 		if ( ! is_admin() ) {
 
@@ -278,85 +278,6 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Alters listing update form.
-	 *
-	 * @param array  $form_args Form arguments.
-	 * @param object $form Form object.
-	 * @return array
-	 */
-	public function alter_listing_update_form( $form_args, $form ) {
-		$form_args['fields']['_regions'] = [
-			'type'      => 'hidden',
-			'_separate' => true,
-		];
-
-		return $form_args;
-	}
-
-	/**
-	 * Validate listing update form.
-	 *
-	 * @param array  $errors Form errors.
-	 * @param object $form Form object.
-	 * @return array
-	 */
-	public function validate_listing_update_form( $errors, $form ) {
-
-		if ( $errors ) {
-			return $errors;
-		}
-
-		// Get listing id.
-		$listing_id = $form->get_model()->get_id();
-
-		if ( ! $listing_id ) {
-			return $errors;
-		}
-
-		// Get regions form data.
-		$regions_field = hp\get_array_value( $form->get_fields(), '_regions' );
-
-		if ( ! $regions_field ) {
-			return $errors;
-		}
-
-		// Change region sort to country - state - city.
-		$regions = array_reverse( explode( '|', $regions_field->get_value() ) );
-
-		// Term id.
-		$parent_id = null;
-
-		// Taxonomy.
-		$taxonomy = 'hp_listing_region';
-
-		// Delete old term.
-		wp_delete_object_term_relationships( $listing_id, $taxonomy );
-
-		foreach ( $regions as $region ) {
-			$term = term_exists( $region, $taxonomy, $parent_id );
-
-			// Check term is existed.
-			if ( $term ) {
-				$parent_id = $term['term_id'];
-			} else {
-				wp_insert_term(
-					$region,
-					$taxonomy,
-					array(
-						'parent' => $parent_id,
-					)
-				);
-				$parent_id = term_exists( $region, $taxonomy, $parent_id )['term_id'];
-			}
-
-			// Set listing to term.
-			wp_set_object_terms( $listing_id, intval( $parent_id ), $taxonomy, true );
-		}
-
-		return $errors;
-	}
-
-	/**
 	 * Alters listing search form.
 	 *
 	 * @param array  $form_args Form arguments.
@@ -435,5 +356,122 @@ final class Geolocation extends Component {
 			// Set meta query.
 			$query->set( 'tax_query', $tax_query );
 		}
+	}
+
+	/**
+	 * Updates listing longitude/latitude.
+	 *
+	 * @param int    $listing_id Listing ID.
+	 * @param object $listing Listing object.
+	 */
+	public function update_listing_model( $listing_id, $listing ) {
+
+		// Get google api key.
+		$api_key = get_option( 'hp_gmaps_api_key' );
+
+		// Check api key and listing.
+		if ( ! $api_key || ! $listing ) {
+			return;
+		}
+
+		$lng = $listing->get_longitude();
+		$lat = $listing->get_latitude();
+
+		// Check fields.
+		if ( ! $lng && ! $lat ) {
+			return;
+		}
+
+		// Get location data.
+		$response = wp_remote_get( 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $lat . ',' . $lng . '&key=' . $api_key );
+
+		if ( 200 !== $response['response']['code'] ) {
+			return;
+		}
+
+		$results = json_decode( $response['body'] )->results;
+
+		if ( ! $results ) {
+			return;
+		}
+
+		$types = [
+			'locality',
+			'administrative_area_level_1',
+			'administrative_area_level_2',
+			'country',
+		];
+
+		$place = [];
+
+		foreach ( $results as $result ) {
+			foreach ( array_reverse( $result->address_components ) as $component ) {
+				if ( array_intersect( $types, $component->types ) ) {
+					$place[] = $component->long_name;
+				}
+			}
+			if ( count( $place ) > 2 ) {
+				break;
+			}
+		}
+
+		if ( count( $place ) < 3 ) {
+			return;
+		}
+		// Term id.
+		$parent_id = null;
+
+		// Taxonomy.
+		$taxonomy = 'hp_listing_region';
+
+		// Delete old term.
+		wp_delete_object_term_relationships( $listing_id, $taxonomy );
+
+		foreach ( $place as $region ) {
+			$term = term_exists( $region, $taxonomy, $parent_id );
+
+			// Check term is existed.
+			if ( $term ) {
+				$parent_id = $term['term_id'];
+			} else {
+				wp_insert_term(
+					$region,
+					$taxonomy,
+					array(
+						'parent' => $parent_id,
+					)
+				);
+				$new_term = term_exists( $region, $taxonomy, $parent_id );
+
+				if ( ! $new_term ) {
+					break;
+				}
+
+				$parent_id = $new_term['term_id'];
+			}
+
+			// Set listing to term.
+			wp_set_object_terms( $listing_id, intval( $parent_id ), $taxonomy, true );
+		}
+
+	}
+
+	/**
+	 * Alters listing sort form.
+	 *
+	 * @param array  $form_args Form arguments.
+	 * @param object $form Form object.
+	 * @return array
+	 */
+	public function alter_listing_sort_form( $form_args, $form ) {
+		if ( isset( $_GET['latitude'], $_GET['longitude'] ) ) {
+			$form_args['fields']['_sort']['options'] = array_merge(
+				$form_args['fields']['_sort']['options'],
+				[
+					'distance' => esc_html__( 'Distance', 'hivepress-geolocation' ),
+				]
+			);
+		}
+		return $form_args;
 	}
 }
