@@ -36,7 +36,7 @@ hivepress.initGeolocation = function() {
 
 					$.each(result.address_components, function(index, component) {
 
-						if(component.types.indexOf('route') >= 0 && currentForm.hasClass('hp-form--listing-search')){
+						if(component.types.indexOf('route') >= 0){
 							parts = [];
 							return false;
 						}
@@ -48,7 +48,7 @@ hivepress.initGeolocation = function() {
 						}
 					});
 
-					$('input[name="_regions"]').val(parts.join('|'));
+					$('input[data-regions]').val(parts.join('|'));
 				});
 
 				if (container.data('scatter')) {

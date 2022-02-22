@@ -51,6 +51,9 @@ final class Geolocation extends Component {
 
 		if ( ! is_admin() ) {
 
+			// Alter options.
+			add_filter( 'option_hp_geolocation_radius', [ $this, 'alter_geolocation_radius_option' ], 100 );
+
 			// Alter forms.
 			add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_filter_form' ], 100 );
 
@@ -78,7 +81,7 @@ final class Geolocation extends Component {
 		$countries = array_filter( (array) get_option( 'hp_geolocation_countries' ) );
 
 		// Get radius.
-		$radius = absint( hp\get_array_value( $_GET, '_radius', get_option( 'hp_geolocation_radius', 15 ) ) );
+		$radius = absint( get_option( 'hp_geolocation_radius', 15 ) );
 
 		return array_merge(
 			$attributes,
@@ -289,7 +292,11 @@ final class Geolocation extends Component {
 	 */
 	public function alter_listing_filter_search_sort_forms( $form_args, $form ) {
 		$form_args['fields']['_regions'] = [
-			'type' => 'hidden',
+			'type'       => 'hidden',
+
+			'attributes' => [
+				'data-regions' => true,
+			],
 		];
 
 		return $form_args;
@@ -304,7 +311,7 @@ final class Geolocation extends Component {
 	public function set_search_query( $query ) {
 
 		// Check query.
-		if ( ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
+		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
 			return;
 		}
 
@@ -372,21 +379,27 @@ final class Geolocation extends Component {
 		// Get google api key.
 		$api_key = get_option( 'hp_gmaps_api_key' );
 
-		// Check api key and listing.
 		if ( ! $api_key || ! $listing ) {
 			return;
 		}
 
+		// Get coordinates.
 		$lng = $listing->get_longitude();
 		$lat = $listing->get_latitude();
 
-		// Check fields.
-		if ( ! $lng && ! $lat ) {
+		if ( ! $lng || ! $lat ) {
 			return;
 		}
 
 		// Get location data.
-		$response = wp_remote_get( 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $lat . ',' . $lng . '&key=' . $api_key );
+		$response = wp_remote_get(
+			'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query(
+				[
+					'latlng' => $lat . ',' . $lng,
+					'key'    => $api_key,
+				]
+			)
+		);
 
 		if ( 200 !== $response['response']['code'] ) {
 			return;
@@ -424,14 +437,11 @@ final class Geolocation extends Component {
 		// Term id.
 		$parent_id = null;
 
-		// Taxonomy.
-		$taxonomy = 'hp_listing_region';
-
 		// Delete old term.
-		wp_delete_object_term_relationships( $listing_id, $taxonomy );
+		wp_delete_object_term_relationships( $listing_id, 'hp_listing_region' );
 
 		foreach ( $place as $region ) {
-			$term = term_exists( $region, $taxonomy, $parent_id );
+			$term = term_exists( $region, 'hp_listing_region', $parent_id );
 
 			// Check term is existed.
 			if ( $term ) {
@@ -439,12 +449,12 @@ final class Geolocation extends Component {
 			} else {
 				wp_insert_term(
 					$region,
-					$taxonomy,
-					array(
+					'hp_listing_region',
+					[
 						'parent' => $parent_id,
-					)
+					]
 				);
-				$new_term = term_exists( $region, $taxonomy, $parent_id );
+				$new_term = term_exists( $region, 'hp_listing_region', $parent_id );
 
 				if ( ! $new_term ) {
 					break;
@@ -454,7 +464,7 @@ final class Geolocation extends Component {
 			}
 
 			// Set listing to term.
-			wp_set_object_terms( $listing_id, intval( $parent_id ), $taxonomy, true );
+			wp_set_object_terms( $listing_id, intval( $parent_id ), 'hp_listing_region', true );
 		}
 
 	}
@@ -468,12 +478,7 @@ final class Geolocation extends Component {
 	 */
 	public function alter_listing_sort_form( $form_args, $form ) {
 		if ( isset( $_GET['latitude'], $_GET['longitude'] ) ) {
-			$form_args['fields']['_sort']['options'] = array_merge(
-				$form_args['fields']['_sort']['options'],
-				[
-					'distance' => esc_html__( 'Distance', 'hivepress-geolocation' ),
-				]
-			);
+			$form_args['fields']['_sort']['options']['distance'] = esc_html__( 'Distance', 'hivepress-geolocation' );
 		}
 		return $form_args;
 	}
@@ -488,7 +493,7 @@ final class Geolocation extends Component {
 	public function set_listing_order( $orderby, $query ) {
 
 		// Check query.
-		if ( ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' || ( ! isset( $_GET['_sort'], $_GET['location'] ) || 'distance' !== $_GET['_sort'] ) ) {
+		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' || ( ! isset( $_GET['_sort'], $_GET['location'] ) || 'distance' !== $_GET['_sort'] ) ) {
 			return $orderby;
 		}
 
@@ -508,5 +513,21 @@ final class Geolocation extends Component {
 		}
 
 		return $orderby;
+	}
+
+	/**
+	 * Alters geolocation radius option.
+	 *
+	 * @param array $value Form arguments.
+	 * @return array
+	 */
+	public function alter_geolocation_radius_option( $value ) {
+		$radius = absint( hp\get_array_value( $_GET, '_radius' ) );
+
+		if ( $radius >= 1 && $radius <= 100 ) {
+			$value = $radius;
+		}
+
+		return $value;
 	}
 }
