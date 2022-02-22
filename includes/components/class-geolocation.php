@@ -39,12 +39,15 @@ final class Geolocation extends Component {
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 
 		// Alter forms.
-		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_filter_search_forms' ], 1000, 2 );
-		add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_filter_search_forms' ], 1000, 2 );
+		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_filter_search_sort_forms' ], 1000, 2 );
+		add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_filter_search_sort_forms' ], 1000, 2 );
+		add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_filter_search_sort_forms' ], 1000, 2 );
 		add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_sort_form' ], 1000, 2 );
 
 		// Update models fields.
 		add_action( 'hivepress/v1/models/listing/update', [ $this, 'update_listing_model' ], 1000, 2 );
+
+		add_filter( 'posts_orderby', [ $this, 'set_listing_order' ], 100, 2 );
 
 		if ( ! is_admin() ) {
 
@@ -284,7 +287,7 @@ final class Geolocation extends Component {
 	 * @param object $form Form object.
 	 * @return array
 	 */
-	public function alter_listing_filter_search_forms( $form_args, $form ) {
+	public function alter_listing_filter_search_sort_forms( $form_args, $form ) {
 		$form_args['fields']['_regions'] = [
 			'type' => 'hidden',
 		];
@@ -473,5 +476,37 @@ final class Geolocation extends Component {
 			);
 		}
 		return $form_args;
+	}
+
+	/**
+	 * Sets listing order.
+	 *
+	 * @param string   $orderby ORDER BY clause.
+	 * @param WP_Query $query Query object.
+	 * @return string
+	 */
+	public function set_listing_order( $orderby, $query ) {
+
+		// Check query.
+		if ( ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' || ( ! isset( $_GET['_sort'], $_GET['location'] ) || 'distance' !== $_GET['_sort'] ) ) {
+			return $orderby;
+		}
+
+		// Get latitutde.
+		$lat = filter_var( hp\get_array_value( $_GET, 'latitude' ), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION );
+
+		// Get longitude.
+		$lng = filter_var( hp\get_array_value( $_GET, 'longitude' ), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION );
+
+		// Check latitutde and longitude.
+		if ( ! $lat || ! $lng ) {
+			return $orderby;
+		}
+
+		if ( ! strpos( $orderby, 'RAND' ) ) {
+			$orderby = '( ( wp_postmeta.meta_value - ' . $lat . ' ) * ( wp_postmeta.meta_value - ' . $lat . ' ) ) + ( ( mt1.meta_value - ' . $lng . ' ) * ( mt1.meta_value - ' . $lng . ' ) ) ASC';
+		}
+
+		return $orderby;
 	}
 }
