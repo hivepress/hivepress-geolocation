@@ -35,8 +35,8 @@ final class Geolocation extends Component {
 		add_filter( 'hivepress/v1/models/listing/attributes', [ $this, 'add_attributes' ] );
 
 		// Enqueue scripts.
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_styles' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts_styles' ] );
 
 		// Alter forms.
 		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_filter_search_sort_forms' ], 1000, 2 );
@@ -141,25 +141,66 @@ final class Geolocation extends Component {
 	/**
 	 * Enqueues scripts.
 	 */
-	public function enqueue_scripts() {
-		wp_enqueue_script(
-			'google-maps',
-			'https://maps.googleapis.com/maps/api/js?' . http_build_query(
-				[
-					'libraries' => 'places',
-					'callback'  => 'hivepress.initGeolocation',
-					'key'       => get_option( 'hp_gmaps_api_key' ),
-					'language'  => hivepress()->translator->get_language(),
-					'region'    => hivepress()->translator->get_region(),
-				]
-			),
-			[],
-			null,
-			true
-		);
+	public function enqueue_scripts_styles() {
+		if ( 'mapbox' === get_option( 'hp_map_provider' ) ) {
+			// Add Mapbox styles.
+			wp_enqueue_style(
+				'hivepress-mapbox',
+				'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css',
+				[],
+				hivepress()->get_version( 'geolocation' )
+			);
 
-		wp_script_add_data( 'google-maps', 'async', true );
-		wp_script_add_data( 'google-maps', 'defer', true );
+			// Add Mapbox geocoding styles.
+			wp_enqueue_style(
+				'hivepress-mapbox-geo',
+				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css',
+				[ 'hivepress-mapbox' ],
+				hivepress()->get_version( 'geolocation' )
+			);
+
+			// Add Mapbox js library.
+			wp_enqueue_script(
+				'mapbox-maps',
+				'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js',
+				[],
+				null,
+				true
+			);
+
+			wp_script_add_data( 'mapbox-maps', 'async', true );
+			wp_script_add_data( 'mapbox-maps', 'defer', true );
+
+			// Add Mapbox geocoding plugin.
+			wp_enqueue_script(
+				'mapbox-geo-maps',
+				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js',
+				[ 'mapbox-maps' ],
+				null,
+				true
+			);
+			wp_script_add_data( 'mapbox-geo-maps', 'async', true );
+			wp_script_add_data( 'mapbox-geo-maps', 'defer', true );
+		} else {
+			wp_enqueue_script(
+				'google-maps',
+				'https://maps.googleapis.com/maps/api/js?' . http_build_query(
+					[
+						'libraries' => 'places',
+						'callback'  => 'hivepress.initGeolocation',
+						'key'       => get_option( 'hp_gmaps_api_key' ),
+						'language'  => hivepress()->translator->get_language(),
+						'region'    => hivepress()->translator->get_region(),
+					]
+				),
+				[],
+				null,
+				true
+			);
+
+			wp_script_add_data( 'google-maps', 'async', true );
+			wp_script_add_data( 'google-maps', 'defer', true );
+		}
 	}
 
 	/**
