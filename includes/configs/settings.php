@@ -66,7 +66,25 @@ return [
 
 	'integrations' => [
 		'sections' => [
-			'gmaps'  => [
+			'provider' => [
+				'title'  => 'Provider',
+				'_order' => 10,
+
+				'fields' => [
+					'gmaps_api_key' => [
+						'label'       => 'Map Provider',
+						'type'        => 'select',
+						'placeholder' => esc_html__( 'Google Maps', 'hivepress-geolocation' ),
+						'_order'      => 10,
+
+						'options'     => [
+							'mapbox' => esc_html__( 'Mapbox', 'hivepress-geolocation' ),
+						],
+					],
+				],
+			],
+
+			'gmaps'    => [
 				'title'  => 'Google Maps',
 				'_order' => 30,
 
@@ -80,7 +98,7 @@ return [
 				],
 			],
 
-			'mapbox' => [
+			'mapbox'   => [
 				'title'  => 'Mapbox',
 				'_order' => 40,
 
