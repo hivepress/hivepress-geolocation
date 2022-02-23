@@ -491,26 +491,31 @@ final class Geolocation extends Component {
 	 * @return string
 	 */
 	public function set_listing_order( $orderby, $query ) {
+		global $wpdb;
 
 		// Check query.
-		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' || ( ! isset( $_GET['_sort'], $_GET['location'] ) || 'distance' !== $_GET['_sort'] ) ) {
+		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
 			return $orderby;
 		}
 
-		// Get latitutde.
-		$lat = filter_var( hp\get_array_value( $_GET, 'latitude' ), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION );
+		// Check sort.
+		if ( ! isset( $_GET['_sort'], $_GET['location'] ) || 'distance' !== $_GET['_sort'] ) {
+			return $orderby;
+		}
 
-		// Get longitude.
-		$lng = filter_var( hp\get_array_value( $_GET, 'longitude' ), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION );
+		// Get coordinates.
+		$lat = floatval( hp\get_array_value( $_GET, 'latitude' ) );
+		$lng = floatval( hp\get_array_value( $_GET, 'longitude' ) );
 
-		// Check latitutde and longitude.
 		if ( ! $lat || ! $lng ) {
 			return $orderby;
 		}
 
-		if ( ! strpos( $orderby, 'RAND' ) ) {
-			$orderby = '( ( wp_postmeta.meta_value - ' . $lat . ' ) * ( wp_postmeta.meta_value - ' . $lat . ' ) ) + ( ( mt1.meta_value - ' . $lng . ' ) * ( mt1.meta_value - ' . $lng . ' ) ) ASC';
-		}
+		$orderby = $wpdb->prepare(
+			'POW(wp_postmeta.meta_value - %f, 2) + POW(mt1.meta_value - %f, 2) ASC',
+			$lat,
+			$lng
+		);
 
 		return $orderby;
 	}
