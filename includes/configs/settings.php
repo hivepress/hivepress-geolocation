@@ -66,12 +66,26 @@ return [
 
 	'integrations' => [
 		'sections' => [
-			'gmaps' => [
+			'gmaps'  => [
 				'title'  => 'Google Maps',
 				'_order' => 30,
 
 				'fields' => [
 					'gmaps_api_key' => [
+						'label'      => hivepress()->translator->get_string( 'api_key' ),
+						'type'       => 'text',
+						'max_length' => 256,
+						'_order'     => 10,
+					],
+				],
+			],
+
+			'mapbox' => [
+				'title'  => 'Mapbox',
+				'_order' => 40,
+
+				'fields' => [
+					'mapbox_api_key' => [
 						'label'      => hivepress()->translator->get_string( 'api_key' ),
 						'type'       => 'text',
 						'max_length' => 256,
