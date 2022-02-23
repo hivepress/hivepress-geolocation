@@ -71,7 +71,7 @@ return [
 				'_order' => 10,
 
 				'fields' => [
-					'gmaps_api_key' => [
+					'map_provider' => [
 						'label'       => 'Map Provider',
 						'type'        => 'select',
 						'placeholder' => esc_html__( 'Google Maps', 'hivepress-geolocation' ),
