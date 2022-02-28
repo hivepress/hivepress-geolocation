@@ -142,27 +142,17 @@ final class Geolocation extends Component {
 	 * Enqueues scripts.
 	 */
 	public function enqueue_scripts_styles() {
-		if ( 'mapbox' === get_option( 'hp_map_provider' ) ) {
+		if ( 'mapbox' === get_option( 'hp_geolocation_map_provider' ) ) {
 			// Add Mapbox styles.
 			wp_enqueue_style(
-				'hivepress-mapbox',
-				'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css',
-				[],
-				hivepress()->get_version( 'geolocation' )
-			);
-
-			// Add Mapbox geocoding styles.
-			wp_enqueue_style(
-				'hivepress-mapbox-geo',
-				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css',
-				[ 'hivepress-mapbox' ],
-				hivepress()->get_version( 'geolocation' )
+				'mapbox',
+				'https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css',
 			);
 
 			// Add Mapbox js library.
 			wp_enqueue_script(
 				'mapbox-maps',
-				'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js',
+				'https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.js',
 				[],
 				null,
 				true
@@ -170,17 +160,6 @@ final class Geolocation extends Component {
 
 			wp_script_add_data( 'mapbox-maps', 'async', true );
 			wp_script_add_data( 'mapbox-maps', 'defer', true );
-
-			// Add Mapbox geocoding plugin.
-			wp_enqueue_script(
-				'mapbox-geo-maps',
-				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js',
-				[ 'mapbox-maps' ],
-				null,
-				true
-			);
-			wp_script_add_data( 'mapbox-geo-maps', 'async', true );
-			wp_script_add_data( 'mapbox-geo-maps', 'defer', true );
 		} else {
 			wp_enqueue_script(
 				'google-maps',
@@ -518,9 +497,8 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function alter_listing_sort_form( $form_args, $form ) {
-		if ( isset( $_GET['latitude'], $_GET['longitude'] ) ) {
-			$form_args['fields']['_sort']['options']['distance'] = esc_html__( 'Distance', 'hivepress-geolocation' );
-		}
+		$form_args['fields']['_sort']['options']['']     = esc_html__( 'Distance', 'hivepress-geolocation' );
+		$form_args['fields']['_sort']['options']['date'] = hivepress()->translator->get_string( 'date' );
 		return $form_args;
 	}
 
@@ -540,7 +518,7 @@ final class Geolocation extends Component {
 		}
 
 		// Check sort.
-		if ( ! isset( $_GET['_sort'], $_GET['location'] ) || 'distance' !== $_GET['_sort'] ) {
+		if ( ! isset( $_GET['location'] ) || ! empty( $_GET['_sort'] ) ) {
 			return $orderby;
 		}
 
