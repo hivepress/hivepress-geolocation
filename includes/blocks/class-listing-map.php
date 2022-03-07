@@ -53,6 +53,15 @@ class Listing_Map extends Block {
 		// Set component.
 		$attributes['data-component'] = 'map';
 
+		if ( get_option( 'hp_geolocation_map_provider' ) ) {
+
+			// Set map provider.
+			$attributes['data-provider'] = esc_html( get_option( 'hp_geolocation_map_provider' ) );
+
+			// Set api key.
+			$attributes['data-map-key'] = esc_html( get_option( 'hp_mapbox_api_key' ) );
+		}
+
 		// Set class.
 		$attributes['class'] = [ 'hp-map' ];
 

@@ -153,7 +153,7 @@ final class Geolocation extends Component {
 			wp_enqueue_script(
 				'mapbox-maps',
 				'https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.js',
-				[],
+				[ 'jquery' ],
 				null,
 				true
 			);
