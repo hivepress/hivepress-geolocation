@@ -436,12 +436,14 @@ final class Geolocation extends Component {
 			return;
 		}
 
+		// Get location results.
 		$results = json_decode( $response['body'] )->results;
 
 		if ( ! $results ) {
 			return;
 		}
 
+		// Set region types.
 		$types = [
 			'locality',
 			'administrative_area_level_1',
@@ -449,6 +451,7 @@ final class Geolocation extends Component {
 			'country',
 		];
 
+		// Set location.
 		$place = [];
 
 		foreach ( $results as $result ) {
@@ -465,7 +468,7 @@ final class Geolocation extends Component {
 		if ( count( $place ) < 3 ) {
 			return;
 		}
-		// Term id.
+		// Set parent term id.
 		$parent_id = null;
 
 		// Delete old term.
@@ -508,8 +511,9 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function alter_listing_sort_form( $form_args, $form ) {
-		$form_args['fields']['_sort']['options']['']     = esc_html__( 'Distance', 'hivepress-geolocation' );
-		$form_args['fields']['_sort']['options']['date'] = hivepress()->translator->get_string( 'date' );
+		if ( hp\get_array_value( $_GET, 'location' ) ) {
+			$form_args['fields']['_sort']['options'][''] = esc_html__( 'Distance', 'hivepress-geolocation' );
+		}
 
 		return $form_args;
 	}
@@ -542,6 +546,7 @@ final class Geolocation extends Component {
 			return $orderby;
 		}
 
+		// Set order.
 		$orderby = $wpdb->prepare(
 			'POW(wp_postmeta.meta_value - %f, 2) + POW(mt1.meta_value - %f, 2) ASC',
 			$lat,
