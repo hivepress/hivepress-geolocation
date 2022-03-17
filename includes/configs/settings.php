@@ -39,11 +39,11 @@ return [
 					'geolocation_map_provider' => [
 						'label'       => esc_html__( 'Map Provider', 'hivepress-geolocation' ),
 						'type'        => 'select',
-						'placeholder' => esc_html__( 'Google Maps', 'hivepress-geolocation' ),
+						'placeholder' => 'Google Maps',
 						'_order'      => 10,
 
 						'options'     => [
-							'mapbox' => esc_html__( 'Mapbox', 'hivepress-geolocation' ),
+							'mapbox' => 'Mapbox',
 						],
 					],
 

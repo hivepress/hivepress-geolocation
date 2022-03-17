@@ -53,3 +53,23 @@
 		}
 	}
 }
+
+/*--------------------------------------------------------------
+Mapbox styles
+--------------------------------------------------------------*/
+
+.mapboxgl {
+	&-ctrl-geocoder{
+		width: 100% !important;
+		max-width: none !important;
+		box-shadow: none !important;
+		min-width: none !important;
+
+		.suggestions-wrapper{
+			a {
+				margin-left: 0 !important;
+				background-color: inherit !important;
+			}
+		}
+	}
+}

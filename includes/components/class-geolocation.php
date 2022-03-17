@@ -146,27 +146,38 @@ final class Geolocation extends Component {
 			// Add Mapbox styles.
 			wp_enqueue_style(
 				'mapbox',
-				'https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css',
+				'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css',
+			);
+
+			// Add Mapbox geo styles.
+			wp_enqueue_style(
+				'mapbox-css',
+				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css',
 			);
 
 			// Add Mapbox js library.
 			wp_enqueue_script(
 				'mapbox-maps',
-				'https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.js',
+				'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js',
 				[ 'jquery' ],
 				null,
-				true
+				false
 			);
 
-			wp_script_add_data( 'mapbox-maps', 'async', true );
-			wp_script_add_data( 'mapbox-maps', 'defer', true );
+			// Add Mapbox geo js library.
+			wp_enqueue_script(
+				'mapbox-maps-geo',
+				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js',
+				[ 'mapbox-maps' ],
+				null,
+				false
+			);
 		} else {
 			wp_enqueue_script(
 				'google-maps',
 				'https://maps.googleapis.com/maps/api/js?' . http_build_query(
 					[
 						'libraries' => 'places',
-						'callback'  => 'hivepress.initGeolocation',
 						'key'       => get_option( 'hp_gmaps_api_key' ),
 						'language'  => hivepress()->translator->get_language(),
 						'region'    => hivepress()->translator->get_region(),
@@ -499,6 +510,7 @@ final class Geolocation extends Component {
 	public function alter_listing_sort_form( $form_args, $form ) {
 		$form_args['fields']['_sort']['options']['']     = esc_html__( 'Distance', 'hivepress-geolocation' );
 		$form_args['fields']['_sort']['options']['date'] = hivepress()->translator->get_string( 'date' );
+
 		return $form_args;
 	}
 

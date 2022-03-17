@@ -25,3 +25,29 @@
 		}
 	}
 }
+
+/*--------------------------------------------------------------
+Mapbox styles
+--------------------------------------------------------------*/
+
+.mapboxgl {
+	&-ctrl-geocoder{
+		width: 23.5em !important;
+		max-width: none !important;
+		min-width: none !important;
+		box-shadow: none !important;
+		background-color: transparent !important;
+		display: inline-block;
+
+		input{
+			background-color: transparent;
+		}
+
+		.suggestions-wrapper{
+			a {
+				margin-left: 0 !important;
+				background-color: inherit !important;
+			}
+		}
+	}
+}

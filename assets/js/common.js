@@ -1,104 +1,44 @@
-hivepress.initGeolocation = function() {
-	(function($) {
-		'use strict';
+(function($) {
+	'use strict';
 
-		$(document).ready(function() {
+	$(document).ready(function() {
 
-			// Location
-			hivepress.getComponent('location').each(function() {
-				var container = $(this),
-					field = container.find('input[type=text]'),
-					button = container.find('a'),
-					currentForm = field.closest('form'),
-					settings = {
-						details: currentForm,
-						detailsAttribute: 'data-coordinate',
-					};
+		var map = null;
 
-				if (container.data('countries')) {
-					settings['componentRestrictions'] = {
-						'country': container.data('countries'),
-					};
-				}
+		// Map
+		hivepress.getComponent('map').each(function() {
+			var container = $(this),
+				maxZoom = container.data('max-zoom');
 
-				if (container.data('types')) {
-					settings['types'] = container.data('types');
-				}
+			var mapKey = container.attr('data-map-key');
 
-				field.geocomplete(settings).bind("geocode:result", function(event, result){
-					var parts = [],
-						types = [
-							'locality',
-							'administrative_area_level_1',
-							'administrative_area_level_2',
-							'country',
-						];
+			if('mapbox' === container.attr('data-provider') && mapKey){
 
-					$.each(result.address_components, function(index, component) {
-
-						if(component.types.indexOf('route') >= 0){
-							parts = [];
-							return false;
-						}
-
-						if (component.types.filter(function(type) {
-								return types.indexOf(type) !== -1;
-							}).length) {
-							parts.push(component.long_name);
-						}
+				mapboxgl.accessToken = mapKey;
+					map = new mapboxgl.Map({
+						container: container.get(0),
+						style: 'mapbox://styles/mapbox/streets-v11',
+						center: [0, 0],
+						zoom: 1
 					});
 
-					$('input[data-regions]').val(parts.join('|'));
+				var bounds = new mapboxgl.LngLatBounds();
+
+				$.each(container.data('markers'), function(index, data) {
+					bounds.extend([data.longitude, data.latitude]);
+
+					new mapboxgl.Marker()
+					.setLngLat([data.longitude, data.latitude])
+					.setPopup(new mapboxgl.Popup().setHTML(data.content))
+					.addTo(map);
 				});
 
-				if (container.data('scatter')) {
-					field.bind('geocode:result', function(event, result) {
-						var parts = [],
-							types = [
-								'route',
-								'locality',
-								'administrative_area_level_1',
-								'administrative_area_level_2',
-								'country',
-							];
-
-						$.each(result.address_components, function(index, component) {
-							if (component.types.filter(function(type) {
-									return types.indexOf(type) !== -1;
-								}).length) {
-								parts.push(component.long_name);
-							}
-						});
-
-						field.val(parts.join(', '));
-					});
-				}
-
-				field.on('input', function() {
-					if (!field.val()) {
-						container.closest('form').find('input[data-coordinate]').val('');
-					}
+				map.fitBounds(bounds, {
+					maxZoom: maxZoom - 1,
 				});
-
-				if (navigator.geolocation) {
-					button.on('click', function(e) {
-						navigator.geolocation.getCurrentPosition(function(position) {
-							field.geocomplete('find', position.coords.latitude + ' ' + position.coords.longitude);
-						});
-
-						e.preventDefault();
-					});
-				} else {
-					button.hide();
-				}
-			});
-
-			// Map
-			hivepress.getComponent('map').each(function() {
-				var container = $(this),
-					height = container.width(),
+			}else{
+				var	height = container.width(),
 					prevWindow = false,
-					maxZoom = container.data('max-zoom'),
 					markers = [],
 					bounds = new google.maps.LatLngBounds(),
 					map = new google.maps.Map(container.get(0), {
@@ -196,7 +136,170 @@ hivepress.initGeolocation = function() {
 						});
 					});
 				}
-			});
+			}
 		});
-	})(jQuery);
-}
+
+		// Location
+		hivepress.getComponent('location').each(function() {
+			var container = $(this),
+				field = container.find('input[type=text]'),
+				currentForm = field.closest('form'),
+				mapKey = container.attr('data-map-key');
+
+			if('mapbox' === container.attr('data-provider') && mapKey){
+				// Check token exist.
+				if ( ! mapboxgl.accessToken ){
+					mapboxgl.accessToken = mapKey;
+				}
+
+				// Add the control to the map.
+				const geocoder = new MapboxGeocoder({
+					accessToken: mapboxgl.accessToken,
+					mapboxgl: mapboxgl,
+					language: container.attr('data-map-language'),
+					types: 'country, region, district, place, locality, address',
+					worldview: container.attr('data-map-region'),
+				});
+
+				geocoder.on('result', function(result){
+					var placeName = result.result.text,
+						parts = {
+							'place': '',
+							'district': '',
+							'region': '',
+							'country': '',
+						},
+						region = '',
+						addressSearch = false;
+
+					container.closest('form').find('input[data-coordinate="lng"]').val(result.result.geometry.coordinates[0]);
+					container.closest('form').find('input[data-coordinate="lat"]').val(result.result.geometry.coordinates[1]);
+
+					$.each(result.result.place_type, function(index, component) {
+						parts[component] = placeName;
+
+						if('address' === placeName){
+							addressSearch = true;
+							return false;
+						}
+					});
+
+					if(!addressSearch){
+						$.each(result.result.context, function(index, component) {
+							parts[component.id.split('.')[0]] = component.text;
+						});
+
+						$.each( parts, function( key, value ) {
+							if(value){
+								region += '|' + value;
+							}
+						});
+
+						region = region.substring(1);
+					}
+
+					$('input[data-regions]').val(region);
+				});
+				$(container).prepend(geocoder.onAdd(map));
+
+				var fieldSettings = {
+					class: field.attr('class'),
+					placeholder: field.attr('placeholder'),
+					maxlength: field.attr('maxlength'),
+					name: field.attr('name'),
+					required: field.attr('required')
+					},
+					fieldValue = field.val();
+
+				field.add('.mapboxgl-ctrl-geocoder--icon-search, .mapboxgl-ctrl-geocoder--button').remove();
+				container.find('.mapboxgl-ctrl-geocoder--input')
+				.attr(fieldSettings)
+				.val(fieldValue);
+
+			}else{
+				var	button = container.find('a'),
+					settings = {
+						details: currentForm,
+						detailsAttribute: 'data-coordinate',
+					};
+
+				if (container.data('countries')) {
+					settings['componentRestrictions'] = {
+						'country': container.data('countries'),
+					};
+				}
+
+				if (container.data('types')) {
+					settings['types'] = container.data('types');
+				}
+
+				field.geocomplete(settings).bind("geocode:result", function(event, result){
+					var parts = [],
+						types = [
+							'locality',
+							'administrative_area_level_1',
+							'administrative_area_level_2',
+							'country',
+						];
+
+					$.each(result.address_components, function(index, component) {
+
+						if(component.types.indexOf('route') >= 0){
+							parts = [];
+							return false;
+						}
+
+						if (component.types.filter(function(type) {
+								return types.indexOf(type) !== -1;
+							}).length) {
+							parts.push(component.long_name);
+						}
+					});
+
+					$('input[data-regions]').val(parts.join('|'));
+				});
+
+				if (container.data('scatter')) {
+					field.bind('geocode:result', function(event, result) {
+						var parts = [],
+							types = [
+								'route',
+								'locality',
+								'administrative_area_level_1',
+								'administrative_area_level_2',
+								'country',
+							];
+
+						$.each(result.address_components, function(index, component) {
+							if (component.types.filter(function(type) {
+									return types.indexOf(type) !== -1;
+								}).length) {
+								parts.push(component.long_name);
+							}
+						});
+
+						field.val(parts.join(', '));
+					});
+				}
+
+				field.on('input', function() {
+					if (!field.val()) {
+						container.closest('form').find('input[data-coordinate]').val('');
+					}
+				});
+
+				if (navigator.geolocation) {
+					button.on('click', function(e) {
+						navigator.geolocation.getCurrentPosition(function(position) {
+							field.geocomplete('find', position.coords.latitude + ' ' + position.coords.longitude);
+						});
+
+						e.preventDefault();
+					});
+				} else {
+					button.hide();
+				}
+			}
+		});
+	});
+})(jQuery);
