@@ -409,6 +409,15 @@ final class Geolocation extends Component {
 
 		// Get google api key.
 		$api_key = get_option( 'hp_gmaps_api_key' );
+		$url     = 'https://maps.googleapis.com/maps/api/geocode/json?';
+
+		if ( 'mapbox' === get_option( 'hp_geolocation_map_provider' ) ) {
+			// Set Mapbox api key.
+			$api_key = get_option( 'hp_mapbox_api_key' );
+
+			// Set mapbox request url.
+			$url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/';
+		}
 
 		if ( ! $api_key || ! $listing ) {
 			return;
@@ -422,52 +431,95 @@ final class Geolocation extends Component {
 			return;
 		}
 
-		// Get location data.
-		$response = wp_remote_get(
-			'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query(
-				[
-					'latlng' => $lat . ',' . $lng,
-					'key'    => $api_key,
-				]
-			)
+		// Set request url.
+		$query_string = $url . http_build_query(
+			[
+				'latlng' => $lat . ',' . $lng,
+				'key'    => $api_key,
+			]
 		);
+
+		if ( 'mapbox' === get_option( 'hp_geolocation_map_provider' ) ) {
+			// Set mapbox request url.
+			$query_string = $url . rawurlencode( $lng . ',' . $lat ) . '.json?' . http_build_query(
+				[
+					'access_token' => $api_key,
+				]
+			);
+		}
+
+		// Get location data.
+		$response = wp_remote_get( $query_string );
 
 		if ( 200 !== $response['response']['code'] ) {
 			return;
 		}
 
 		// Get location results.
-		$results = json_decode( $response['body'] )->results;
+		$results = json_decode( $response['body'] );
 
 		if ( ! $results ) {
 			return;
 		}
 
-		// Set region types.
-		$types = [
-			'locality',
-			'administrative_area_level_1',
-			'administrative_area_level_2',
-			'country',
-		];
-
 		// Set location.
 		$place = [];
 
-		foreach ( $results as $result ) {
-			foreach ( array_reverse( $result->address_components ) as $component ) {
-				if ( array_intersect( $types, $component->types ) ) {
-					$place[] = $component->long_name;
+		if ( 'mapbox' === get_option( 'hp_geolocation_map_provider' ) ) {
+			$types = [
+				'country'  => '',
+				'region'   => '',
+				'district' => '',
+				'place'    => '',
+			];
+
+			// Find location by coordinates.
+			foreach ( $results->features as $location_coordinates ) {
+				if ( $lng === $location_coordinates->center[0] && $lat === $location_coordinates->center[1] ) {
+
+					foreach ( $location_coordinates->place_type as $place_type ) {
+						$types[ $place_type ] = $location_coordinates->text;
+					}
+
+					foreach ( $location_coordinates->context as $place_type ) {
+						$types[ explode( '.', $place_type->id )[0] ] = $place_type->text;
+					}
+
+					break;
 				}
 			}
-			if ( count( $place ) > 2 ) {
-				break;
+
+			// Set location.
+			foreach ( array_filter( $types ) as $type => $type_value ) {
+				$place[] = $type_value;
+			}
+		} else {
+			$results = json_decode( $response['body'] )->results;
+
+			// Set region types.
+			$types = [
+				'locality',
+				'administrative_area_level_1',
+				'administrative_area_level_2',
+				'country',
+			];
+
+			foreach ( $results as $result ) {
+				foreach ( array_reverse( $result->address_components ) as $component ) {
+					if ( array_intersect( $types, $component->types ) ) {
+						$place[] = $component->long_name;
+					}
+				}
+				if ( count( $place ) > 2 ) {
+					break;
+				}
 			}
 		}
 
 		if ( count( $place ) < 3 ) {
 			return;
 		}
+
 		// Set parent term id.
 		$parent_id = null;
 
