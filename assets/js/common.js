@@ -1,305 +1,305 @@
 (function($) {
-	'use strict';
+    'use strict';
 
-	$(document).ready(function() {
-		
-		var map = null;
+    $(document).ready(function() {
 
-		// Map
-		hivepress.getComponent('map').each(function() {
-			var container = $(this),
-				maxZoom = container.data('max-zoom');
+        var map = null;
 
-			var mapKey = mapboxData.apiKey;
+        // Map
+        hivepress.getComponent('map').each(function() {
+            var container = $(this),
+                maxZoom = container.data('max-zoom');
 
-			if('mapbox' === mapboxData.provider && mapKey){
+            var mapKey = mapboxData.apiKey;
 
-				mapboxgl.accessToken = mapKey;
-					map = new mapboxgl.Map({
-						container: container.get(0),
-						style: 'mapbox://styles/mapbox/streets-v11',
-						center: [0, 0],
-						zoom: 1
-					});
+            if ('mapbox' === mapboxData.provider && mapKey) {
 
-				var bounds = new mapboxgl.LngLatBounds();
+                mapboxgl.accessToken = mapKey;
+                map = new mapboxgl.Map({
+                    container: container.get(0),
+                    style: 'mapbox://styles/mapbox/streets-v11',
+                    center: [0, 0],
+                    zoom: 1
+                });
 
-				$.each(container.data('markers'), function(index, data) {
-					bounds.extend([data.longitude, data.latitude]);
+                var bounds = new mapboxgl.LngLatBounds();
 
-					new mapboxgl.Marker()
-					.setLngLat([data.longitude, data.latitude])
-					.setPopup(new mapboxgl.Popup().setHTML(data.content))
-					.addTo(map);
-				});
+                $.each(container.data('markers'), function(index, data) {
+                    bounds.extend([data.longitude, data.latitude]);
 
-				map.fitBounds(bounds, {
-					maxZoom: maxZoom - 1,
-				});
-			}else{
-				var	height = container.width(),
-					prevWindow = false,
-					markers = [],
-					bounds = new google.maps.LatLngBounds(),
-					map = new google.maps.Map(container.get(0), {
-						zoom: 3,
-						minZoom: 2,
-						maxZoom: maxZoom,
-						mapTypeControl: false,
-						streetViewControl: false,
-						center: {
-							lat: 0,
-							lng: 0,
-						},
-						styles: [{
-							featureType: 'poi',
-							stylers: [{
-								visibility: 'off',
-							}],
-						}],
-					}),
-					oms = new OverlappingMarkerSpiderfier(map, {
-						markersWontMove: true,
-						markersWontHide: true,
-						basicFormatEvents: true,
-					}),
-					iconSettings = {
-						path: google.maps.SymbolPath.CIRCLE,
-						fillColor: '#3a77ff',
-						fillOpacity: 0.25,
-						strokeColor: '#3a77ff',
-						strokeWeight: 1,
-						strokeOpacity: 0.75,
-						scale: 10,
-					};
+                    new mapboxgl.Marker()
+                        .setLngLat([data.longitude, data.latitude])
+                        .setPopup(new mapboxgl.Popup().setHTML(data.content))
+                        .addTo(map);
+                });
 
-				if (container.is('[data-height]')) {
-					height = container.data('height');
-				}
+                map.fitBounds(bounds, {
+                    maxZoom: maxZoom - 1,
+                });
+            } else {
+                var height = container.width(),
+                    prevWindow = false,
+                    markers = [],
+                    bounds = new google.maps.LatLngBounds(),
+                    map = new google.maps.Map(container.get(0), {
+                        zoom: 3,
+                        minZoom: 2,
+                        maxZoom: maxZoom,
+                        mapTypeControl: false,
+                        streetViewControl: false,
+                        center: {
+                            lat: 0,
+                            lng: 0,
+                        },
+                        styles: [{
+                            featureType: 'poi',
+                            stylers: [{
+                                visibility: 'off',
+                            }],
+                        }],
+                    }),
+                    oms = new OverlappingMarkerSpiderfier(map, {
+                        markersWontMove: true,
+                        markersWontHide: true,
+                        basicFormatEvents: true,
+                    }),
+                    iconSettings = {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        fillColor: '#3a77ff',
+                        fillOpacity: 0.25,
+                        strokeColor: '#3a77ff',
+                        strokeWeight: 1,
+                        strokeOpacity: 0.75,
+                        scale: 10,
+                    };
 
-				container.height(height);
+                if (container.is('[data-height]')) {
+                    height = container.data('height');
+                }
 
-				$.each(container.data('markers'), function(index, data) {
-					var nextWindow = new google.maps.InfoWindow({
-							content: data.content,
-						}),
-						markerSettings = {
-							title: data.title,
-							position: {
-								lat: data.latitude,
-								lng: data.longitude,
-							},
-						};
+                container.height(height);
 
-					if (container.data('scatter')) {
-						markerSettings['icon'] = iconSettings;
-					}
+                $.each(container.data('markers'), function(index, data) {
+                    var nextWindow = new google.maps.InfoWindow({
+                            content: data.content,
+                        }),
+                        markerSettings = {
+                            title: data.title,
+                            position: {
+                                lat: data.latitude,
+                                lng: data.longitude,
+                            },
+                        };
 
-					var marker = new google.maps.Marker(markerSettings);
+                    if (container.data('scatter')) {
+                        markerSettings['icon'] = iconSettings;
+                    }
 
-					marker.addListener('spider_click', function() {
-						if (prevWindow) {
-							prevWindow.close();
-						}
+                    var marker = new google.maps.Marker(markerSettings);
 
-						prevWindow = nextWindow;
-						nextWindow.open(map, marker);
-					});
+                    marker.addListener('spider_click', function() {
+                        if (prevWindow) {
+                            prevWindow.close();
+                        }
 
-					markers.push(marker);
-					oms.addMarker(marker);
+                        prevWindow = nextWindow;
+                        nextWindow.open(map, marker);
+                    });
 
-					bounds.extend(marker.getPosition());
-				});
+                    markers.push(marker);
+                    oms.addMarker(marker);
 
-				map.fitBounds(bounds);
+                    bounds.extend(marker.getPosition());
+                });
 
-				var observer = new MutationObserver(function(mutations) {
-					map.fitBounds(bounds);
-				});
+                map.fitBounds(bounds);
 
-				observer.observe(container.get(0), {
-					attributes: true,
-				});
+                var observer = new MutationObserver(function(mutations) {
+                    map.fitBounds(bounds);
+                });
 
-				var clusterer = new MarkerClusterer(map, markers, {
-					imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
-					maxZoom: maxZoom - 1,
-				});
+                observer.observe(container.get(0), {
+                    attributes: true,
+                });
 
-				if (container.data('scatter')) {
-					map.addListener('zoom_changed', function() {
-						iconSettings['scale'] = Math.pow(1.3125, map.getZoom());
+                var clusterer = new MarkerClusterer(map, markers, {
+                    imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
+                    maxZoom: maxZoom - 1,
+                });
 
-						$.each(markers, function(index, marker) {
-							markers[index].setIcon(iconSettings);
-						});
-					});
-				}
-			}
-		});
+                if (container.data('scatter')) {
+                    map.addListener('zoom_changed', function() {
+                        iconSettings['scale'] = Math.pow(1.3125, map.getZoom());
 
-		// Location
-		hivepress.getComponent('location').each(function() {
-			var container = $(this),
-				field = container.find('input[type=text]'),
-				currentForm = field.closest('form'),
-				mapKey = mapboxData.apiKey;
+                        $.each(markers, function(index, marker) {
+                            markers[index].setIcon(iconSettings);
+                        });
+                    });
+                }
+            }
+        });
 
-			if('mapbox' === mapboxData.provider && mapKey){
-				// Check token exist.
-				if ( ! mapboxgl.accessToken ){
-					mapboxgl.accessToken = mapKey;
-				}
+        // Location
+        hivepress.getComponent('location').each(function() {
+            var container = $(this),
+                field = container.find('input[type=text]'),
+                currentForm = field.closest('form'),
+                mapKey = mapboxData.apiKey;
 
-				// Add the control to the map.
-				const geocoder = new MapboxGeocoder({
-					accessToken: mapboxgl.accessToken,
-					mapboxgl: mapboxgl,
-					language: hivepressCoreData.language,
-					types: 'country, region, district, place, locality, address',
-					worldview: mapboxData.region,
-				});
+            if ('mapbox' === mapboxData.provider && mapKey) {
+                // Check token exist.
+                if (!mapboxgl.accessToken) {
+                    mapboxgl.accessToken = mapKey;
+                }
 
-				geocoder.on('result', function(result){
-					var placeName = result.result.text,
-						parts = {
-							'place': '',
-							'district': '',
-							'region': '',
-							'country': '',
-						},
-						region = '',
-						addressSearch = false;
+                // Add the control to the map.
+                const geocoder = new MapboxGeocoder({
+                    accessToken: mapboxgl.accessToken,
+                    mapboxgl: mapboxgl,
+                    language: hivepressCoreData.language,
+                    types: 'country, region, district, place, locality, address',
+                    worldview: mapboxData.region,
+                });
 
-					container.closest('form').find('input[data-coordinate="lng"]').val(result.result.geometry.coordinates[0]);
-					container.closest('form').find('input[data-coordinate="lat"]').val(result.result.geometry.coordinates[1]);
+                geocoder.on('result', function(result) {
+                    var placeName = result.result.text,
+                        parts = {
+                            'place': '',
+                            'district': '',
+                            'region': '',
+                            'country': '',
+                        },
+                        region = '',
+                        addressSearch = false;
 
-					$.each(result.result.place_type, function(index, component) {
-						parts[component] = placeName;
+                    container.closest('form').find('input[data-coordinate="lng"]').val(result.result.geometry.coordinates[0]);
+                    container.closest('form').find('input[data-coordinate="lat"]').val(result.result.geometry.coordinates[1]);
 
-						if('address' === placeName){
-							addressSearch = true;
-							return false;
-						}
-					});
+                    $.each(result.result.place_type, function(index, component) {
+                        parts[component] = placeName;
 
-					if(!addressSearch){
-						$.each(result.result.context, function(index, component) {
-							parts[component.id.split('.')[0]] = component.text;
-						});
+                        if ('address' === placeName) {
+                            addressSearch = true;
+                            return false;
+                        }
+                    });
 
-						$.each( parts, function( key, value ) {
-							if(value){
-								region += '|' + value;
-							}
-						});
+                    if (!addressSearch) {
+                        $.each(result.result.context, function(index, component) {
+                            parts[component.id.split('.')[0]] = component.text;
+                        });
 
-						region = region.substring(1);
-					}
+                        $.each(parts, function(key, value) {
+                            if (value) {
+                                region += '|' + value;
+                            }
+                        });
 
-					$('input[data-regions]').val(region);
-				});
-				$(container).prepend(geocoder.onAdd(map));
+                        region = region.substring(1);
+                    }
 
-				var fieldSettings = {
-					class: field.attr('class'),
-					placeholder: field.attr('placeholder'),
-					maxlength: field.attr('maxlength'),
-					name: field.attr('name'),
-					required: field.attr('required')
-					},
-					fieldValue = field.val();
+                    $('input[data-regions]').val(region);
+                });
+                $(container).prepend(geocoder.onAdd(map));
 
-				field.add('.mapboxgl-ctrl-geocoder--icon-search, .mapboxgl-ctrl-geocoder--button').remove();
-				container.find('.mapboxgl-ctrl-geocoder--input')
-				.attr(fieldSettings)
-				.val(fieldValue);
+                var fieldSettings = {
+                        class: field.attr('class'),
+                        placeholder: field.attr('placeholder'),
+                        maxlength: field.attr('maxlength'),
+                        name: field.attr('name'),
+                        required: field.attr('required')
+                    },
+                    fieldValue = field.val();
 
-			}else{
-				var	button = container.find('a'),
-					settings = {
-						details: currentForm,
-						detailsAttribute: 'data-coordinate',
-					};
+                field.add('.mapboxgl-ctrl-geocoder--icon-search, .mapboxgl-ctrl-geocoder--button').remove();
+                container.find('.mapboxgl-ctrl-geocoder--input')
+                    .attr(fieldSettings)
+                    .val(fieldValue);
 
-				if (container.data('countries')) {
-					settings['componentRestrictions'] = {
-						'country': container.data('countries'),
-					};
-				}
+            } else {
+                var button = container.find('a'),
+                    settings = {
+                        details: currentForm,
+                        detailsAttribute: 'data-coordinate',
+                    };
 
-				if (container.data('types')) {
-					settings['types'] = container.data('types');
-				}
+                if (container.data('countries')) {
+                    settings['componentRestrictions'] = {
+                        'country': container.data('countries'),
+                    };
+                }
 
-				field.geocomplete(settings).bind("geocode:result", function(event, result){
-					var parts = [],
-						types = [
-							'locality',
-							'administrative_area_level_1',
-							'administrative_area_level_2',
-							'country',
-						];
+                if (container.data('types')) {
+                    settings['types'] = container.data('types');
+                }
 
-					$.each(result.address_components, function(index, component) {
+                field.geocomplete(settings).bind("geocode:result", function(event, result) {
+                    var parts = [],
+                        types = [
+                            'locality',
+                            'administrative_area_level_1',
+                            'administrative_area_level_2',
+                            'country',
+                        ];
 
-						if(component.types.indexOf('route') >= 0){
-							parts = [];
-							return false;
-						}
+                    $.each(result.address_components, function(index, component) {
 
-						if (component.types.filter(function(type) {
-								return types.indexOf(type) !== -1;
-							}).length) {
-							parts.push(component.long_name);
-						}
-					});
+                        if (component.types.indexOf('route') >= 0) {
+                            parts = [];
+                            return false;
+                        }
 
-					$('input[data-regions]').val(parts.join('|'));
-				});
+                        if (component.types.filter(function(type) {
+                                return types.indexOf(type) !== -1;
+                            }).length) {
+                            parts.push(component.long_name);
+                        }
+                    });
 
-				if (container.data('scatter')) {
-					field.bind('geocode:result', function(event, result) {
-						var parts = [],
-							types = [
-								'route',
-								'locality',
-								'administrative_area_level_1',
-								'administrative_area_level_2',
-								'country',
-							];
+                    $('input[data-regions]').val(parts.join('|'));
+                });
 
-						$.each(result.address_components, function(index, component) {
-							if (component.types.filter(function(type) {
-									return types.indexOf(type) !== -1;
-								}).length) {
-								parts.push(component.long_name);
-							}
-						});
+                if (container.data('scatter')) {
+                    field.bind('geocode:result', function(event, result) {
+                        var parts = [],
+                            types = [
+                                'route',
+                                'locality',
+                                'administrative_area_level_1',
+                                'administrative_area_level_2',
+                                'country',
+                            ];
 
-						field.val(parts.join(', '));
-					});
-				}
+                        $.each(result.address_components, function(index, component) {
+                            if (component.types.filter(function(type) {
+                                    return types.indexOf(type) !== -1;
+                                }).length) {
+                                parts.push(component.long_name);
+                            }
+                        });
 
-				field.on('input', function() {
-					if (!field.val()) {
-						container.closest('form').find('input[data-coordinate]').val('');
-					}
-				});
+                        field.val(parts.join(', '));
+                    });
+                }
 
-				if (navigator.geolocation) {
-					button.on('click', function(e) {
-						navigator.geolocation.getCurrentPosition(function(position) {
-							field.geocomplete('find', position.coords.latitude + ' ' + position.coords.longitude);
-						});
+                field.on('input', function() {
+                    if (!field.val()) {
+                        container.closest('form').find('input[data-coordinate]').val('');
+                    }
+                });
 
-						e.preventDefault();
-					});
-				} else {
-					button.hide();
-				}
-			}
-		});
-	});
+                if (navigator.geolocation) {
+                    button.on('click', function(e) {
+                        navigator.geolocation.getCurrentPosition(function(position) {
+                            field.geocomplete('find', position.coords.latitude + ' ' + position.coords.longitude);
+                        });
+
+                        e.preventDefault();
+                    });
+                } else {
+                    button.hide();
+                }
+            }
+        });
+    });
 })(jQuery);
