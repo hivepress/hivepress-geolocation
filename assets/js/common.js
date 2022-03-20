@@ -2,7 +2,7 @@
 	'use strict';
 
 	$(document).ready(function() {
-
+		
 		var map = null;
 
 		// Map
@@ -10,9 +10,9 @@
 			var container = $(this),
 				maxZoom = container.data('max-zoom');
 
-			var mapKey = container.attr('data-map-key');
+			var mapKey = mapboxData.apiKey;
 
-			if('mapbox' === container.attr('data-provider') && mapKey){
+			if('mapbox' === mapboxData.provider && mapKey){
 
 				mapboxgl.accessToken = mapKey;
 					map = new mapboxgl.Map({
@@ -144,9 +144,9 @@
 			var container = $(this),
 				field = container.find('input[type=text]'),
 				currentForm = field.closest('form'),
-				mapKey = container.attr('data-map-key');
+				mapKey = mapboxData.apiKey;
 
-			if('mapbox' === container.attr('data-provider') && mapKey){
+			if('mapbox' === mapboxData.provider && mapKey){
 				// Check token exist.
 				if ( ! mapboxgl.accessToken ){
 					mapboxgl.accessToken = mapKey;
@@ -156,9 +156,9 @@
 				const geocoder = new MapboxGeocoder({
 					accessToken: mapboxgl.accessToken,
 					mapboxgl: mapboxgl,
-					language: container.attr('data-map-language'),
+					language: hivepressCoreData.language,
 					types: 'country, region, district, place, locality, address',
-					worldview: container.attr('data-map-region'),
+					worldview: mapboxData.region,
 				});
 
 				geocoder.on('result', function(result){

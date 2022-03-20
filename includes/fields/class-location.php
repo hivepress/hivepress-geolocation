@@ -75,21 +75,6 @@ class Location extends Text {
 		// Set countries.
 		$attributes['data-countries'] = wp_json_encode( $this->countries );
 
-		if ( get_option( 'hp_geolocation_map_provider' ) ) {
-
-			// Set map provider.
-			$attributes['data-provider'] = esc_html( get_option( 'hp_geolocation_map_provider' ) );
-
-			// Set api key.
-			$attributes['data-map-key'] = esc_html( get_option( 'hp_mapbox_api_key' ) );
-
-			// Set map language.
-			$attributes['data-map-language'] = hivepress()->translator->get_language();
-
-			// Set map language.
-			$attributes['data-map-region'] = hivepress()->translator->get_region();
-		}
-
 		// Set component.
 		$attributes['data-component'] = 'location';
 

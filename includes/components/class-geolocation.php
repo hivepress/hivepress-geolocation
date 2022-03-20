@@ -35,8 +35,8 @@ final class Geolocation extends Component {
 		add_filter( 'hivepress/v1/models/listing/attributes', [ $this, 'add_attributes' ] );
 
 		// Enqueue scripts.
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_styles' ] );
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts_styles' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 
 		// Alter forms.
 		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_filter_search_sort_forms' ], 1000, 2 );
@@ -141,7 +141,7 @@ final class Geolocation extends Component {
 	/**
 	 * Enqueues scripts.
 	 */
-	public function enqueue_scripts_styles() {
+	public function enqueue_scripts() {
 		if ( 'mapbox' === get_option( 'hp_geolocation_map_provider' ) ) {
 			// Add Mapbox styles.
 			wp_enqueue_style(
@@ -171,6 +171,16 @@ final class Geolocation extends Component {
 				[ 'mapbox-maps' ],
 				null,
 				false
+			);
+
+			wp_localize_script(
+				'mapbox-maps',
+				'mapboxData',
+				array(
+					'apiKey'   => get_option( 'hp_mapbox_api_key' ),
+					'provider' => get_option( 'hp_geolocation_map_provider' ),
+					'region'   => hivepress()->translator->get_region(),
+				)
 			);
 		} else {
 			wp_enqueue_script(
@@ -597,6 +607,7 @@ final class Geolocation extends Component {
 		if ( ! $lat || ! $lng ) {
 			return $orderby;
 		}
+		// error_log( print_r( $query, true ) );
 
 		// Set order.
 		$orderby = $wpdb->prepare(
