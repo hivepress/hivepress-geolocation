@@ -142,7 +142,7 @@ final class Geolocation extends Component {
 	 * Enqueues scripts.
 	 */
 	public function enqueue_scripts() {
-		if ( 'mapbox' === get_option( 'hp_geolocation_map_provider' ) ) {
+		if ( 'mapbox' === get_option( 'hp_geolocation_provider' ) ) {
 			// Add Mapbox styles.
 			wp_enqueue_style(
 				'mapbox',
@@ -178,7 +178,7 @@ final class Geolocation extends Component {
 				'mapboxData',
 				array(
 					'apiKey'   => get_option( 'hp_mapbox_api_key' ),
-					'provider' => get_option( 'hp_geolocation_map_provider' ),
+					'provider' => get_option( 'hp_geolocation_provider' ),
 					'region'   => hivepress()->translator->get_region(),
 				)
 			);
@@ -421,7 +421,7 @@ final class Geolocation extends Component {
 		$api_key = get_option( 'hp_gmaps_api_key' );
 		$url     = 'https://maps.googleapis.com/maps/api/geocode/json?';
 
-		if ( 'mapbox' === get_option( 'hp_geolocation_map_provider' ) ) {
+		if ( 'mapbox' === get_option( 'hp_geolocation_provider' ) ) {
 			// Set Mapbox api key.
 			$api_key = get_option( 'hp_mapbox_api_key' );
 
@@ -449,7 +449,7 @@ final class Geolocation extends Component {
 			]
 		);
 
-		if ( 'mapbox' === get_option( 'hp_geolocation_map_provider' ) ) {
+		if ( 'mapbox' === get_option( 'hp_geolocation_provider' ) ) {
 			// Set mapbox request url.
 			$query_string = $url . rawurlencode( $lng . ',' . $lat ) . '.json?' . http_build_query(
 				[
@@ -475,7 +475,7 @@ final class Geolocation extends Component {
 		// Set location.
 		$place = [];
 
-		if ( 'mapbox' === get_option( 'hp_geolocation_map_provider' ) ) {
+		if ( 'mapbox' === get_option( 'hp_geolocation_provider' ) ) {
 			$types = [
 				'country'  => '',
 				'region'   => '',

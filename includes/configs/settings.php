@@ -18,25 +18,7 @@ return [
 				'_order' => 100,
 
 				'fields' => [
-					'geolocation_countries'    => [
-						'label'    => esc_html__( 'Countries', 'hivepress-geolocation' ),
-						'type'     => 'select',
-						'options'  => 'countries',
-						'multiple' => true,
-						'_order'   => 10,
-					],
-
-					'geolocation_radius'       => [
-						'label'     => esc_html__( 'Radius', 'hivepress-geolocation' ),
-						'statuses'  => [ esc_html__( 'km', 'hivepress-geolocation' ) ],
-						'type'      => 'number',
-						'min_value' => 1,
-						'default'   => 15,
-						'required'  => true,
-						'_order'    => 20,
-					],
-
-					'geolocation_map_provider' => [
+					'geolocation_provider'     => [
 						'label'       => esc_html__( 'Map Provider', 'hivepress-geolocation' ),
 						'type'        => 'select',
 						'placeholder' => 'Google Maps',
@@ -45,6 +27,14 @@ return [
 						'options'     => [
 							'mapbox' => 'Mapbox',
 						],
+					],
+
+					'geolocation_countries'    => [
+						'label'    => esc_html__( 'Countries', 'hivepress-geolocation' ),
+						'type'     => 'select',
+						'options'  => 'countries',
+						'multiple' => true,
+						'_order'   => 20,
 					],
 
 					'geolocation_max_zoom'     => [
@@ -57,18 +47,27 @@ return [
 						'_order'    => 30,
 					],
 
+					'geolocation_radius'       => [
+						'label'     => esc_html__( 'Radius', 'hivepress-geolocation' ),
+						'statuses'  => [ esc_html__( 'km', 'hivepress-geolocation' ) ],
+						'type'      => 'number',
+						'min_value' => 1,
+						'default'   => 15,
+						'required'  => true,
+						'_order'    => 40,
+					],
+
+					'geolocation_allow_radius' => [
+						'caption' => esc_html__( 'Allow users to change radius', 'hivepress-geolocation' ),
+						'type'    => 'checkbox',
+						'_order'  => 50,
+					],
+
 					'geolocation_hide_address' => [
 						'label'   => esc_html__( 'Address', 'hivepress-geolocation' ),
 						'caption' => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
-						'_order'  => 40,
-					],
-
-					'geolocation_allow_radius' => [
-						'label'   => esc_html__( 'Radius', 'hivepress-geolocation' ),
-						'caption' => esc_html__( 'Allow users to adjust radius', 'hivepress-geolocation' ),
-						'type'    => 'checkbox',
-						'_order'  => 50,
+						'_order'  => 60,
 					],
 				],
 			],
