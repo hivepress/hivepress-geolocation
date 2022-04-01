@@ -176,11 +176,11 @@ final class Geolocation extends Component {
 			wp_localize_script(
 				'mapbox-maps',
 				'mapboxData',
-				array(
+				[
 					'apiKey'   => get_option( 'hp_mapbox_api_key' ),
 					'provider' => get_option( 'hp_geolocation_provider' ),
 					'region'   => hivepress()->translator->get_region(),
-				)
+				]
 			);
 		} else {
 			wp_enqueue_script(
@@ -188,6 +188,7 @@ final class Geolocation extends Component {
 				'https://maps.googleapis.com/maps/api/js?' . http_build_query(
 					[
 						'libraries' => 'places',
+						'callback'  => 'hivepress.initGeolocation',
 						'key'       => get_option( 'hp_gmaps_api_key' ),
 						'language'  => hivepress()->translator->get_language(),
 						'region'    => hivepress()->translator->get_region(),
@@ -301,7 +302,7 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function alter_listing_filter_form( $form ) {
-		if ( get_option( 'hp_geolocation_allow_radius' ) ) {
+		if ( get_option( 'hp_geolocation_allow_radius' ) && hp\get_array_value( $_GET, 'location' ) ) {
 			$form['fields']['_radius'] = [
 				'label'      => esc_html__( 'Radius', 'hivepress-geolocation' ),
 				'type'       => 'number',
