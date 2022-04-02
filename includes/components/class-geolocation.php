@@ -42,11 +42,11 @@ final class Geolocation extends Component {
 
 		if ( ! is_admin() ) {
 
-			// Set search radius.
-			add_filter( 'option_hp_geolocation_radius', [ $this, 'set_search_radius' ] );
-
 			// Set search query.
 			add_action( 'pre_get_posts', [ $this, 'set_search_query' ], 100 );
+
+			// Set search radius.
+			add_filter( 'option_hp_geolocation_radius', [ $this, 'set_search_radius' ] );
 
 			// Alter forms.
 			add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_search_form' ] );
@@ -301,28 +301,9 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Sets search radius.
-	 *
-	 * @param string $value Option value.
-	 * @return string
-	 */
-	public function set_search_radius( $value ) {
-		if ( get_option( 'hp_geolocation_allow_radius' ) ) {
-			$radius = absint( hp\get_array_value( $_GET, '_radius' ) );
-
-			if ( $radius >= 1 && $radius <= 100 ) {
-				$value = $radius;
-			}
-		}
-
-		return $value;
-	}
-
-	/**
 	 * Sets search query.
 	 *
 	 * @param WP_Query $query Query object.
-	 * @return string
 	 */
 	public function set_search_query( $query ) {
 
@@ -337,7 +318,7 @@ final class Geolocation extends Component {
 		}
 
 		// Get region code.
-		$region_code = sanitize_key( hp\get_array_value( $_GET, '_region' ) );
+		$region_code = sanitize_text_field( hp\get_array_value( $_GET, '_region' ) );
 
 		if ( ! $region_code ) {
 			return;
@@ -378,6 +359,24 @@ final class Geolocation extends Component {
 		// Set meta and taxonomy queries.
 		$query->set( 'meta_query', $meta_query );
 		$query->set( 'tax_query', $tax_query );
+	}
+
+	/**
+	 * Sets search radius.
+	 *
+	 * @param string $value Option value.
+	 * @return string
+	 */
+	public function set_search_radius( $value ) {
+		if ( get_option( 'hp_geolocation_allow_radius' ) ) {
+			$radius = absint( hp\get_array_value( $_GET, '_radius' ) );
+
+			if ( $radius >= 1 && $radius <= 100 ) {
+				$value = $radius;
+			}
+		}
+
+		return $value;
 	}
 
 	/**
