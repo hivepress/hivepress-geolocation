@@ -471,8 +471,11 @@ final class Geolocation extends Component {
 			];
 
 			if ( is_tax( 'hp_listing_region' ) ) {
+
+				// Get region.
 				$region = get_queried_object();
 
+				// Set defaults.
 				$form['fields']['_region']['default'] = get_term_meta( $region->term_id, 'hp_code', true );
 
 				if ( isset( $form['fields']['location'] ) ) {

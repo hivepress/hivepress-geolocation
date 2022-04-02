@@ -21,18 +21,22 @@ hivepress.initGeolocation = function() {
 						language: hivepressCoreData.language,
 					};
 
+					// Set countries
 					if (container.data('countries')) {
 						settings['countries'] = container.data('countries').join(',');
 					}
 
+					// Set types
 					if (container.data('types')) {
 						settings['types'] = container.data('types').join(',');
 					}
 
+					// Create Geocoder
 					var geocoder = new MapboxGeocoder(settings);
 
 					geocoder.addTo(container.get(0));
 
+					// Replace field
 					var mapboxContainer = container.children('.mapboxgl-ctrl'),
 						fieldAttributes = field.prop('attributes');
 
@@ -45,6 +49,7 @@ hivepress.initGeolocation = function() {
 
 					mapboxContainer.detach().prependTo(container);
 
+					// Set location
 					geocoder.on('result', function(result) {
 						var types = [
 							'place',
@@ -53,6 +58,7 @@ hivepress.initGeolocation = function() {
 							'country',
 						];
 
+						// Set region
 						if (regionField.length) {
 							if (result.result.place_type.filter(value => types.includes(value)).length) {
 								regionField.val(result.result.id);
@@ -61,10 +67,9 @@ hivepress.initGeolocation = function() {
 							}
 						}
 
+						// Set coordinates
 						longitudeField.val(result.result.geometry.coordinates[0]);
 						latitudeField.val(result.result.geometry.coordinates[1]);
-
-
 					});
 				} else {
 					settings = {
@@ -72,18 +77,22 @@ hivepress.initGeolocation = function() {
 						detailsAttribute: 'data-coordinate',
 					};
 
+					// Set countries
 					if (container.data('countries')) {
 						settings['componentRestrictions'] = {
 							'country': container.data('countries'),
 						};
 					}
 
+					// Set types
 					if (container.data('types')) {
 						settings['types'] = container.data('types');
 					}
 
+					// Initialize Geocomplete
 					field.geocomplete(settings);
 
+					// Set location
 					field.bind('geocode:result', function(event, result) {
 						var parts = [],
 							types = [
@@ -93,6 +102,7 @@ hivepress.initGeolocation = function() {
 								'country',
 							];
 
+						// Set region
 						if (regionField.length) {
 							if (result.address_components[0].types.filter(value => types.includes(value)).length) {
 								regionField.val(result.place_id);
@@ -101,6 +111,7 @@ hivepress.initGeolocation = function() {
 							}
 						}
 
+						// Set address
 						if (container.data('scatter')) {
 							types.push('route');
 
@@ -115,12 +126,14 @@ hivepress.initGeolocation = function() {
 					});
 				}
 
+				// Clear location
 				field.on('input', function() {
 					if (!field.val()) {
 						form.find('input[data-coordinate]').val('');
 					}
 				});
 
+				// Detect location
 				if (navigator.geolocation) {
 					button.on('click', function(e) {
 						navigator.geolocation.getCurrentPosition(function(position) {
@@ -128,7 +141,7 @@ hivepress.initGeolocation = function() {
 								geocoder.options.reverseGeocode = true;
 								geocoder.options.limit = 1;
 
-								geocoder.query(position.coords.latitude + ',' + position.coords.longitude)
+								geocoder.query(position.coords.latitude + ',' + position.coords.longitude);
 
 								geocoder.options.reverseGeocode = false;
 								geocoder.options.limit = 5;
@@ -147,11 +160,22 @@ hivepress.initGeolocation = function() {
 			// Map
 			hivepress.getComponent('map').each(function() {
 				var container = $(this),
+					height = container.width(),
 					maxZoom = container.data('max-zoom');
 
+				// Set height
+				if (container.is('[data-height]')) {
+					height = container.data('height');
+				}
+
+				container.height(height);
+
 				if (typeof mapboxData !== 'undefined') {
+
+					// Set API key
 					mapboxgl.accessToken = mapboxData.apiKey;
 
+					// Create map
 					var bounds = new mapboxgl.LngLatBounds(),
 						map = new mapboxgl.Map({
 							container: container.get(0),
@@ -160,6 +184,7 @@ hivepress.initGeolocation = function() {
 							zoom: 1,
 						});
 
+					// Set language
 					map.on('load', function() {
 						map.getStyle().layers.forEach(function(layer) {
 							if (layer.id.indexOf('-label') > 0) {
@@ -168,6 +193,7 @@ hivepress.initGeolocation = function() {
 						});
 					});
 
+					// Add markers
 					$.each(container.data('markers'), function(index, data) {
 						bounds.extend([data.longitude, data.latitude]);
 
@@ -177,14 +203,13 @@ hivepress.initGeolocation = function() {
 							.addTo(map);
 					});
 
+					// Fit bounds
 					map.fitBounds(bounds, {
 						maxZoom: maxZoom - 1,
 						duration: 0,
 					});
 				} else {
-					var height = container.width(),
-						prevWindow = false,
-
+					var prevWindow = false,
 						markers = [],
 						bounds = new google.maps.LatLngBounds(),
 						map = new google.maps.Map(container.get(0), {
@@ -219,12 +244,7 @@ hivepress.initGeolocation = function() {
 							scale: 10,
 						};
 
-					if (container.is('[data-height]')) {
-						height = container.data('height');
-					}
-
-					container.height(height);
-
+					// Add markers
 					$.each(container.data('markers'), function(index, data) {
 						var nextWindow = new google.maps.InfoWindow({
 								content: data.content,
@@ -258,6 +278,7 @@ hivepress.initGeolocation = function() {
 						bounds.extend(marker.getPosition());
 					});
 
+					// Fit bounds
 					map.fitBounds(bounds);
 
 					var observer = new MutationObserver(function(mutations) {
@@ -268,6 +289,7 @@ hivepress.initGeolocation = function() {
 						attributes: true,
 					});
 
+					// Cluster markers
 					var clusterer = new MarkerClusterer(map, markers, {
 						imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
 						maxZoom: maxZoom - 1,
