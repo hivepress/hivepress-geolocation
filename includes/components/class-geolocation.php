@@ -30,12 +30,15 @@ final class Geolocation extends Component {
 		// Add attributes.
 		add_filter( 'hivepress/v1/models/listing/attributes', [ $this, 'add_attributes' ] );
 
+		// Add fields.
+		add_filter( 'hivepress/v1/models/listing', [ $this, 'add_fields' ] );
+
 		// Add taxonomies.
 		add_filter( 'hivepress/v1/taxonomies', [ $this, 'add_taxonomies' ] );
 
 		// Enqueue scripts.
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ], 2 );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ], 2 );
 
 		// Update location.
 		add_action( 'hivepress/v1/models/listing/update_location', [ $this, 'update_location' ] );
@@ -49,9 +52,9 @@ final class Geolocation extends Component {
 			add_filter( 'option_hp_geolocation_radius', [ $this, 'set_search_radius' ] );
 
 			// Alter forms.
-			add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_search_form' ] );
-			add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_search_form' ] );
-			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_search_form' ] );
+			add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_search_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_search_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_search_form' ], 200 );
 
 			// Alter templates.
 			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
@@ -63,7 +66,7 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Adds attributes.
+	 * Adds listing attributes.
 	 *
 	 * @param array $attributes Attributes.
 	 * @return array
@@ -132,6 +135,22 @@ final class Geolocation extends Component {
 	}
 
 	/**
+	 * Adds listing fields.
+	 *
+	 * @param array $model Model arguments.
+	 * @return array
+	 */
+	public function add_fields( $model ) {
+		$attribute = hp\get_array_value( hivepress()->attribute->get_attributes( 'listing' ), 'location' );
+
+		if ( $attribute ) {
+			$model['fields']['location'] = $attribute['edit_field'];
+		}
+
+		return $model;
+	}
+
+	/**
 	 * Adds taxonomies.
 	 *
 	 * @param array $taxonomies Taxonomies.
@@ -167,24 +186,53 @@ final class Geolocation extends Component {
 	 * Enqueues scripts.
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_script(
-			'google-maps',
-			'https://maps.googleapis.com/maps/api/js?' . http_build_query(
-				[
-					'libraries' => 'places',
-					'callback'  => 'hivepress.initGeolocation',
-					'key'       => get_option( 'hp_gmaps_api_key' ),
-					'language'  => hivepress()->translator->get_language(),
-					'region'    => hivepress()->translator->get_region(),
-				]
-			),
-			[],
-			null,
-			true
-		);
+		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
+			wp_enqueue_style( 'mapbox', 'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css' );
+			wp_enqueue_style( 'mapbox-geocoder', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css' );
 
-		wp_script_add_data( 'google-maps', 'async', true );
-		wp_script_add_data( 'google-maps', 'defer', true );
+			wp_enqueue_script(
+				'mapbox',
+				'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js',
+				[],
+				null,
+				true
+			);
+
+			wp_enqueue_script(
+				'mapbox-geocoder',
+				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js',
+				[ 'mapbox' ],
+				null,
+				true
+			);
+
+			wp_localize_script(
+				'mapbox',
+				'mapboxData',
+				[
+					'apiKey' => get_option( 'hp_mapbox_api_key' ),
+				]
+			);
+		} else {
+			wp_enqueue_script(
+				'google-maps',
+				'https://maps.googleapis.com/maps/api/js?' . http_build_query(
+					[
+						'libraries' => 'places',
+						'callback'  => 'hivepress.initGeolocation',
+						'key'       => get_option( 'hp_gmaps_api_key' ),
+						'language'  => hivepress()->translator->get_language(),
+						'region'    => hivepress()->translator->get_region(),
+					]
+				),
+				[],
+				null,
+				true
+			);
+
+			wp_script_add_data( 'google-maps', 'async', true );
+			wp_script_add_data( 'google-maps', 'defer', true );
+		}
 	}
 
 	/**
@@ -217,14 +265,6 @@ final class Geolocation extends Component {
 		// Get map provider.
 		$provider = get_option( 'hp_geolocation_provider' );
 
-		// Set location types.
-		$types = [
-			'locality',
-			'administrative_area_level_2',
-			'administrative_area_level_1',
-			'country',
-		];
-
 		// Get request URL.
 		$request_url = null;
 
@@ -232,6 +272,17 @@ final class Geolocation extends Component {
 			$request_url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' . rawurlencode( $longitude . ',' . $latitude ) . '.json?' . http_build_query(
 				[
 					'access_token' => get_option( 'hp_mapbox_api_key' ),
+					'language'     => hivepress()->translator->get_language(),
+
+					'types'        => implode(
+						',',
+						[
+							'place',
+							'district',
+							'region',
+							'country',
+						]
+					),
 				]
 			);
 		} else {
@@ -240,7 +291,16 @@ final class Geolocation extends Component {
 					'latlng'      => $latitude . ',' . $longitude,
 					'key'         => get_option( 'hp_gmaps_api_key' ),
 					'language'    => hivepress()->translator->get_language(),
-					'result_type' => implode( '|', $types ),
+
+					'result_type' => implode(
+						'|',
+						[
+							'locality',
+							'administrative_area_level_2',
+							'administrative_area_level_1',
+							'country',
+						]
+					),
 				]
 			);
 		}
@@ -248,7 +308,7 @@ final class Geolocation extends Component {
 		// Get API response.
 		$response = json_decode( wp_remote_retrieve_body( wp_remote_get( $request_url ) ), true );
 
-		if ( ! $response || isset( $response['error_message'] ) ) {
+		if ( ! $response || isset( $response['message'] ) || isset( $response['error_message'] ) ) {
 			return;
 		}
 
@@ -256,7 +316,9 @@ final class Geolocation extends Component {
 		$regions = [];
 
 		if ( 'mapbox' === $provider ) {
-			// todo.
+			foreach ( $response['features'] as $result ) {
+				$regions[ $result['id'] ] = $result['text'];
+			}
 		} else {
 			foreach ( $response['results'] as $result ) {
 				$regions[ $result['place_id'] ] = $result['address_components'][0]['long_name'];
@@ -347,8 +409,13 @@ final class Geolocation extends Component {
 		$tax_query  = array_filter( (array) $query->get( 'tax_query' ) );
 
 		// Remove coordinate filters.
-		unset( $meta_query['latitude'] );
-		unset( $meta_query['longitude'] );
+		// @todo: Unset once filter keys are implemented.
+		$meta_query = array_filter(
+			$meta_query,
+			function( $args ) {
+				return ! in_array( $args['key'], [ 'latitude', 'longitude' ], true );
+			}
+		);
 
 		// Add region filter.
 		$tax_query[] = [
@@ -401,6 +468,16 @@ final class Geolocation extends Component {
 					'data-region' => true,
 				],
 			];
+
+			if ( is_tax( 'hp_listing_region' ) ) {
+				$region = get_queried_object();
+
+				$form['fields']['_region']['default'] = get_term_meta( $region->term_id, 'hp_code', true );
+
+				if ( isset( $form['fields']['location'] ) ) {
+					$form['fields']['location']['default'] = $region->name;
+				}
+			}
 		}
 
 		if ( get_option( 'hp_geolocation_allow_radius' ) && ! $is_search && hp\get_array_value( $_GET, 'location' ) && ! hp\get_array_value( $_GET, '_region' ) ) {
@@ -473,6 +550,7 @@ final class Geolocation extends Component {
 							'listing_location' => [
 								'type'   => 'part',
 								'path'   => 'listing/view/listing-location',
+								'_label' => esc_html__( 'Location', 'hivepress-geolocation' ),
 								'_order' => 5,
 							],
 						],
@@ -482,6 +560,7 @@ final class Geolocation extends Component {
 						'blocks' => [
 							'listing_map' => [
 								'type'       => 'listing_map',
+								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
 								'_order'     => 25,
 
 								'attributes' => [
@@ -510,6 +589,7 @@ final class Geolocation extends Component {
 						'blocks' => [
 							'listing_map' => [
 								'type'       => 'listing_map',
+								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
 								'_order'     => 15,
 
 								'attributes' => [
