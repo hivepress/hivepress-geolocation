@@ -146,6 +146,8 @@ final class Geolocation extends Component {
 
 		if ( $attribute ) {
 			$model['fields']['location'] = $attribute['edit_field'];
+
+			$model['fields']['location']['_external'] = true;
 		}
 
 		return $model;
