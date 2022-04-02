@@ -40,6 +40,8 @@ final class Geolocation extends Component {
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 
+		add_filter( 'hivepress/v1/scripts', [ $this, 'alter_scripts' ] );
+
 		// Update location.
 		add_action( 'hivepress/v1/models/listing/update_location', [ $this, 'update_location' ] );
 
@@ -236,6 +238,22 @@ final class Geolocation extends Component {
 			wp_script_add_data( 'google-maps', 'async', true );
 			wp_script_add_data( 'google-maps', 'defer', true );
 		}
+	}
+
+	/**
+	 * Alters scripts.
+	 *
+	 * @param array $scripts Scripts.
+	 * @return array
+	 */
+	public function alter_scripts( $scripts ) {
+		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
+			$scripts['geolocation']['deps'][] = 'mapbox-geocoder';
+		} else {
+			$scripts['geolocation']['deps'][] = 'google-maps';
+		}
+
+		return $scripts;
 	}
 
 	/**
