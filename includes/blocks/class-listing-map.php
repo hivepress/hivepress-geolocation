@@ -69,54 +69,53 @@ class Listing_Map extends Block {
 	public function render() {
 		$output = '';
 
-		if ( get_option( 'hp_gmaps_api_key' ) ) {
-			$markers = [];
+		// Get markers.
+		$markers = [];
 
-			// Get featured IDs.
-			$featured_ids = hivepress()->request->get_context( 'featured_ids' );
+		// Get featured IDs.
+		$featured_ids = hivepress()->request->get_context( 'featured_ids' );
 
-			if ( $featured_ids ) {
+		if ( $featured_ids ) {
 
-				// Query featured listings.
-				$featured_query = new \WP_Query(
-					Models\Listing::query()->filter(
-						[
-							'status' => 'publish',
-							'id__in' => $featured_ids,
-						]
-					)->limit( count( $featured_ids ) )
-					->get_args()
-				);
+			// Query featured listings.
+			$featured_query = new \WP_Query(
+				Models\Listing::query()->filter(
+					[
+						'status' => 'publish',
+						'id__in' => $featured_ids,
+					]
+				)->limit( count( $featured_ids ) )
+				->get_args()
+			);
 
-				while ( $featured_query->have_posts() ) {
-					$featured_query->the_post();
-
-					// Add marker.
-					$markers[] = $this->get_marker( get_post() );
-				}
-
-				// Reset query.
-				wp_reset_postdata();
-			}
-
-			// Query regular listings.
-			rewind_posts();
-
-			while ( have_posts() ) {
-				the_post();
+			while ( $featured_query->have_posts() ) {
+				$featured_query->the_post();
 
 				// Add marker.
 				$markers[] = $this->get_marker( get_post() );
 			}
 
-			rewind_posts();
+			// Reset query.
+			wp_reset_postdata();
+		}
 
-			// Render markers.
-			$markers = array_filter( $markers );
+		// Query regular listings.
+		rewind_posts();
 
-			if ( $markers ) {
-				$output .= '<div data-markers="' . hp\esc_json( wp_json_encode( $markers ) ) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
-			}
+		while ( have_posts() ) {
+			the_post();
+
+			// Add marker.
+			$markers[] = $this->get_marker( get_post() );
+		}
+
+		rewind_posts();
+
+		// Render markers.
+		$markers = array_filter( $markers );
+
+		if ( $markers ) {
+			$output .= '<div data-markers="' . hp\esc_json( wp_json_encode( $markers ) ) . '" ' . hp\html_attributes( $this->attributes ) . '></div>';
 		}
 
 		return $output;
