@@ -12,11 +12,13 @@ defined( 'ABSPATH' ) || exit;
 
 return [
 	'listing_region' => [
-		'post_type'    => [ 'listing' ],
-		'hierarchical' => true,
-		'rewrite'      => [ 'slug' => 'listing-region' ],
+		'post_type'          => [ 'listing' ],
+		'hierarchical'       => true,
+		'show_in_quick_edit' => false,
+		'meta_box_cb'        => false,
+		'rewrite'            => [ 'slug' => 'listing-region' ],
 
-		'labels'       => [
+		'labels'             => [
 			'name'          => esc_html__( 'Regions', 'hivepress-geolocation' ),
 			'singular_name' => esc_html__( 'Region', 'hivepress-geolocation' ),
 			'add_new_item'  => esc_html__( 'Add Region', 'hivepress-geolocation' ),
