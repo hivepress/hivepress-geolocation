@@ -38,9 +38,7 @@ hivepress.initGeolocation = function() {
 						];
 
 					if (regionField.length) {
-						if (result.address_components[0].types.filter(function(type) {
-								return types.indexOf(type) !== -1;
-							}).length) {
+						if (result.address_components[0].types.filter(value => types.includes(value)).length) {
 							regionField.val(result.place_id);
 						} else {
 							regionField.val('');
@@ -51,9 +49,7 @@ hivepress.initGeolocation = function() {
 						types.push('route');
 
 						$.each(result.address_components, function(index, component) {
-							if (component.types.filter(function(type) {
-									return types.indexOf(type) !== -1;
-								}).length) {
+							if (component.types.filter(value => types.includes(value)).length) {
 								parts.push(component.long_name);
 							}
 						});
