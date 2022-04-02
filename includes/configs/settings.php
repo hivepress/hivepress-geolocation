@@ -64,10 +64,11 @@ return [
 					],
 
 					'geolocation_generate_regions' => [
-						'label'   => esc_html__( 'Regions', 'hivepress-geolocation' ),
-						'caption' => esc_html__( 'Generate regions from locations', 'hivepress-geolocation' ),
-						'type'    => 'checkbox',
-						'_order'  => 60,
+						'label'       => esc_html__( 'Regions', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Check this option to create a page for each region.', 'hivepress-geolocation' ),
+						'caption'     => esc_html__( 'Generate regions from locations', 'hivepress-geolocation' ),
+						'type'        => 'checkbox',
+						'_order'      => 60,
 					],
 
 					'geolocation_hide_address'     => [
