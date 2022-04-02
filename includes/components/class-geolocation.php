@@ -37,8 +37,8 @@ final class Geolocation extends Component {
 		add_filter( 'hivepress/v1/taxonomies', [ $this, 'add_taxonomies' ] );
 
 		// Enqueue scripts.
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ], 2 );
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ], 2 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 
 		// Update location.
 		add_action( 'hivepress/v1/models/listing/update_location', [ $this, 'update_location' ] );
