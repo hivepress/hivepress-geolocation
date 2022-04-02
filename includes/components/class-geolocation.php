@@ -8,6 +8,7 @@
 namespace HivePress\Components;
 
 use HivePress\Helpers as hp;
+use HivePress\Models;
 
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
@@ -26,11 +27,6 @@ final class Geolocation extends Component {
 	 */
 	public function __construct( $args = [] ) {
 
-		// Check API key.
-		if ( ! get_option( 'hp_gmaps_api_key' ) ) {
-			return;
-		}
-
 		// Add attributes.
 		add_filter( 'hivepress/v1/models/listing/attributes', [ $this, 'add_attributes' ] );
 
@@ -39,15 +35,12 @@ final class Geolocation extends Component {
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 
 		// Alter forms.
-		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_filter_search_sort_forms' ], 1000, 2 );
-		add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_filter_search_sort_forms' ], 1000, 2 );
-		add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_filter_search_sort_forms' ], 1000, 2 );
-		add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_sort_form' ], 1000, 2 );
+		add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_search_form' ], 1000, 2 );
+		add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_search_form' ], 1000, 2 );
+		add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_search_form' ], 1000, 2 );
 
 		// Update models fields.
-		add_action( 'hivepress/v1/models/listing/update', [ $this, 'update_listing_model' ], 1000, 2 );
-
-		add_filter( 'posts_orderby', [ $this, 'set_listing_order' ], 100, 2 );
+		add_action( 'hivepress/v1/models/listing/update_location', [ $this, 'update_location' ], 1000 );
 
 		if ( ! is_admin() ) {
 
@@ -63,7 +56,7 @@ final class Geolocation extends Component {
 			add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
 
 			// Set search query.
-			add_action( 'pre_get_posts', [ $this, 'set_search_query' ], 5 );
+			add_action( 'pre_get_posts', [ $this, 'set_search_query' ], 1000 );
 		}
 
 		parent::__construct( $args );
@@ -86,26 +79,6 @@ final class Geolocation extends Component {
 		return array_merge(
 			$attributes,
 			[
-				'location'  => [
-					'editable'     => true,
-					'searchable'   => true,
-
-					'edit_field'   => [
-						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'      => 'location',
-						'countries' => $countries,
-						'required'  => true,
-						'_order'    => 25,
-					],
-
-					'search_field' => [
-						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'        => 'location',
-						'countries'   => $countries,
-						'_order'      => 20,
-					],
-				],
-
 				'latitude'  => [
 					'editable'     => true,
 					'searchable'   => true,
@@ -134,6 +107,26 @@ final class Geolocation extends Component {
 						'_parent' => 'latitude',
 					],
 				],
+
+				'location'  => [
+					'editable'     => true,
+					'searchable'   => true,
+
+					'edit_field'   => [
+						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'      => 'location',
+						'countries' => $countries,
+						'required'  => true,
+						'_order'    => 25,
+					],
+
+					'search_field' => [
+						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'        => 'location',
+						'countries'   => $countries,
+						'_order'      => 20,
+					],
+				],
 			]
 		);
 	}
@@ -142,66 +135,24 @@ final class Geolocation extends Component {
 	 * Enqueues scripts.
 	 */
 	public function enqueue_scripts() {
-		if ( 'mapbox' === get_option( 'hp_geolocation_provider' ) ) {
-			// Add Mapbox styles.
-			wp_enqueue_style(
-				'mapbox',
-				'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css',
-			);
-
-			// Add Mapbox geo styles.
-			wp_enqueue_style(
-				'mapbox-css',
-				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css',
-			);
-
-			// Add Mapbox js library.
-			wp_enqueue_script(
-				'mapbox-maps',
-				'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js',
-				[ 'jquery' ],
-				null,
-				false
-			);
-
-			// Add Mapbox geo js library.
-			wp_enqueue_script(
-				'mapbox-maps-geo',
-				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js',
-				[ 'mapbox-maps' ],
-				null,
-				false
-			);
-
-			wp_localize_script(
-				'mapbox-maps',
-				'mapboxData',
+		wp_enqueue_script(
+			'google-maps',
+			'https://maps.googleapis.com/maps/api/js?' . http_build_query(
 				[
-					'apiKey'   => get_option( 'hp_mapbox_api_key' ),
-					'provider' => get_option( 'hp_geolocation_provider' ),
-					'region'   => hivepress()->translator->get_region(),
+					'libraries' => 'places',
+					'callback'  => 'hivepress.initGeolocation',
+					'key'       => get_option( 'hp_gmaps_api_key' ),
+					'language'  => hivepress()->translator->get_language(),
+					'region'    => hivepress()->translator->get_region(),
 				]
-			);
-		} else {
-			wp_enqueue_script(
-				'google-maps',
-				'https://maps.googleapis.com/maps/api/js?' . http_build_query(
-					[
-						'libraries' => 'places',
-						'callback'  => 'hivepress.initGeolocation',
-						'key'       => get_option( 'hp_gmaps_api_key' ),
-						'language'  => hivepress()->translator->get_language(),
-						'region'    => hivepress()->translator->get_region(),
-					]
-				),
-				[],
-				null,
-				true
-			);
+			),
+			[],
+			null,
+			true
+		);
 
-			wp_script_add_data( 'google-maps', 'async', true );
-			wp_script_add_data( 'google-maps', 'defer', true );
-		}
+		wp_script_add_data( 'google-maps', 'async', true );
+		wp_script_add_data( 'google-maps', 'defer', true );
 	}
 
 	/**
@@ -296,13 +247,23 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Alters listing filter form.
+	 * Alters listing search form.
 	 *
-	 * @param array $form Form arguments.
+	 * @param array  $form_args Form arguments.
+	 * @param object $form Form object.
 	 * @return array
 	 */
-	public function alter_listing_filter_form( $form ) {
-		if ( get_option( 'hp_geolocation_allow_radius' ) && hp\get_array_value( $_GET, 'location' ) ) {
+	public function alter_listing_search_form( $form_args, $form ) {
+		$form_args['fields']['_region'] = [
+			'type'       => 'hidden',
+
+			'attributes' => [
+				'data-regions' => true,
+			],
+		];
+
+		// todo hide in some forms.
+		if ( get_option( 'hp_geolocation_allow_radius' ) && hp\get_array_value( $_GET, 'location' ) && ! hp\get_array_value( $_GET, '_region' ) ) {
 			$form['fields']['_radius'] = [
 				'label'      => esc_html__( 'Radius', 'hivepress-geolocation' ),
 				'type'       => 'number',
@@ -322,25 +283,6 @@ final class Geolocation extends Component {
 			];
 		}
 
-		return $form;
-	}
-
-	/**
-	 * Alters listing search form.
-	 *
-	 * @param array  $form_args Form arguments.
-	 * @param object $form Form object.
-	 * @return array
-	 */
-	public function alter_listing_filter_search_sort_forms( $form_args, $form ) {
-		$form_args['fields']['_regions'] = [
-			'type'       => 'hidden',
-
-			'attributes' => [
-				'data-regions' => true,
-			],
-		];
-
 		return $form_args;
 	}
 
@@ -357,267 +299,155 @@ final class Geolocation extends Component {
 			return;
 		}
 
-		$region_field = hp\get_array_value( $_GET, '_regions' );
+		$region_field = sanitize_key( hp\get_array_value( $_GET, '_region' ) );
 
 		// Check filter.
 		if ( ! $region_field ) {
 			return;
 		}
 
-		// Get meta query.
-		$meta_query = (array) $query->get( 'meta_query' );
+		// Get meta and taxonomy queries.
+		$meta_query = array_filter( (array) $query->get( 'meta_query' ) );
+		$tax_query  = array_filter( (array) $query->get( 'tax_query' ) );
 
-		foreach ( $meta_query as $key => $value ) {
-			if ( $value && in_array( $value['key'], [ 'hp_latitude', 'hp_longitude' ], true ) ) {
-				unset( $meta_query[ $key ] );
-			}
+		unset( $meta_query['latitude'] );
+		unset( $meta_query['longitude'] );
+
+		// Get region ID.
+		$region_id = hp\get_first_array_value(
+			get_terms(
+				[
+					'taxonomy'   => 'hp_listing_region',
+					'fields'     => 'ids',
+					'number'     => 1,
+					'hide_empty' => false,
+					'meta_key'   => 'hp_place_id',
+					'meta_value' => $region_field,
+				]
+			)
+		);
+
+		if ( ! $region_id ) {
+			return;
 		}
 
-		// Change region sort to country - state - city.
-		$regions = array_reverse( explode( '|', $region_field ) );
+		// Add meta clause.
+		$tax_query[] = [
+			'taxonomy' => 'hp_listing_region',
+			'terms'    => $region_id,
+		];
 
-		// Term id.
-		$term_id = null;
-
-		// Taxonomy.
-		$taxonomy = 'hp_listing_region';
-
-		foreach ( $regions as $region ) {
-			$term = term_exists( $region, $taxonomy, $term_id );
-
-			// Check term is existed.
-			if ( ! $term ) {
-				break;
-			}
-
-			$term_id = $term['term_id'];
-		}
-
-		if ( $term_id ) {
-
-			// Get meta query.
-			$tax_query = array_filter( (array) $query->get( 'tax_query' ) );
-
-			// Add meta clause.
-			$tax_query[] = [
-				'taxonomy' => $taxonomy,
-				'field'    => 'id',
-				'terms'    => $term_id,
-			];
-
-			// Set meta query.
-			$query->set( 'tax_query', $tax_query );
-		}
+		// Set meta and taxonomy queries.
+		$query->set( 'meta_query', $meta_query );
+		$query->set( 'tax_query', $tax_query );
 	}
 
 	/**
-	 * Updates listing longitude/latitude.
+	 * Updates listing location.
 	 *
-	 * @param int    $listing_id Listing ID.
-	 * @param object $listing Listing object.
+	 * @param int $listing_id Listing ID.
 	 */
-	public function update_listing_model( $listing_id, $listing ) {
+	public function update_location( $listing_id ) {
 
-		// Get google api key.
-		$api_key = get_option( 'hp_gmaps_api_key' );
-		$url     = 'https://maps.googleapis.com/maps/api/geocode/json?';
+		// Get listing.
+		$listing = Models\Listing::query()->get_by_id( $listing_id );
 
-		if ( 'mapbox' === get_option( 'hp_geolocation_provider' ) ) {
-			// Set Mapbox api key.
-			$api_key = get_option( 'hp_mapbox_api_key' );
-
-			// Set mapbox request url.
-			$url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/';
-		}
-
-		if ( ! $api_key || ! $listing ) {
+		if ( ! $listing ) {
 			return;
 		}
 
 		// Get coordinates.
-		$lng = $listing->get_longitude();
-		$lat = $listing->get_latitude();
+		$longitude = $listing->get_longitude();
+		$latitude  = $listing->get_latitude();
 
-		if ( ! $lng || ! $lat ) {
+		if ( ! $longitude || ! $latitude ) {
 			return;
 		}
 
-		// Set request url.
-		$query_string = $url . http_build_query(
-			[
-				'latlng' => $lat . ',' . $lng,
-				'key'    => $api_key,
-			]
-		);
+		// Get map provider.
+		$provider = get_option( 'hp_geolocation_provider' );
 
-		if ( 'mapbox' === get_option( 'hp_geolocation_provider' ) ) {
-			// Set mapbox request url.
-			$query_string = $url . rawurlencode( $lng . ',' . $lat ) . '.json?' . http_build_query(
+		// Get location types.
+		$types = [
+			'locality',
+			'administrative_area_level_2',
+			'administrative_area_level_1',
+			'country',
+		];
+
+		// Get request URL.
+		$request_url = null;
+
+		if ( 'mapbox' === $provider ) {
+			$request_url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' . rawurlencode( $longitude . ',' . $latitude ) . '.json?' . http_build_query(
 				[
-					'access_token' => $api_key,
+					'access_token' => get_option( 'hp_mapbox_api_key' ),
+				]
+			);
+		} else {
+			$request_url = 'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query(
+				[
+					'latlng'      => $latitude . ',' . $longitude,
+					'key'         => get_option( 'hp_gmaps_api_key' ),
+					'language'    => hivepress()->translator->get_language(),
+					'result_type' => implode( '|', $types ),
 				]
 			);
 		}
 
-		// Get location data.
-		$response = wp_remote_get( $query_string );
+		// Get API response.
+		$response = json_decode( wp_remote_retrieve_body( wp_remote_get( $request_url ) ), true );
 
-		if ( 200 !== $response['response']['code'] ) {
+		if ( ! $response || isset( $response['error_message'] ) ) {
 			return;
 		}
 
-		// Get location results.
-		$results = json_decode( $response['body'] );
+		// Get region names.
+		$regions = [];
 
-		if ( ! $results ) {
-			return;
-		}
-
-		// Set location.
-		$place = [];
-
-		if ( 'mapbox' === get_option( 'hp_geolocation_provider' ) ) {
-			$types = [
-				'country'  => '',
-				'region'   => '',
-				'district' => '',
-				'place'    => '',
-			];
-
-			// Find location by coordinates.
-			foreach ( $results->features as $location_coordinates ) {
-				if ( $lng === $location_coordinates->center[0] && $lat === $location_coordinates->center[1] ) {
-
-					foreach ( $location_coordinates->place_type as $place_type ) {
-						$types[ $place_type ] = $location_coordinates->text;
-					}
-
-					foreach ( $location_coordinates->context as $place_type ) {
-						$types[ explode( '.', $place_type->id )[0] ] = $place_type->text;
-					}
-
-					break;
-				}
-			}
-
-			// Set location.
-			foreach ( array_filter( $types ) as $type => $type_value ) {
-				$place[] = $type_value;
-			}
+		if ( 'mapbox' === $provider ) {
+			// todo.
 		} else {
-			$results = json_decode( $response['body'] )->results;
-
-			// Set region types.
-			$types = [
-				'locality',
-				'administrative_area_level_1',
-				'administrative_area_level_2',
-				'country',
-			];
-
-			foreach ( $results as $result ) {
-				foreach ( array_reverse( $result->address_components ) as $component ) {
-					if ( array_intersect( $types, $component->types ) ) {
-						$place[] = $component->long_name;
-					}
-				}
-				if ( count( $place ) > 2 ) {
-					break;
-				}
+			foreach ( $response['results'] as $result ) {
+				$regions[ $result['place_id'] ] = $result['address_components'][0]['long_name'];
 			}
 		}
 
-		if ( count( $place ) < 3 ) {
-			return;
-		}
+		// Get region ID.
+		$region_id = null;
 
-		// Set parent term id.
-		$parent_id = null;
+		foreach ( array_reverse( $regions ) as $region_key => $region ) {
 
-		// Delete old term.
-		wp_delete_object_term_relationships( $listing_id, 'hp_listing_region' );
+			// Get region.
+			$region_args = term_exists( $region, 'hp_listing_region', $region_id );
 
-		foreach ( $place as $region ) {
-			$term = term_exists( $region, 'hp_listing_region', $parent_id );
+			if ( ! $region_args ) {
 
-			// Check term is existed.
-			if ( $term ) {
-				$parent_id = $term['term_id'];
-			} else {
-				wp_insert_term(
+				// Add region.
+				$region_args = wp_insert_term(
 					$region,
 					'hp_listing_region',
 					[
-						'parent' => $parent_id,
+						'parent' => $region_id,
 					]
 				);
-				$new_term = term_exists( $region, 'hp_listing_region', $parent_id );
 
-				if ( ! $new_term ) {
+				if ( is_wp_error( $region_args ) ) {
 					break;
 				}
 
-				$parent_id = $new_term['term_id'];
+				update_term_meta( $region_args['term_id'], 'hp_place_id', $region_key );
 			}
 
-			// Set listing to term.
-			wp_set_object_terms( $listing_id, intval( $parent_id ), 'hp_listing_region', true );
+			$region_id = (int) $region_args['term_id'];
 		}
 
-	}
-
-	/**
-	 * Alters listing sort form.
-	 *
-	 * @param array  $form_args Form arguments.
-	 * @param object $form Form object.
-	 * @return array
-	 */
-	public function alter_listing_sort_form( $form_args, $form ) {
-		if ( hp\get_array_value( $_GET, 'location' ) ) {
-			$form_args['fields']['_sort']['options'][''] = esc_html__( 'Distance', 'hivepress-geolocation' );
+		if ( ! $region_id ) {
+			return;
 		}
 
-		return $form_args;
-	}
-
-	/**
-	 * Sets listing order.
-	 *
-	 * @param string   $orderby ORDER BY clause.
-	 * @param WP_Query $query Query object.
-	 * @return string
-	 */
-	public function set_listing_order( $orderby, $query ) {
-		global $wpdb;
-
-		// Check query.
-		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
-			return $orderby;
-		}
-
-		// Check sort.
-		if ( ! isset( $_GET['location'] ) || ! empty( $_GET['_sort'] ) ) {
-			return $orderby;
-		}
-
-		// Get coordinates.
-		$lat = floatval( hp\get_array_value( $_GET, 'latitude' ) );
-		$lng = floatval( hp\get_array_value( $_GET, 'longitude' ) );
-
-		if ( ! $lat || ! $lng ) {
-			return $orderby;
-		}
-		// error_log( print_r( $query, true ) );
-
-		// Set order.
-		$orderby = $wpdb->prepare(
-			'POW(wp_postmeta.meta_value - %f, 2) + POW(mt1.meta_value - %f, 2) ASC',
-			$lat,
-			$lng
-		);
-
-		return $orderby;
+		// Set region ID.
+		wp_set_object_terms( $listing->get_id(), $region_id, 'hp_listing_region' );
 	}
 
 	/**
