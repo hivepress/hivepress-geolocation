@@ -416,7 +416,7 @@ final class Geolocation extends Component {
 		$meta_query = array_filter(
 			$meta_query,
 			function( $args ) {
-				return ! in_array( $args['key'], [ 'latitude', 'longitude' ], true );
+				return ! in_array( $args['key'], [ 'hp_latitude', 'hp_longitude' ], true );
 			}
 		);
 
