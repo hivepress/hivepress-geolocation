@@ -125,7 +125,13 @@ hivepress.initGeolocation = function() {
 					button.on('click', function(e) {
 						navigator.geolocation.getCurrentPosition(function(position) {
 							if (typeof mapboxData !== 'undefined') {
-								//todo
+								geocoder.options.reverseGeocode = true;
+								geocoder.options.limit = 1;
+
+								geocoder.query(position.coords.latitude + ',' + position.coords.longitude)
+
+								geocoder.options.reverseGeocode = false;
+								geocoder.options.limit = 5;
 							} else {
 								field.geocomplete('find', position.coords.latitude + ' ' + position.coords.longitude);
 							}

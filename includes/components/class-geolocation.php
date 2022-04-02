@@ -137,6 +137,7 @@ final class Geolocation extends Component {
 	/**
 	 * Adds listing fields.
 	 *
+	 * @todo Remove once field-specific update hooks are fixed.
 	 * @param array $model Model arguments.
 	 * @return array
 	 */
@@ -409,7 +410,7 @@ final class Geolocation extends Component {
 		$tax_query  = array_filter( (array) $query->get( 'tax_query' ) );
 
 		// Remove coordinate filters.
-		// @todo: Unset once filter keys are implemented.
+		// @todo: Unset once query filter keys are implemented.
 		$meta_query = array_filter(
 			$meta_query,
 			function( $args ) {
