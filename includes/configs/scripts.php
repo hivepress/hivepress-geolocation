@@ -15,6 +15,7 @@ return [
 		'handle'  => 'geocomplete',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/jquery.geocomplete.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
+		'deps'    => [ 'google-maps' ],
 		'scope'   => [ 'frontend', 'backend' ],
 	],
 
@@ -22,6 +23,7 @@ return [
 		'handle'  => 'markerclustererplus',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/markerclustererplus.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
+		'deps'    => [ 'google-maps' ],
 		'scope'   => [ 'frontend', 'backend' ],
 	],
 
@@ -29,6 +31,7 @@ return [
 		'handle'  => 'markerspiderfier',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/oms.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
+		'deps'    => [ 'google-maps' ],
 		'scope'   => [ 'frontend', 'backend' ],
 	],
 
@@ -36,7 +39,7 @@ return [
 		'handle'  => 'hivepress-geolocation',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/common.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
-		'deps'    => [ 'hivepress-core', 'geocomplete', 'markerclustererplus' ],
+		'deps'    => [ 'hivepress-core' ],
 		'scope'   => [ 'frontend', 'backend' ],
 
 		'data'    => [
