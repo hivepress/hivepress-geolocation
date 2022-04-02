@@ -7,10 +7,12 @@ hivepress.initGeolocation = function() {
 			// Location
 			hivepress.getComponent('location').each(function() {
 				var container = $(this),
+					form = container.closest('form'),
 					field = container.find('input[type=text]'),
+					regionField = form.find('input[data-region]'),
 					button = container.find('a'),
 					settings = {
-						details: field.closest('form'),
+						details: form,
 						detailsAttribute: 'data-coordinate',
 					};
 
@@ -26,32 +28,39 @@ hivepress.initGeolocation = function() {
 
 				field.geocomplete(settings);
 
-				if (container.data('scatter')) {
-					field.bind('geocode:result', function(event, result) {
-						var parts = [],
-							types = [
-								'route',
-								'locality',
-								'administrative_area_level_1',
-								'administrative_area_level_2',
-								'country',
-							];
+				field.bind('geocode:result', function(event, result) {
+					var parts = [],
+						types = [
+							'locality',
+							'administrative_area_level_2',
+							'administrative_area_level_1',
+							'country',
+						];
+
+					if (regionField.length) {
+						if (result.address_components[0].types.filter(value => types.includes(value)).length) {
+							regionField.val(result.place_id);
+						} else {
+							regionField.val('');
+						}
+					}
+
+					if (container.data('scatter')) {
+						types.push('route');
 
 						$.each(result.address_components, function(index, component) {
-							if (component.types.filter(function(type) {
-									return types.indexOf(type) !== -1;
-								}).length) {
+							if (component.types.filter(value => types.includes(value)).length) {
 								parts.push(component.long_name);
 							}
 						});
 
 						field.val(parts.join(', '));
-					});
-				}
+					}
+				});
 
 				field.on('input', function() {
 					if (!field.val()) {
-						container.closest('form').find('input[data-coordinate]').val('');
+						form.find('input[data-coordinate]').val('');
 					}
 				});
 
