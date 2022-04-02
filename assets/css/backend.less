@@ -12,6 +12,8 @@
 				margin-left: -24px;
 				vertical-align: middle;
 				color: #888;
+				position: relative;
+				z-index: 2;
 
 				&:focus {
 					box-shadow: none;
@@ -22,6 +24,34 @@
 					font-size: 14px;
 				}
 			}
+		}
+	}
+}
+/*--------------------------------------------------------------
+Mapbox
+--------------------------------------------------------------*/
+.mapboxgl {
+	&-ctrl-geocoder {
+		width: auto !important;
+		max-width: none !important;
+		box-shadow: none !important;
+		min-width: none !important;
+		display: inline-block;
+
+		.suggestions-wrapper {
+			li {
+				margin-bottom: 0 !important;
+			}
+
+			a {
+				margin-left: 0 !important;
+				background-color: inherit !important;
+			}
+		}
+
+		&--icon,
+		&--pin-right {
+			display: none !important;
 		}
 	}
 }
