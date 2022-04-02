@@ -9,7 +9,7 @@ hivepress.initGeolocation = function() {
 				var container = $(this),
 					form = container.closest('form'),
 					field = container.find('input[type=text]'),
-					regionField = form.find('input[name=_region]'),
+					regionField = form.find('input[data-region]'),
 					button = container.find('a'),
 					settings = {
 						details: form,

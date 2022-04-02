@@ -18,7 +18,7 @@ return [
 				'_order' => 100,
 
 				'fields' => [
-					'geolocation_provider'     => [
+					'geolocation_provider'         => [
 						'label'       => esc_html__( 'Map Provider', 'hivepress-geolocation' ),
 						'type'        => 'select',
 						'placeholder' => 'Google Maps',
@@ -29,7 +29,7 @@ return [
 						],
 					],
 
-					'geolocation_countries'    => [
+					'geolocation_countries'        => [
 						'label'    => esc_html__( 'Countries', 'hivepress-geolocation' ),
 						'type'     => 'select',
 						'options'  => 'countries',
@@ -37,7 +37,7 @@ return [
 						'_order'   => 20,
 					],
 
-					'geolocation_max_zoom'     => [
+					'geolocation_max_zoom'         => [
 						'label'     => esc_html__( 'Zoom', 'hivepress-geolocation' ),
 						'type'      => 'number',
 						'min_value' => 2,
@@ -47,7 +47,7 @@ return [
 						'_order'    => 30,
 					],
 
-					'geolocation_radius'       => [
+					'geolocation_radius'           => [
 						'label'     => esc_html__( 'Radius', 'hivepress-geolocation' ),
 						'statuses'  => [ esc_html__( 'km', 'hivepress-geolocation' ) ],
 						'type'      => 'number',
@@ -57,17 +57,24 @@ return [
 						'_order'    => 40,
 					],
 
-					'geolocation_allow_radius' => [
+					'geolocation_allow_radius'     => [
 						'caption' => esc_html__( 'Allow users to change radius', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
 						'_order'  => 50,
 					],
 
-					'geolocation_hide_address' => [
+					'geolocation_generate_regions' => [
+						'label'   => esc_html__( 'Regions', 'hivepress-geolocation' ),
+						'caption' => esc_html__( 'Generate regions from locations', 'hivepress-geolocation' ),
+						'type'    => 'checkbox',
+						'_order'  => 60,
+					],
+
+					'geolocation_hide_address'     => [
 						'label'   => esc_html__( 'Address', 'hivepress-geolocation' ),
 						'caption' => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
-						'_order'  => 60,
+						'_order'  => 70,
 					],
 				],
 			],
