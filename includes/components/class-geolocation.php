@@ -37,11 +37,13 @@ final class Geolocation extends Component {
 		add_filter( 'hivepress/v1/taxonomies', [ $this, 'add_taxonomies' ] );
 
 		// Enqueue scripts.
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ], 2 );
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ], 2 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+
+		add_filter( 'hivepress/v1/scripts', [ $this, 'alter_scripts' ] );
 
 		// Update location.
-		add_action( 'hivepress/v1/models/listing/update_location', [ $this, 'update_location' ] );
+		add_action( 'hivepress/v1/models/listing/update_longitude', [ $this, 'update_location' ] );
 
 		if ( ! is_admin() ) {
 
@@ -142,10 +144,14 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function add_fields( $model ) {
-		$attribute = hp\get_array_value( hivepress()->attribute->get_attributes( 'listing' ), 'location' );
+		$attributes = hivepress()->attribute->get_attributes( 'listing' );
 
-		if ( $attribute ) {
-			$model['fields']['location'] = $attribute['edit_field'];
+		foreach ( [ 'latitude', 'longitude' ] as $field ) {
+			if ( isset( $attributes[ $field ] ) ) {
+				$model['fields'][ $field ] = $attributes[ $field ]['edit_field'];
+
+				$model['fields'][ $field ]['_external'] = true;
+			}
 		}
 
 		return $model;
@@ -226,7 +232,7 @@ final class Geolocation extends Component {
 						'region'    => hivepress()->translator->get_region(),
 					]
 				),
-				[],
+				[ 'hivepress-geolocation' ],
 				null,
 				true
 			);
@@ -234,6 +240,20 @@ final class Geolocation extends Component {
 			wp_script_add_data( 'google-maps', 'async', true );
 			wp_script_add_data( 'google-maps', 'defer', true );
 		}
+	}
+
+	/**
+	 * Alters scripts.
+	 *
+	 * @param array $scripts Scripts.
+	 * @return array
+	 */
+	public function alter_scripts( $scripts ) {
+		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
+			$scripts['geolocation']['deps'][] = 'mapbox-geocoder';
+		}
+
+		return $scripts;
 	}
 
 	/**
@@ -414,7 +434,7 @@ final class Geolocation extends Component {
 		$meta_query = array_filter(
 			$meta_query,
 			function( $args ) {
-				return ! in_array( $args['key'], [ 'latitude', 'longitude' ], true );
+				return ! in_array( $args['key'], [ 'hp_latitude', 'hp_longitude' ], true );
 			}
 		);
 
