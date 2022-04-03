@@ -184,6 +184,9 @@ hivepress.initGeolocation = function() {
 							zoom: 1,
 						});
 
+					map.addControl(new mapboxgl.NavigationControl());
+					map.addControl(new mapboxgl.FullscreenControl());
+
 					// Set language
 					map.on('load', function() {
 						map.getStyle().layers.forEach(function(layer) {
