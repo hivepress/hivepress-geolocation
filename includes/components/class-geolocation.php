@@ -43,7 +43,7 @@ final class Geolocation extends Component {
 		add_filter( 'hivepress/v1/scripts', [ $this, 'alter_scripts' ] );
 
 		// Update location.
-		add_action( 'hivepress/v1/models/listing/update_location', [ $this, 'update_location' ] );
+		add_action( 'hivepress/v1/models/listing/update_longitude', [ $this, 'update_location' ] );
 
 		if ( ! is_admin() ) {
 
@@ -144,12 +144,14 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function add_fields( $model ) {
-		$attribute = hp\get_array_value( hivepress()->attribute->get_attributes( 'listing' ), 'location' );
+		$attributes = hivepress()->attribute->get_attributes( 'listing' );
 
-		if ( $attribute ) {
-			$model['fields']['location'] = $attribute['edit_field'];
+		foreach ( [ 'latitude', 'longitude' ] as $field ) {
+			if ( isset( $attributes[ $field ] ) ) {
+				$model['fields'][ $field ] = $attributes[ $field ]['edit_field'];
 
-			$model['fields']['location']['_external'] = true;
+				$model['fields'][ $field ]['_external'] = true;
+			}
 		}
 
 		return $model;
@@ -230,7 +232,7 @@ final class Geolocation extends Component {
 						'region'    => hivepress()->translator->get_region(),
 					]
 				),
-				[],
+				[ 'hivepress-geolocation' ],
 				null,
 				true
 			);
@@ -249,8 +251,6 @@ final class Geolocation extends Component {
 	public function alter_scripts( $scripts ) {
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
 			$scripts['geolocation']['deps'][] = 'mapbox-geocoder';
-		} else {
-			$scripts['geolocation']['deps'][] = 'google-maps';
 		}
 
 		return $scripts;
