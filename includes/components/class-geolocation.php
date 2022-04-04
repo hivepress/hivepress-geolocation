@@ -403,13 +403,13 @@ final class Geolocation extends Component {
 	 */
 	public function set_search_query( $query ) {
 
-		// Check settings.
-		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
+		// Check query.
+		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
 			return;
 		}
 
-		// Check query.
-		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
+		// Check settings.
+		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
 			return;
 		}
 
@@ -472,12 +472,12 @@ final class Geolocation extends Component {
 	public function set_search_order( $orderby, $query ) {
 		global $wpdb;
 
-		// Check WP query.
+		// Check query.
 		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
-			return;
+			return $orderby;
 		}
 
-		// Check GET parameters.
+		// Check parameters.
 		if ( ! empty( $_GET['_sort'] ) || empty( $_GET['location'] ) || ! empty( $_GET['_region'] ) ) {
 			return $orderby;
 		}
@@ -495,17 +495,17 @@ final class Geolocation extends Component {
 
 		foreach ( $query->meta_query->get_clauses() as $clause ) {
 			if ( in_array( $clause['key'], [ 'hp_latitude', 'hp_longitude' ], true ) ) {
-				$aliases[ hp\unprefix( $clause['key'] ) ] = $clause['alias'];
+				$aliases[ hp\unprefix( $clause['key'] ) ] = sanitize_key( $clause['alias'] );
 			}
 		}
 
-		if ( ! $aliases ) {
+		if ( count( $aliases ) < 2 ) {
 			return $orderby;
 		}
 
 		// Set order clause.
 		$orderby = $wpdb->prepare(
-			"POW({$aliases['latitude']}.meta_value - %f, 2) + POW({$aliases['longitude']}.meta_value - %f, 2) ASC",
+			"POW( {$aliases['latitude']}.meta_value - %f, 2 ) + POW( {$aliases['longitude']}.meta_value - %f, 2 ) ASC",
 			$latitude,
 			$longitude
 		);
