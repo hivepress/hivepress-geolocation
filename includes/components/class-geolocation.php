@@ -438,7 +438,17 @@ final class Geolocation extends Component {
 		}
 
 		// Get meta and taxonomy queries.
-		$tax_query = array_filter( (array) $query->get( 'tax_query' ) );
+		$meta_query = array_filter( (array) $query->get( 'meta_query' ) );
+		$tax_query  = array_filter( (array) $query->get( 'tax_query' ) );
+
+		// Remove coordinate filters.
+		// @todo: Unset once query filter keys are implemented.
+		$meta_query = array_filter(
+			$meta_query,
+			function( $args ) {
+				return ! in_array( $args['key'], [ 'hp_latitude', 'hp_longitude' ], true );
+			}
+		);
 
 		// Add region filter.
 		$tax_query[] = [
@@ -447,6 +457,7 @@ final class Geolocation extends Component {
 		];
 
 		// Set meta and taxonomy queries.
+		$query->set( 'meta_query', $meta_query );
 		$query->set( 'tax_query', $tax_query );
 	}
 
