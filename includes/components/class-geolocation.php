@@ -213,6 +213,14 @@ final class Geolocation extends Component {
 				true
 			);
 
+			wp_enqueue_script(
+				'mapbox-language',
+				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-language/v1.0.0/mapbox-gl-language.js',
+				[ 'mapbox' ],
+				null,
+				true
+			);
+
 			wp_localize_script(
 				'mapbox',
 				'mapboxData',

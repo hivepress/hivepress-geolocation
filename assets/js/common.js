@@ -188,13 +188,7 @@ hivepress.initGeolocation = function() {
 					map.addControl(new mapboxgl.FullscreenControl());
 
 					// Set language
-					map.on('load', function() {
-						map.getStyle().layers.forEach(function(layer) {
-							if (layer.id.indexOf('-label') > 0) {
-								map.setLayoutProperty(layer.id, 'text-field', ['get', 'name_' + hivepressCoreData.language]);
-							}
-						});
-					});
+					map.addControl(new MapboxLanguage());
 
 					// Add markers
 					$.each(container.data('markers'), function(index, data) {
