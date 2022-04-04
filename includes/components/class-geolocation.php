@@ -637,8 +637,8 @@ final class Geolocation extends Component {
 	 */
 	public function set_listing_order( $orderby, $query ) {
 
-		// Check option.
-		if ( get_option( 'hp_geolocation_generate_regions' ) ) {
+		// Check url parametr.
+		if ( hp\get_array_value( $_GET, '_region' ) ) {
 			return $orderby;
 		}
 
@@ -696,7 +696,7 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function alter_listing_sort_form( $form_args, $form ) {
-		if ( ! get_option( 'hp_geolocation_generate_regions' ) && hp\get_array_value( $_GET, 'location' ) ) {
+		if ( ! hp\get_array_value( $_GET, '_region' ) && hp\get_array_value( $_GET, 'location' ) ) {
 			$form_args['fields']['_sort']['options'][''] = esc_html__( 'Distance', 'hivepress-geolocation' );
 		}
 
