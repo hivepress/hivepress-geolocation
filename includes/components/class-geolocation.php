@@ -45,6 +45,9 @@ final class Geolocation extends Component {
 		// Update location.
 		add_action( 'hivepress/v1/models/listing/update_longitude', [ $this, 'update_location' ] );
 
+		// Set listing order.
+		add_filter( 'posts_orderby', [ $this, 'set_listing_order' ], 100, 2 );
+
 		if ( ! is_admin() ) {
 
 			// Set search query.
@@ -57,6 +60,7 @@ final class Geolocation extends Component {
 			add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_search_form' ], 200 );
 			add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_search_form' ], 200 );
 			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_search_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_sort_form' ], 200, 2 );
 
 			// Alter templates.
 			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
@@ -208,6 +212,14 @@ final class Geolocation extends Component {
 			wp_enqueue_script(
 				'mapbox-geocoder',
 				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js',
+				[ 'mapbox' ],
+				null,
+				true
+			);
+
+			wp_enqueue_script(
+				'mapbox-language',
+				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-language/v1.0.0/mapbox-gl-language.js',
 				[ 'mapbox' ],
 				null,
 				true
@@ -426,17 +438,7 @@ final class Geolocation extends Component {
 		}
 
 		// Get meta and taxonomy queries.
-		$meta_query = array_filter( (array) $query->get( 'meta_query' ) );
-		$tax_query  = array_filter( (array) $query->get( 'tax_query' ) );
-
-		// Remove coordinate filters.
-		// @todo: Unset once query filter keys are implemented.
-		$meta_query = array_filter(
-			$meta_query,
-			function( $args ) {
-				return ! in_array( $args['key'], [ 'hp_latitude', 'hp_longitude' ], true );
-			}
-		);
+		$tax_query = array_filter( (array) $query->get( 'tax_query' ) );
 
 		// Add region filter.
 		$tax_query[] = [
@@ -445,7 +447,6 @@ final class Geolocation extends Component {
 		];
 
 		// Set meta and taxonomy queries.
-		$query->set( 'meta_query', $meta_query );
 		$query->set( 'tax_query', $tax_query );
 	}
 
@@ -625,5 +626,80 @@ final class Geolocation extends Component {
 				],
 			]
 		);
+	}
+
+	/**
+	 * Sets listing order.
+	 *
+	 * @param string   $orderby ORDER BY clause.
+	 * @param WP_Query $query Query object.
+	 * @return string
+	 */
+	public function set_listing_order( $orderby, $query ) {
+
+		// Check url parameter.
+		if ( hp\get_array_value( $_GET, '_region' ) ) {
+			return $orderby;
+		}
+
+		global $wpdb;
+
+		// Check query.
+		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
+			return $orderby;
+		}
+
+		// Check sort.
+		if ( ! isset( $_GET['location'] ) || ! empty( $_GET['_sort'] ) ) {
+			return $orderby;
+		}
+
+		// Get coordinates.
+		$lat = floatval( hp\get_array_value( $_GET, 'latitude' ) );
+		$lng = floatval( hp\get_array_value( $_GET, 'longitude' ) );
+
+		if ( ! $lat || ! $lng ) {
+			return $orderby;
+		}
+
+		// Get coordinates meta keys.
+		$meta_keys = [
+			'hp_latitude'  => '',
+			'hp_longitude' => '',
+		];
+
+		foreach ( $query->meta_query->get_clauses() as $meta ) {
+			if ( isset( $meta_keys[ $meta['key'] ] ) ) {
+				$meta_keys[ $meta['key'] ] = $meta['alias'];
+			}
+		}
+
+		if ( ! array_filter( array_values( $meta_keys ) ) ) {
+			return $orderby;
+		}
+
+		// Set order.
+		$orderby = $wpdb->prepare(
+			'POW(' . $meta_keys['hp_latitude'] . '.meta_value - %f, 2) + POW(' . $meta_keys['hp_longitude'] . '.meta_value - %f, 2) ASC',
+			$lat,
+			$lng
+		);
+
+		return $orderby;
+	}
+
+	/**
+	 * Alters listing sort form.
+	 *
+	 * @param array  $form_args Form arguments.
+	 * @param object $form Form object.
+	 * @return array
+	 */
+	public function alter_listing_sort_form( $form_args, $form ) {
+		if ( ! hp\get_array_value( $_GET, '_region' ) && hp\get_array_value( $_GET, 'location' ) ) {
+			$form_args['fields']['_sort']['options'][''] = esc_html__( 'Distance', 'hivepress-geolocation' );
+		}
+
+		return $form_args;
 	}
 }
