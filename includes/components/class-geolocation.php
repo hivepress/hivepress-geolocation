@@ -50,6 +50,9 @@ final class Geolocation extends Component {
 			// Set search query.
 			add_action( 'pre_get_posts', [ $this, 'set_search_query' ], 100 );
 
+			// Set search order.
+			add_filter( 'posts_orderby', [ $this, 'set_search_order' ], 100, 2 );
+
 			// Set search radius.
 			add_filter( 'option_hp_geolocation_radius', [ $this, 'set_search_radius' ] );
 
@@ -57,6 +60,8 @@ final class Geolocation extends Component {
 			add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_search_form' ], 200 );
 			add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_search_form' ], 200 );
 			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_search_form' ], 200 );
+
+			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_sort_form' ], 200 );
 
 			// Alter templates.
 			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
@@ -213,6 +218,14 @@ final class Geolocation extends Component {
 				true
 			);
 
+			wp_enqueue_script(
+				'mapbox-language',
+				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-language/v1.0.0/mapbox-gl-language.js',
+				[ 'mapbox-geocoder' ],
+				null,
+				true
+			);
+
 			wp_localize_script(
 				'mapbox',
 				'mapboxData',
@@ -250,7 +263,7 @@ final class Geolocation extends Component {
 	 */
 	public function alter_scripts( $scripts ) {
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
-			$scripts['geolocation']['deps'][] = 'mapbox-geocoder';
+			$scripts['geolocation']['deps'][] = 'mapbox-language';
 		}
 
 		return $scripts;
@@ -390,13 +403,13 @@ final class Geolocation extends Component {
 	 */
 	public function set_search_query( $query ) {
 
-		// Check settings.
-		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
+		// Check query.
+		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
 			return;
 		}
 
-		// Check query.
-		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
+		// Check settings.
+		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
 			return;
 		}
 
@@ -447,6 +460,57 @@ final class Geolocation extends Component {
 		// Set meta and taxonomy queries.
 		$query->set( 'meta_query', $meta_query );
 		$query->set( 'tax_query', $tax_query );
+	}
+
+	/**
+	 * Sets search order.
+	 *
+	 * @param string   $orderby Order clause.
+	 * @param WP_Query $query Query object.
+	 * @return string
+	 */
+	public function set_search_order( $orderby, $query ) {
+		global $wpdb;
+
+		// Check query.
+		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
+			return $orderby;
+		}
+
+		// Check parameters.
+		if ( ! empty( $_GET['_sort'] ) || empty( $_GET['location'] ) || ! empty( $_GET['_region'] ) ) {
+			return $orderby;
+		}
+
+		// Get coordinates.
+		$latitude  = round( floatval( hp\get_array_value( $_GET, 'latitude' ) ), 6 );
+		$longitude = round( floatval( hp\get_array_value( $_GET, 'longitude' ) ), 6 );
+
+		if ( $latitude < -90 || $latitude > 90 || $longitude < -180 || $longitude > 180 ) {
+			return $orderby;
+		}
+
+		// Get table aliases.
+		$aliases = [];
+
+		foreach ( $query->meta_query->get_clauses() as $clause ) {
+			if ( in_array( $clause['key'], [ 'hp_latitude', 'hp_longitude' ], true ) ) {
+				$aliases[ hp\unprefix( $clause['key'] ) ] = sanitize_key( $clause['alias'] );
+			}
+		}
+
+		if ( count( $aliases ) < 2 ) {
+			return $orderby;
+		}
+
+		// Set order clause.
+		$orderby = $wpdb->prepare(
+			"POW( {$aliases['latitude']}.meta_value - %f, 2 ) + POW( {$aliases['longitude']}.meta_value - %f, 2 ) ASC",
+			$latitude,
+			$longitude
+		);
+
+		return $orderby;
 	}
 
 	/**
@@ -528,6 +592,20 @@ final class Geolocation extends Component {
 			if ( ! $is_filter ) {
 				$form['fields']['_radius']['display_type'] = 'hidden';
 			}
+		}
+
+		return $form;
+	}
+
+	/**
+	 * Alters listing sort form.
+	 *
+	 * @param array $form Form arguments.
+	 * @return array
+	 */
+	public function alter_listing_sort_form( $form ) {
+		if ( ! empty( $_GET['location'] ) && empty( $_GET['_region'] ) ) {
+			$form['fields']['_sort']['options'][''] = esc_html_x( 'Distance', 'sort order', 'hivepress-geolocation' );
 		}
 
 		return $form;
