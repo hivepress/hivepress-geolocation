@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HivePress Geolocation
  * Description: Allow users to search listings by location.
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author: HivePress
  * Author URI: https://hivepress.io/
  * Text Domain: hivepress-geolocation
