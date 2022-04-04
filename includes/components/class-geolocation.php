@@ -637,7 +637,7 @@ final class Geolocation extends Component {
 	 */
 	public function set_listing_order( $orderby, $query ) {
 
-		// Check url parametr.
+		// Check url parameter.
 		if ( hp\get_array_value( $_GET, '_region' ) ) {
 			return $orderby;
 		}
