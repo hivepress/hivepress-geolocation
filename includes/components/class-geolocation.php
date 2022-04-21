@@ -30,9 +30,6 @@ final class Geolocation extends Component {
 		// Add attributes.
 		add_filter( 'hivepress/v1/models/listing/attributes', [ $this, 'add_attributes' ] );
 
-		// Add fields.
-		add_filter( 'hivepress/v1/models/listing', [ $this, 'add_fields' ] );
-
 		// Add taxonomies.
 		add_filter( 'hivepress/v1/taxonomies', [ $this, 'add_taxonomies' ] );
 
@@ -48,7 +45,7 @@ final class Geolocation extends Component {
 		if ( ! is_admin() ) {
 
 			// Set search query.
-			add_action( 'pre_get_posts', [ $this, 'set_search_query' ], 100 );
+			add_action( 'hivepress/v1/models/listing/search', [ $this, 'set_search_query' ] );
 
 			// Set search order.
 			add_filter( 'posts_orderby', [ $this, 'set_search_order' ], 100, 2 );
@@ -89,6 +86,26 @@ final class Geolocation extends Component {
 		return array_merge(
 			$attributes,
 			[
+				'location'  => [
+					'editable'     => true,
+					'searchable'   => true,
+
+					'edit_field'   => [
+						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'      => 'location',
+						'countries' => $countries,
+						'required'  => true,
+						'_order'    => 25,
+					],
+
+					'search_field' => [
+						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'        => 'location',
+						'countries'   => $countries,
+						'_order'      => 20,
+					],
+				],
+
 				'latitude'  => [
 					'editable'     => true,
 					'searchable'   => true,
@@ -117,49 +134,8 @@ final class Geolocation extends Component {
 						'_parent' => 'latitude',
 					],
 				],
-
-				'location'  => [
-					'editable'     => true,
-					'searchable'   => true,
-
-					'edit_field'   => [
-						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'      => 'location',
-						'countries' => $countries,
-						'required'  => true,
-						'_order'    => 25,
-					],
-
-					'search_field' => [
-						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'        => 'location',
-						'countries'   => $countries,
-						'_order'      => 20,
-					],
-				],
 			]
 		);
-	}
-
-	/**
-	 * Adds listing fields.
-	 *
-	 * @todo Remove once field-specific update hooks are fixed.
-	 * @param array $model Model arguments.
-	 * @return array
-	 */
-	public function add_fields( $model ) {
-		$attributes = hivepress()->attribute->get_attributes( 'listing' );
-
-		foreach ( [ 'latitude', 'longitude' ] as $field ) {
-			if ( isset( $attributes[ $field ] ) ) {
-				$model['fields'][ $field ] = $attributes[ $field ]['edit_field'];
-
-				$model['fields'][ $field ]['_external'] = true;
-			}
-		}
-
-		return $model;
 	}
 
 	/**
@@ -403,11 +379,6 @@ final class Geolocation extends Component {
 	 */
 	public function set_search_query( $query ) {
 
-		// Check query.
-		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
-			return;
-		}
-
 		// Check settings.
 		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
 			return;
@@ -443,13 +414,7 @@ final class Geolocation extends Component {
 		$tax_query  = array_filter( (array) $query->get( 'tax_query' ) );
 
 		// Remove coordinate filters.
-		// @todo: Unset once query filter keys are implemented.
-		$meta_query = array_filter(
-			$meta_query,
-			function( $args ) {
-				return ! in_array( $args['key'], [ 'hp_latitude', 'hp_longitude' ], true );
-			}
-		);
+		unset( $meta_query['latitude'], $meta_query['longitude'] );
 
 		// Add region filter.
 		$tax_query[] = [
