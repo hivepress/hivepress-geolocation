@@ -27,6 +27,9 @@ final class Geolocation extends Component {
 	 */
 	public function __construct( $args = [] ) {
 
+		// Delete empty regions.
+		add_action( 'hivepress/v1/events/hourly', [ $this, 'delete_empty_regions' ] );
+
 		// Add attributes.
 		add_filter( 'hivepress/v1/models/listing/attributes', [ $this, 'add_attributes' ] );
 
@@ -668,5 +671,36 @@ final class Geolocation extends Component {
 				],
 			]
 		);
+	}
+
+	/**
+	 * Deletes empty regions.
+	 */
+	public function delete_empty_regions() {
+
+		// Get region terms ids.
+		$term_ids = array_filter(
+			array_map(
+				function ( $term ) {
+					if ( 0 === $term->count ) {
+						return $term->term_id;
+					}
+				},
+				(array) get_terms(
+					[
+						'hide_empty' => 0,
+						'orderby'    => 'parent',
+						'order'      => 'ASC',
+						'taxonomy'   => 'hp_listing_region',
+						'pad_counts' => 1,
+						'number'     => 100,
+					]
+				)
+			)
+		);
+
+		foreach ( $term_ids as $term_id ) {
+			wp_delete_term( $term_id, 'hp_listing_region' );
+		}
 	}
 }
