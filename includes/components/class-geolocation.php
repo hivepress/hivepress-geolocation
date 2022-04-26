@@ -491,6 +491,10 @@ final class Geolocation extends Component {
 		if ( get_option( 'hp_geolocation_allow_radius' ) ) {
 			$radius = absint( hp\get_array_value( $_GET, '_radius' ) );
 
+			if ( get_option( 'hp_geolocation_allow_radius' ) && get_option( 'hp_geolocation_metric' ) ) {
+				$radius *= 0.621371;
+			}
+
 			if ( $radius >= 1 && $radius <= 100 ) {
 				$value = $radius;
 			}
@@ -549,7 +553,7 @@ final class Geolocation extends Component {
 
 				'statuses'   => [
 					'optional' => null,
-					'km'       => esc_html__( 'km', 'hivepress-geolocation' ),
+					get_option( 'hp_geolocation_metric' ) ? get_option( 'hp_geolocation_metric' ) : hivepress()->translator->get_string( 'km' ),
 				],
 
 				'attributes' => [
