@@ -282,6 +282,42 @@ final class Geolocation extends Component {
 		$request_url = null;
 
 		if ( 'mapbox' === $provider ) {
+
+			// Get region types of map provider.
+			$region_types = [
+				'place',
+				'district',
+				'region',
+				'country',
+			];
+
+			// Get region types conformity.
+			$region_options = [
+				'city'    => 'place',
+				'county'  => 'district',
+				'state'   => 'region',
+				'country' => 'country',
+			];
+
+			if ( get_option( 'hp_geolocation_areas' ) ) {
+
+				// Clear region types of map provider.
+				$region_types = [];
+
+				// Add region types according to setting.
+				$region_types = array_filter(
+					array_map(
+						function( $key, $value ) {
+							if ( in_array( $key, get_option( 'hp_geolocation_areas' ), true ) ) {
+								return $value;
+							}
+						},
+						array_keys( $region_options ),
+						$region_options
+					)
+				);
+			}
+
 			$request_url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' . rawurlencode( $longitude . ',' . $latitude ) . '.json?' . http_build_query(
 				[
 					'access_token' => get_option( 'hp_mapbox_api_key' ),
@@ -289,16 +325,47 @@ final class Geolocation extends Component {
 
 					'types'        => implode(
 						',',
-						[
-							'place',
-							'district',
-							'region',
-							'country',
-						]
+						$region_types
 					),
 				]
 			);
 		} else {
+
+			// Get region types of map provider.
+			$region_types = [
+				'locality',
+				'administrative_area_level_2',
+				'administrative_area_level_1',
+				'country',
+			];
+
+			// Get region types conformity.
+			$region_options = [
+				'city'    => 'locality',
+				'county'  => 'administrative_area_level_2',
+				'state'   => 'administrative_area_level_1',
+				'country' => 'country',
+			];
+
+			if ( get_option( 'hp_geolocation_areas' ) ) {
+
+				// Clear region types of map provider.
+				$region_types = [];
+
+				// Add region types according to setting.
+				$region_types = array_filter(
+					array_map(
+						function( $key, $value ) {
+							if ( in_array( $key, get_option( 'hp_geolocation_areas' ), true ) ) {
+								return $value;
+							}
+						},
+						array_keys( $region_options ),
+						$region_options
+					)
+				);
+			}
+
 			$request_url = 'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query(
 				[
 					'latlng'      => $latitude . ',' . $longitude,
@@ -307,12 +374,7 @@ final class Geolocation extends Component {
 
 					'result_type' => implode(
 						'|',
-						[
-							'locality',
-							'administrative_area_level_2',
-							'administrative_area_level_1',
-							'country',
-						]
+						$region_types
 					),
 				]
 			);

@@ -83,11 +83,26 @@ return [
 						'_order'      => 70,
 					],
 
+					'geolocation_areas'            => [
+						'label'       => esc_html__( 'Geographical areas', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Choose geographical areas which are used for location search', 'hivepress-geolocation' ),
+						'type'        => 'select',
+						'options'     => [
+							'country' => hivepress()->translator->get_string( 'country' ),
+							'state'   => hivepress()->translator->get_string( 'state' ),
+							'county'  => hivepress()->translator->get_string( 'county' ),
+							'city'    => hivepress()->translator->get_string( 'city' ),
+						],
+						'multiple'    => true,
+						'_parent'     => 'geolocation_generate_regions',
+						'_order'      => 80,
+					],
+
 					'geolocation_hide_address'     => [
 						'label'   => esc_html__( 'Address', 'hivepress-geolocation' ),
 						'caption' => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
-						'_order'  => 80,
+						'_order'  => 90,
 					],
 				],
 			],
