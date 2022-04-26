@@ -491,8 +491,9 @@ final class Geolocation extends Component {
 		if ( get_option( 'hp_geolocation_allow_radius' ) ) {
 			$radius = absint( hp\get_array_value( $_GET, '_radius' ) );
 
+			// Recalculate miles in kilometres.
 			if ( get_option( 'hp_geolocation_allow_radius' ) && get_option( 'hp_geolocation_metric' ) ) {
-				$radius *= 0.621371;
+				$radius *= 1.60934;
 			}
 
 			if ( $radius >= 1 && $radius <= 100 ) {
