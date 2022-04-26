@@ -678,6 +678,11 @@ final class Geolocation extends Component {
 	 */
 	public function delete_empty_regions() {
 
+		// Check option.
+		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
+			return;
+		}
+
 		// Get region terms ids.
 		$term_ids = array_filter(
 			array_map(
