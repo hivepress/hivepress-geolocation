@@ -98,7 +98,7 @@ class Location extends Text {
 				[
 					'display_type' => 'text',
 					'default'      => $this->value,
-					'attributes'   => [],
+					'attributes'   => [ 'autocomplete' => 'none' ],
 				]
 			)
 		) )->render();
