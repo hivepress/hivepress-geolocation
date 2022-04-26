@@ -1,3 +1,5 @@
+var map = '';
+
 hivepress.initGeolocation = function() {
 	(function($) {
 		'use strict';
@@ -176,13 +178,13 @@ hivepress.initGeolocation = function() {
 					mapboxgl.accessToken = mapboxData.apiKey;
 
 					// Create map
-					var bounds = new mapboxgl.LngLatBounds(),
-						map = new mapboxgl.Map({
-							container: container.get(0),
-							style: 'mapbox://styles/mapbox/streets-v11',
-							center: [0, 0],
-							zoom: 1,
-						});
+					var bounds = new mapboxgl.LngLatBounds();
+					map = new mapboxgl.Map({
+						container: container.get(0),
+						style: 'mapbox://styles/mapbox/streets-v11',
+						center: [0, 0],
+						zoom: 1,
+					});
 
 					map.addControl(new mapboxgl.NavigationControl());
 					map.addControl(new mapboxgl.FullscreenControl());
@@ -206,26 +208,26 @@ hivepress.initGeolocation = function() {
 						duration: 0,
 					});
 				} else {
+					map = new google.maps.Map(container.get(0), {
+						zoom: 3,
+						minZoom: 2,
+						maxZoom: maxZoom,
+						mapTypeControl: false,
+						streetViewControl: false,
+						center: {
+							lat: 0,
+							lng: 0,
+						},
+						styles: [{
+							featureType: 'poi',
+							stylers: [{
+								visibility: 'off',
+							}],
+						}],
+					});
 					var prevWindow = false,
 						markers = [],
 						bounds = new google.maps.LatLngBounds(),
-						map = new google.maps.Map(container.get(0), {
-							zoom: 3,
-							minZoom: 2,
-							maxZoom: maxZoom,
-							mapTypeControl: false,
-							streetViewControl: false,
-							center: {
-								lat: 0,
-								lng: 0,
-							},
-							styles: [{
-								featureType: 'poi',
-								stylers: [{
-									visibility: 'off',
-								}],
-							}],
-						}),
 						oms = new OverlappingMarkerSpiderfier(map, {
 							markersWontMove: true,
 							markersWontHide: true,
@@ -311,3 +313,21 @@ hivepress.initGeolocation = function() {
 if (typeof mapboxData !== 'undefined') {
 	hivepress.initGeolocation();
 }
+
+// Resize Mapbox map.
+(function($) {
+	'use strict';
+	$(document).ready(function() {
+
+		// Toggle
+		hivepress.getComponent('toggle').each(function() {
+			var button = $(this);
+
+			button.on('click', function(e) {
+				if (typeof mapboxData !== 'undefined' && button.attr('data-toggle') === 'map' && button.attr('data-state') === 'active') {
+					map.resize();
+				}
+			});
+		});
+	});
+})(jQuery);
