@@ -192,20 +192,139 @@ hivepress.initGeolocation = function() {
 					// Set language
 					map.addControl(new MapboxLanguage());
 
+					// Get markers object.
+					var points = [];
+
 					// Add markers
 					$.each(container.data('markers'), function(index, data) {
 						bounds.extend([data.longitude, data.latitude]);
 
-						var marker = new mapboxgl.Marker()
-							.setLngLat([data.longitude, data.latitude])
-							.setPopup(new mapboxgl.Popup().setHTML(data.content))
-							.addTo(map);
+						points.push({
+							'type': 'Feature',
+							'geometry': {
+								'type': 'Point',
+								'coordinates': [data.longitude, data.latitude],
+							},
+							'properties': {
+								'content': data.content,
+							}
+						});
 					});
 
 					// Fit bounds
 					map.fitBounds(bounds, {
 						maxZoom: maxZoom - 1,
 						duration: 0,
+					});
+
+					map.on('load', () => {
+						map.addSource('locations', {
+							type: 'geojson',
+							data: {
+								"type": "FeatureCollection",
+								"features": points,
+							},
+							cluster: true,
+							clusterMaxZoom: 14,
+							clusterRadius: 50
+						});
+
+						map.addLayer({
+							id: 'clusters',
+							type: 'circle',
+							source: 'locations',
+							filter: ['has', 'point_count'],
+							paint: {
+								'circle-color': [
+									'step',
+									['get', 'point_count'],
+									'#51bbd6',
+									100,
+									'#f1f075',
+									750,
+									'#f28cb1'
+								],
+								'circle-radius': [
+									'step',
+									['get', 'point_count'],
+									20,
+									100,
+									30,
+									750,
+									40
+								]
+							}
+						});
+
+						map.addLayer({
+							id: 'cluster-count',
+							type: 'symbol',
+							source: 'locations',
+							filter: ['has', 'point_count'],
+							layout: {
+								'text-field': '{point_count_abbreviated}',
+								'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+								'text-size': 12
+							}
+						});
+
+						map.loadImage(
+							mapboxData.markerImage,
+							(error, image) => {
+								map.addImage('custom-marker', image);
+								map.addLayer({
+									id: 'unclustered-point',
+									type: 'symbol',
+									source: 'locations',
+									filter: ['!', ['has', 'point_count']],
+									layout: {
+										'icon-image': 'custom-marker',
+									}
+								});
+							}
+						);
+
+
+						// When click on cluster.
+						map.on('click', 'clusters', (e) => {
+							const features = map.queryRenderedFeatures(e.point, {
+								layers: ['clusters']
+							});
+							const clusterId = features[0].properties.cluster_id;
+							map.getSource('locations').getClusterExpansionZoom(
+								clusterId,
+								(err, zoom) => {
+									if (err) return;
+
+									map.easeTo({
+										center: features[0].geometry.coordinates,
+										zoom: zoom
+									});
+								}
+							);
+						});
+
+						// When click on marker.
+						map.on('click', 'unclustered-point', (e) => {
+							const coordinates = e.features[0].geometry.coordinates.slice();
+							const content = e.features[0].properties.content;
+
+							while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+								coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+							}
+
+							new mapboxgl.Popup()
+								.setLngLat(coordinates)
+								.setHTML(content)
+								.addTo(map);
+						});
+
+						map.on('mouseenter', 'clusters', () => {
+							map.getCanvas().style.cursor = 'pointer';
+						});
+						map.on('mouseleave', 'clusters', () => {
+							map.getCanvas().style.cursor = '';
+						});
 					});
 				} else {
 					map = new google.maps.Map(container.get(0), {

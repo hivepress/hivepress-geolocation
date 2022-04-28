@@ -209,7 +209,8 @@ final class Geolocation extends Component {
 				'mapbox',
 				'mapboxData',
 				[
-					'apiKey' => get_option( 'hp_mapbox_api_key' ),
+					'apiKey'      => get_option( 'hp_mapbox_api_key' ),
+					'markerImage' => esc_url( WP_PLUGIN_URL . '/hivepress-geolocation/assets/images/mapbox_marker.png' ),
 				]
 			);
 		} else {
