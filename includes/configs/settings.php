@@ -116,11 +116,18 @@ return [
 				'_order' => 30,
 
 				'fields' => [
-					'gmaps_api_key' => [
-						'label'      => hivepress()->translator->get_string( 'api_key' ),
+					'gmaps_public_api_key' => [
+						'label'      => hivepress()->translator->get_string( 'public_api_key' ),
 						'type'       => 'text',
 						'max_length' => 256,
 						'_order'     => 10,
+					],
+
+					'gmaps_secret_api_key' => [
+						'label'      => hivepress()->translator->get_string( 'secret_api_key' ),
+						'type'       => 'text',
+						'max_length' => 256,
+						'_order'     => 20,
 					],
 				],
 			],
@@ -131,7 +138,7 @@ return [
 
 				'fields' => [
 					'mapbox_api_key' => [
-						'label'      => hivepress()->translator->get_string( 'api_key' ),
+						'label'      => hivepress()->translator->get_string( 'public_api_key' ),
 						'type'       => 'text',
 						'max_length' => 256,
 						'_order'     => 10,
