@@ -268,22 +268,37 @@ hivepress.initGeolocation = function() {
 							}
 						});
 
-						map.loadImage(
-							mapboxData.markerImage,
-							(error, image) => {
-								map.addImage('custom-marker', image);
-								map.addLayer({
-									id: 'unclustered-point',
-									type: 'symbol',
-									source: 'locations',
-									filter: ['!', ['has', 'point_count']],
-									layout: {
-										'icon-image': 'custom-marker',
-									}
-								});
-							}
-						);
-
+						if (container.attr('data-scatter')) {
+							map.setMaxZoom(15);
+							map.addLayer({
+								id: 'unclustered-point',
+								type: 'circle',
+								source: 'locations',
+								maxzoom: 16,
+								filter: ['!', ['has', 'point_count']],
+								paint: {
+									'circle-color': '#11b4da',
+									'circle-radius': 100,
+									'circle-opacity': 0.5,
+								}
+							});
+						} else {
+							map.loadImage(
+								mapboxData.markerImage,
+								(error, image) => {
+									map.addImage('custom-marker', image);
+									map.addLayer({
+										id: 'unclustered-point',
+										type: 'symbol',
+										source: 'locations',
+										filter: ['!', ['has', 'point_count']],
+										layout: {
+											'icon-image': 'custom-marker',
+										}
+									});
+								}
+							);
+						}
 
 						// When click on cluster.
 						map.on('click', 'clusters', (e) => {
