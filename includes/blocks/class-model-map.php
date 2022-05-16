@@ -1,6 +1,6 @@
 <?php
 /**
- * Listing map block.
+ * Model map block.
  *
  * @package HivePress\Blocks
  */
@@ -14,11 +14,11 @@ use Hivepress\Models;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Listing map block class.
+ * Model map block class.
  *
- * @class Listing_Map
+ * @class Model_Map
  */
-class Listing_Map extends Block {
+class Model_Map extends Block {
 
 	/**
 	 * Map attributes.
@@ -130,14 +130,41 @@ class Listing_Map extends Block {
 	protected function get_marker( $post ) {
 		$marker = null;
 
-		// Get listing.
-		$listing = Models\Listing::query()->get_by_id( $post );
+		// Get post type.
+		$post_type = hivepress()->geolocation->get_post_type_name( get_post_type( $post ) );
 
-		if ( $listing && ! is_null( $listing->get_latitude() ) && ! is_null( $listing->get_longitude() ) ) {
+		// Get template name.
+		$template_name = null;
+
+		// Get model.
+		$model = null;
+
+		if ( 'listing' === $post_type ) {
+			$model         = Models\Listing::query()->get_by_id( $post );
+			$template_name = 'listing_map_block';
+		} elseif ( 'request' === $post_type ) {
+			$model         = Models\Request::query()->get_by_id( $post );
+			$template_name = 'request_map_block';
+		}
+
+		if ( $model && ! is_null( $model->get_latitude() ) && ! is_null( $model->get_longitude() ) ) {
+
+			// Get model context.
+			$context = [];
+
+			if ( 'listing' === $post_type ) {
+				$context = [
+					'listing' => $model,
+				];
+			} elseif ( 'request' === $post_type ) {
+				$context = [
+					'request' => $model,
+				];
+			}
 
 			// Get position.
-			$latitude  = $listing->get_latitude();
-			$longitude = $listing->get_longitude();
+			$latitude  = $model->get_latitude();
+			$longitude = $model->get_longitude();
 
 			if ( $this->scatter ) {
 				$longitude += round( wp_rand( -100, 100 ) / 111320, 6 );
@@ -146,17 +173,15 @@ class Listing_Map extends Block {
 
 			// Set marker.
 			$marker = [
-				'title'     => $listing->get_title(),
+				'title'     => $model->get_title(),
 				'latitude'  => $latitude,
 				'longitude' => $longitude,
 
 				'content'   => ( new Template(
 					[
-						'template' => 'listing_map_block',
+						'template' => $template_name,
 
-						'context'  => [
-							'listing' => $listing,
-						],
+						'context'  => $context,
 					]
 				) )->render(),
 			];

@@ -28,8 +28,8 @@ final class Geolocation extends Controller {
 		$args = hp\merge_arrays(
 			[
 				'routes' => [
-					'location_view_page' => [
-						'url' => [ $this, 'get_location_view_url' ],
+					'model_view_page' => [
+						'url' => [ $this, 'get_model_view_url' ],
 					],
 				],
 			],
@@ -40,12 +40,12 @@ final class Geolocation extends Controller {
 	}
 
 	/**
-	 * Gets location view URL.
+	 * Gets model view URL.
 	 *
 	 * @param array $params URL parameters.
 	 * @return string
 	 */
-	public function get_location_view_url( $params ) {
+	public function get_model_view_url( $params ) {
 		$url = '#';
 
 		if ( ! get_option( 'hp_geolocation_hide_address' ) ) {
