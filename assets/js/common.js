@@ -269,7 +269,7 @@ hivepress.initGeolocation = function() {
 						});
 
 						if (container.attr('data-scatter')) {
-							map.setMaxZoom(15);
+							map.setMaxZoom(12);
 							map.addLayer({
 								id: 'unclustered-point',
 								type: 'circle',
