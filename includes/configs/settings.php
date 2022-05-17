@@ -29,12 +29,28 @@ return [
 						],
 					],
 
+					'geolocation_location_format'  => [
+						'label'       => hivepress()->translator->get_string( 'location' ),
+						'description' => sprintf(
+							/* translators: 1: country token, 2: state token, 3: county token, 4: city token, 5: address token. */
+							esc_html__( 'Set the location display format to generate location based on tokens: %1$s, %2$s, %3$s, %4$s, %5$s', 'hivepress-geolocation' ),
+							'%country%',
+							'%state%',
+							'%county%',
+							'%city%',
+							'%place_address%'
+						),
+						'type'        => 'text',
+						'max_length'  => 256,
+						'_order'      => 20,
+					],
+
 					'geolocation_countries'        => [
 						'label'    => esc_html__( 'Countries', 'hivepress-geolocation' ),
 						'type'     => 'select',
 						'options'  => 'countries',
 						'multiple' => true,
-						'_order'   => 20,
+						'_order'   => 30,
 					],
 
 					'geolocation_max_zoom'         => [
@@ -44,7 +60,7 @@ return [
 						'max_value' => 20,
 						'default'   => 18,
 						'required'  => true,
-						'_order'    => 30,
+						'_order'    => 40,
 					],
 
 					'geolocation_radius'           => [
@@ -54,13 +70,13 @@ return [
 						'min_value' => 1,
 						'default'   => 15,
 						'required'  => true,
-						'_order'    => 40,
+						'_order'    => 50,
 					],
 
 					'geolocation_allow_radius'     => [
 						'caption' => esc_html__( 'Allow users to change radius', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
-						'_order'  => 50,
+						'_order'  => 60,
 					],
 
 					'geolocation_metric'           => [
@@ -72,7 +88,7 @@ return [
 						],
 						'placeholder' => hivepress()->translator->get_string( 'km' ),
 						'_parent'     => 'geolocation_allow_radius',
-						'_order'      => 60,
+						'_order'      => 70,
 					],
 
 					'geolocation_generate_regions' => [
@@ -80,7 +96,7 @@ return [
 						'description' => esc_html__( 'Check this option to create a page for each region.', 'hivepress-geolocation' ),
 						'caption'     => esc_html__( 'Generate regions from locations', 'hivepress-geolocation' ),
 						'type'        => 'checkbox',
-						'_order'      => 70,
+						'_order'      => 80,
 					],
 
 					'geolocation_areas'            => [
@@ -95,14 +111,14 @@ return [
 						],
 						'multiple'    => true,
 						'_parent'     => 'geolocation_generate_regions',
-						'_order'      => 80,
+						'_order'      => 90,
 					],
 
 					'geolocation_hide_address'     => [
 						'label'   => esc_html__( 'Address', 'hivepress-geolocation' ),
 						'caption' => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
-						'_order'  => 90,
+						'_order'  => 100,
 					],
 				],
 			],

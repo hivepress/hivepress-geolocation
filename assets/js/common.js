@@ -15,7 +15,20 @@ hivepress.initGeolocation = function() {
 					longitudeField = form.find('input[data-coordinate=lng]'),
 					regionField = form.find('input[data-region]'),
 					button = container.find('a'),
-					settings = {};
+					settings = {},
+					locationFormat = '',
+					locationFormatTokens = {};
+
+				if (typeof locationSettings !== 'undefined') {
+					locationFormat = locationSettings.format;
+					locationFormatTokens = {
+						country: '',
+						state: '',
+						county: '',
+						city: '',
+						address: '',
+					};
+				}
 
 				if (typeof mapboxData !== 'undefined') {
 					settings = {
@@ -69,6 +82,71 @@ hivepress.initGeolocation = function() {
 							}
 						}
 
+						if (locationFormat) {
+
+							// Get location parts values.
+							result.result.place_type.forEach(function(item) {
+								switch (item) {
+									case 'poi':
+										locationFormatTokens.address = result.result.text;
+										break;
+									case 'place':
+										locationFormatTokens.city = result.result.text;
+										break;
+									case 'district':
+										locationFormatTokens.county = result.result.text;
+										break;
+									case 'region':
+										locationFormatTokens.state = result.result.text;
+										break;
+									case 'country':
+										locationFormatTokens.country = result.result.text;
+										break;
+									default:
+										break;
+								}
+							});
+
+							// Get location parts values.
+							result.result.context.forEach(function(item) {
+								if (item.id.indexOf('poi') >= 0) {
+									locationFormatTokens.address = item.text;
+								} else if (item.id.indexOf('place') >= 0) {
+									locationFormatTokens.city = item.text;
+								} else if (item.id.indexOf('district') >= 0) {
+									locationFormatTokens.county = item.text;
+								} else if (item.id.indexOf('region') >= 0) {
+									locationFormatTokens.state = item.text;
+								} else if (item.id.indexOf('country') >= 0) {
+									locationFormatTokens.country = item.text;
+								}
+							});
+
+							// Change location display format.
+							if (locationFormat.indexOf('%place_address%') >= 0) {
+								locationFormat = locationFormat.replace('%place_address%', locationFormatTokens.address);
+							}
+
+							if (locationFormat.indexOf('%city%') >= 0) {
+								locationFormat = locationFormat.replace('%city%', locationFormatTokens.city);
+							}
+
+							if (locationFormat.indexOf('%county%') >= 0) {
+								locationFormat = locationFormat.replace('%county%', locationFormatTokens.county);
+							}
+
+							if (locationFormat.indexOf('%state%') >= 0) {
+								locationFormat = locationFormat.replace('%state%', locationFormatTokens.state);
+							}
+
+							if (locationFormat.indexOf('%country%') >= 0) {
+								locationFormat = locationFormat.replace('%country%', locationFormatTokens.country);
+							}
+
+							// Set location field value.
+							field.val(locationFormat);
+						}
+
 						// Set coordinates
 						longitudeField.val(result.result.geometry.coordinates[0]);
 						latitudeField.val(result.result.geometry.coordinates[1]);
@@ -119,11 +197,63 @@ hivepress.initGeolocation = function() {
 
 							$.each(result.address_components, function(index, component) {
 								if (component.types.filter(value => types.includes(value)).length) {
+									if (locationFormat) {
+
+										// Get location parts values.
+										component.types.forEach(function(item) {
+											switch (item) {
+												case 'route':
+													locationFormatTokens.address = component.long_name;
+													break;
+												case 'locality':
+													locationFormatTokens.city = component.long_name;
+													break;
+												case 'administrative_area_level_2':
+													locationFormatTokens.county = component.long_name;
+													break;
+												case 'administrative_area_level_1':
+													locationFormatTokens.state = component.long_name;
+													break;
+												case 'country':
+													locationFormatTokens.country = component.long_name;
+													break;
+												default:
+													break;
+											}
+										});
+									}
 									parts.push(component.long_name);
 								}
 							});
 
-							field.val(parts.join(', '));
+							if (locationFormat) {
+
+								// Change location display format.
+								if (locationFormat.indexOf('%place_address%') >= 0) {
+									locationFormat = locationFormat.replace('%place_address%', locationFormatTokens.address);
+								}
+
+								if (locationFormat.indexOf('%city%') >= 0) {
+									locationFormat = locationFormat.replace('%city%', locationFormatTokens.city);
+								}
+
+								if (locationFormat.indexOf('%county%') >= 0) {
+									locationFormat = locationFormat.replace('%county%', locationFormatTokens.county);
+								}
+
+								if (locationFormat.indexOf('%state%') >= 0) {
+									locationFormat = locationFormat.replace('%state%', locationFormatTokens.state);
+								}
+
+								if (locationFormat.indexOf('%country%') >= 0) {
+									locationFormat = locationFormat.replace('%country%', locationFormatTokens.country);
+								}
+
+								// Set location field value.
+								field.val(locationFormat);
+							} else {
+								field.val(parts.join(', '));
+							}
 						}
 					});
 				}

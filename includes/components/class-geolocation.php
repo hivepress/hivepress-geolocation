@@ -227,6 +227,20 @@ final class Geolocation extends Component {
 	 * Enqueues scripts.
 	 */
 	public function enqueue_scripts() {
+
+		// Get location format.
+		$format = get_option( 'hp_geolocation_location_format' );
+
+		if ( $format ) {
+			wp_localize_script(
+				'jquery',
+				'locationSettings',
+				[
+					'format' => esc_html( $format ),
+				]
+			);
+		}
+
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
 			wp_enqueue_style( 'mapbox', 'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css' );
 			wp_enqueue_style( 'mapbox-geocoder', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css' );
