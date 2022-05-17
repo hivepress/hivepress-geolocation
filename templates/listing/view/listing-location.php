@@ -18,7 +18,7 @@ if ( $listing->get_location() ) :
 			}
 
 			?>
-			<span><?php echo implode( ', ', $location ); ?></span>
+			<span><?php esc_html_e( implode( ', ', (array) $location ) ); ?></span>
 		<?php else : ?>
 			<a href="
 			<?php
