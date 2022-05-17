@@ -11,25 +11,14 @@ if ( $listing->get_location() ) :
 
 			$location = [];
 
-			$post_location = hivepress()->helper->get_first_array_value( wp_get_post_terms( $listing->get_id(), 'hp_listing_region' ) );
-
-			$post_location_parents = get_ancestors( $post_location->term_id, 'hp_listing_region' );
-
-			if ( $post_location_parents ) {
-				$location = array_merge(
-					[ $post_location->name ],
-					get_terms(
-						[
-							'taxonomy' => 'hp_listing_region',
-							'fields'   => 'names',
-							'orderby'  => 'include',
-							'include'  => get_ancestors( $post_location->term_id, 'hp_listing_region' ),
-						]
-					)
-				);
+			foreach ( explode( ', ', $listing->get_location() ) as $value ) {
+				if ( ! preg_match( '/[0-9]/', $value ) ) {
+					$location[] = $value;
+				}
 			}
+
 			?>
-			<span><?php echo esc_html( implode( ', ', $location ) ); ?></span>
+			<span><?php echo implode( ', ', $location ); ?></span>
 		<?php else : ?>
 			<a href="
 			<?php

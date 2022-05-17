@@ -23,6 +23,7 @@ return [
 	'state'             => esc_html__( 'State', 'hivepress-geolocation' ),
 	'county'            => esc_html__( 'County', 'hivepress-geolocation' ),
 	'city'              => esc_html__( 'City', 'hivepress-geolocation' ),
+	'address'           => esc_html__( 'Address', 'hivepress-geolocation' ),
 
 	// API.
 	'public_api_key'    => esc_html__( 'Public API Key', 'hivepress-geolocation' ),

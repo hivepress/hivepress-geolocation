@@ -31,17 +31,16 @@ return [
 
 					'geolocation_location_format'  => [
 						'label'       => hivepress()->translator->get_string( 'location' ),
-						'description' => sprintf(
-							/* translators: 1: country token, 2: state token, 3: county token, 4: city token, 5: address token. */
-							esc_html__( 'Set the location display format to generate location based on tokens: %1$s, %2$s, %3$s, %4$s, %5$s', 'hivepress-geolocation' ),
-							'%country%',
-							'%state%',
-							'%county%',
-							'%city%',
-							'%place_address%'
-						),
-						'type'        => 'text',
-						'max_length'  => 256,
+						'description' => esc_html__( 'Set the location display format order', 'hivepress-geolocation' ),
+						'type'        => 'select',
+						'options'     => [
+							'country' => hivepress()->translator->get_string( 'country' ),
+							'state'   => hivepress()->translator->get_string( 'state' ),
+							'county'  => hivepress()->translator->get_string( 'county' ),
+							'city'    => hivepress()->translator->get_string( 'city' ),
+							'address' => hivepress()->translator->get_string( 'address' ),
+						],
+						'multiple'    => true,
 						'_order'      => 20,
 					],
 

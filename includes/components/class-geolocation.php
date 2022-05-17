@@ -236,7 +236,7 @@ final class Geolocation extends Component {
 				'jquery',
 				'locationSettings',
 				[
-					'format' => esc_html( $format ),
+					'format' => esc_html( implode( ', ', (array) $format ) ),
 				]
 			);
 		}

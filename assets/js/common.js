@@ -123,24 +123,24 @@ hivepress.initGeolocation = function() {
 							});
 
 							// Change location display format.
-							if (locationFormat.indexOf('%place_address%') >= 0) {
-								locationFormat = locationFormat.replace('%place_address%', locationFormatTokens.address);
+							if (locationFormat.indexOf('address') >= 0) {
+								locationFormat = locationFormat.replace('address', locationFormatTokens.address);
 							}
 
-							if (locationFormat.indexOf('%city%') >= 0) {
-								locationFormat = locationFormat.replace('%city%', locationFormatTokens.city);
+							if (locationFormat.indexOf('city') >= 0) {
+								locationFormat = locationFormat.replace('city', locationFormatTokens.city);
 							}
 
-							if (locationFormat.indexOf('%county%') >= 0) {
-								locationFormat = locationFormat.replace('%county%', locationFormatTokens.county);
+							if (locationFormat.indexOf('county') >= 0) {
+								locationFormat = locationFormat.replace('county', locationFormatTokens.county);
 							}
 
-							if (locationFormat.indexOf('%state%') >= 0) {
-								locationFormat = locationFormat.replace('%state%', locationFormatTokens.state);
+							if (locationFormat.indexOf('state') >= 0) {
+								locationFormat = locationFormat.replace('state', locationFormatTokens.state);
 							}
 
-							if (locationFormat.indexOf('%country%') >= 0) {
-								locationFormat = locationFormat.replace('%country%', locationFormatTokens.country);
+							if (locationFormat.indexOf('country') >= 0) {
+								locationFormat = locationFormat.replace('country', locationFormatTokens.country);
 							}
 
 							// Set location field value.
@@ -229,24 +229,24 @@ hivepress.initGeolocation = function() {
 							if (locationFormat) {
 
 								// Change location display format.
-								if (locationFormat.indexOf('%place_address%') >= 0) {
-									locationFormat = locationFormat.replace('%place_address%', locationFormatTokens.address);
+								if (locationFormat.indexOf('address') >= 0) {
+									locationFormat = locationFormat.replace('address', locationFormatTokens.address);
 								}
 
-								if (locationFormat.indexOf('%city%') >= 0) {
-									locationFormat = locationFormat.replace('%city%', locationFormatTokens.city);
+								if (locationFormat.indexOf('city') >= 0) {
+									locationFormat = locationFormat.replace('city', locationFormatTokens.city);
 								}
 
-								if (locationFormat.indexOf('%county%') >= 0) {
-									locationFormat = locationFormat.replace('%county%', locationFormatTokens.county);
+								if (locationFormat.indexOf('county') >= 0) {
+									locationFormat = locationFormat.replace('county', locationFormatTokens.county);
 								}
 
-								if (locationFormat.indexOf('%state%') >= 0) {
-									locationFormat = locationFormat.replace('%state%', locationFormatTokens.state);
+								if (locationFormat.indexOf('state') >= 0) {
+									locationFormat = locationFormat.replace('state', locationFormatTokens.state);
 								}
 
-								if (locationFormat.indexOf('%country%') >= 0) {
-									locationFormat = locationFormat.replace('%country%', locationFormatTokens.country);
+								if (locationFormat.indexOf('country') >= 0) {
+									locationFormat = locationFormat.replace('country', locationFormatTokens.country);
 								}
 
 								// Set location field value.
