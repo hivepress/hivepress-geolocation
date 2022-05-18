@@ -21,13 +21,6 @@ hivepress.initGeolocation = function() {
 
 				if (typeof locationSettings !== 'undefined') {
 					locationFormat = locationSettings.format;
-					locationFormatTokens = {
-						country: '',
-						state: '',
-						county: '',
-						city: '',
-						address: '',
-					};
 				}
 
 				if (typeof mapboxData !== 'undefined') {
@@ -84,11 +77,29 @@ hivepress.initGeolocation = function() {
 
 						if (locationFormat) {
 
+							locationFormat = locationSettings.format;
+
+							locationFormatTokens = {
+								address: '',
+								city: '',
+								county: '',
+								state: '',
+								country: '',
+							};
+
 							// Get location parts values.
 							result.result.place_type.forEach(function(item) {
 								switch (item) {
-									case 'poi':
+									case 'address':
 										locationFormatTokens.address = result.result.text;
+
+										if (typeof result.result.address !== 'undefined') {
+											locationFormatTokens.address += ' ' + result.result.address;
+										}
+
+										break;
+									case 'poi':
+										locationFormatTokens.address = result.result.properties.address;
 										break;
 									case 'place':
 										locationFormatTokens.city = result.result.text;
@@ -109,9 +120,7 @@ hivepress.initGeolocation = function() {
 
 							// Get location parts values.
 							result.result.context.forEach(function(item) {
-								if (item.id.indexOf('poi') >= 0) {
-									locationFormatTokens.address = item.text;
-								} else if (item.id.indexOf('place') >= 0) {
+								if (item.id.indexOf('place') >= 0) {
 									locationFormatTokens.city = item.text;
 								} else if (item.id.indexOf('district') >= 0) {
 									locationFormatTokens.county = item.text;
@@ -123,24 +132,24 @@ hivepress.initGeolocation = function() {
 							});
 
 							// Change location display format.
-							if (locationFormat.indexOf('address') >= 0) {
-								locationFormat = locationFormat.replace('address', locationFormatTokens.address);
+							if (locationFormat.indexOf('%place_address%') >= 0) {
+								locationFormat = locationFormat.replace('%place_address%', locationFormatTokens.address);
 							}
 
-							if (locationFormat.indexOf('city') >= 0) {
-								locationFormat = locationFormat.replace('city', locationFormatTokens.city);
+							if (locationFormat.indexOf('%city%') >= 0) {
+								locationFormat = locationFormat.replace('%city%', locationFormatTokens.city);
 							}
 
-							if (locationFormat.indexOf('county') >= 0) {
-								locationFormat = locationFormat.replace('county', locationFormatTokens.county);
+							if (locationFormat.indexOf('%county%') >= 0) {
+								locationFormat = locationFormat.replace('%county%', locationFormatTokens.county);
 							}
 
-							if (locationFormat.indexOf('state') >= 0) {
-								locationFormat = locationFormat.replace('state', locationFormatTokens.state);
+							if (locationFormat.indexOf('%state%') >= 0) {
+								locationFormat = locationFormat.replace('%state%', locationFormatTokens.state);
 							}
 
-							if (locationFormat.indexOf('country') >= 0) {
-								locationFormat = locationFormat.replace('country', locationFormatTokens.country);
+							if (locationFormat.indexOf('%country%') >= 0) {
+								locationFormat = locationFormat.replace('%country%', locationFormatTokens.country);
 							}
 
 							// Set location field value.
@@ -193,7 +202,18 @@ hivepress.initGeolocation = function() {
 
 						// Set address
 						if (container.data('scatter')) {
-							types.push('route');
+							types.push('route', 'street_number');
+
+							locationFormat = locationSettings.format;
+
+							locationFormatTokens = {
+								streetNumber: '',
+								address: '',
+								city: '',
+								county: '',
+								state: '',
+								country: '',
+							};
 
 							$.each(result.address_components, function(index, component) {
 								if (component.types.filter(value => types.includes(value)).length) {
@@ -202,6 +222,9 @@ hivepress.initGeolocation = function() {
 										// Get location parts values.
 										component.types.forEach(function(item) {
 											switch (item) {
+												case 'street_number':
+													locationFormatTokens.streetNumber = component.long_name;
+													break;
 												case 'route':
 													locationFormatTokens.address = component.long_name;
 													break;
@@ -229,24 +252,24 @@ hivepress.initGeolocation = function() {
 							if (locationFormat) {
 
 								// Change location display format.
-								if (locationFormat.indexOf('address') >= 0) {
-									locationFormat = locationFormat.replace('address', locationFormatTokens.address);
+								if (locationFormat.indexOf('%place_address%') >= 0) {
+									locationFormat = locationFormat.replace('%place_address%', locationFormatTokens.address + ' ' + locationFormatTokens.streetNumber);
 								}
 
-								if (locationFormat.indexOf('city') >= 0) {
-									locationFormat = locationFormat.replace('city', locationFormatTokens.city);
+								if (locationFormat.indexOf('%city%') >= 0) {
+									locationFormat = locationFormat.replace('%city%', locationFormatTokens.city);
 								}
 
-								if (locationFormat.indexOf('county') >= 0) {
-									locationFormat = locationFormat.replace('county', locationFormatTokens.county);
+								if (locationFormat.indexOf('%county%') >= 0) {
+									locationFormat = locationFormat.replace('%county%', locationFormatTokens.county);
 								}
 
-								if (locationFormat.indexOf('state') >= 0) {
-									locationFormat = locationFormat.replace('state', locationFormatTokens.state);
+								if (locationFormat.indexOf('%state%') >= 0) {
+									locationFormat = locationFormat.replace('%state%', locationFormatTokens.state);
 								}
 
-								if (locationFormat.indexOf('country') >= 0) {
-									locationFormat = locationFormat.replace('country', locationFormatTokens.country);
+								if (locationFormat.indexOf('%country%') >= 0) {
+									locationFormat = locationFormat.replace('%country%', locationFormatTokens.country);
 								}
 
 								// Set location field value.

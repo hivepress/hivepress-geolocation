@@ -228,17 +228,19 @@ final class Geolocation extends Component {
 	 */
 	public function enqueue_scripts() {
 
-		// Get location format.
-		$format = get_option( 'hp_geolocation_location_format' );
+		if ( 'listing_edit_page' === hivepress()->router->get_current_route_name() ) {
+			// Get location format.
+			$format = get_option( 'hp_geolocation_location_format' );
 
-		if ( $format ) {
-			wp_localize_script(
-				'jquery',
-				'locationSettings',
-				[
-					'format' => esc_html( implode( ', ', (array) $format ) ),
-				]
-			);
+			if ( $format ) {
+				wp_localize_script(
+					'jquery',
+					'locationSettings',
+					[
+						'format' => esc_html( $format ),
+					]
+				);
+			}
 		}
 
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
