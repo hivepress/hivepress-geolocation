@@ -378,7 +378,7 @@ hivepress.initGeolocation = function() {
 								"features": points,
 							},
 							cluster: true,
-							clusterMaxZoom: 14,
+							clusterMaxZoom: 12,
 							clusterRadius: 50
 						});
 
@@ -422,7 +422,7 @@ hivepress.initGeolocation = function() {
 						});
 
 						if (container.attr('data-scatter')) {
-							map.setMaxZoom(12);
+							map.setMaxZoom(13);
 							map.addLayer({
 								id: 'unclustered-point',
 								type: 'circle',
