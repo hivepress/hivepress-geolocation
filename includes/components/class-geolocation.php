@@ -27,11 +27,12 @@ final class Geolocation extends Component {
 	 */
 	public function __construct( $args = [] ) {
 
+		// Delete empty regions.
+		add_action( 'hivepress/v1/events/hourly', [ $this, 'delete_empty_regions' ] );
+
 		// Add attributes.
 		add_filter( 'hivepress/v1/models/listing/attributes', [ $this, 'add_attributes' ] );
-
-		// Add fields.
-		add_filter( 'hivepress/v1/models/listing', [ $this, 'add_fields' ] );
+		add_filter( 'hivepress/v1/models/request/attributes', [ $this, 'add_attributes' ] );
 
 		// Add taxonomies.
 		add_filter( 'hivepress/v1/taxonomies', [ $this, 'add_taxonomies' ] );
@@ -42,13 +43,15 @@ final class Geolocation extends Component {
 
 		add_filter( 'hivepress/v1/scripts', [ $this, 'alter_scripts' ] );
 
-		// Update location.
+		// Update model.
 		add_action( 'hivepress/v1/models/listing/update_longitude', [ $this, 'update_location' ] );
+		add_action( 'hivepress/v1/models/request/update_longitude', [ $this, 'update_location' ] );
 
 		if ( ! is_admin() ) {
 
 			// Set search query.
-			add_action( 'pre_get_posts', [ $this, 'set_search_query' ], 100 );
+			add_action( 'hivepress/v1/models/listing/search', [ $this, 'set_search_query' ] );
+			add_action( 'hivepress/v1/models/request/search', [ $this, 'set_search_query' ] );
 
 			// Set search order.
 			add_filter( 'posts_orderby', [ $this, 'set_search_order' ], 100, 2 );
@@ -57,19 +60,41 @@ final class Geolocation extends Component {
 			add_filter( 'option_hp_geolocation_radius', [ $this, 'set_search_radius' ] );
 
 			// Alter forms.
-			add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_search_form' ], 200 );
-			add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_search_form' ], 200 );
-			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_search_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_search_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_search_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_search_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/request_search', [ $this, 'alter_search_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/request_filter', [ $this, 'alter_search_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/request_sort', [ $this, 'alter_search_form' ], 200 );
 
-			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_sort_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_sort_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/request_sort', [ $this, 'alter_sort_form' ], 200 );
 
 			// Alter templates.
 			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
 			add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
 			add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
+
+			add_filter( 'hivepress/v1/templates/request_view_block', [ $this, 'alter_request_view_block' ] );
+			add_filter( 'hivepress/v1/templates/request_view_page', [ $this, 'alter_request_view_page' ] );
+			add_filter( 'hivepress/v1/templates/requests_view_page', [ $this, 'alter_requests_view_page' ] );
 		}
 
 		parent::__construct( $args );
+	}
+
+	/**
+	 * Gets post type name.
+	 *
+	 * @param mixed $value Value.
+	 * @return string
+	 */
+	public function get_post_type_name( $value ) {
+		if ( is_array( $value ) ) {
+			return hp\unprefix( hp\get_array_value( $value, 'post_type' ) );
+		} else {
+			return hp\unprefix( $value );
+		}
 	}
 
 	/**
@@ -89,6 +114,26 @@ final class Geolocation extends Component {
 		return array_merge(
 			$attributes,
 			[
+				'location'  => [
+					'editable'     => true,
+					'searchable'   => true,
+
+					'edit_field'   => [
+						'label'     => hivepress()->translator->get_string( 'location' ),
+						'type'      => 'location',
+						'countries' => $countries,
+						'required'  => true,
+						'_order'    => 25,
+					],
+
+					'search_field' => [
+						'placeholder' => hivepress()->translator->get_string( 'location' ),
+						'type'        => 'location',
+						'countries'   => $countries,
+						'_order'      => 20,
+					],
+				],
+
 				'latitude'  => [
 					'editable'     => true,
 					'searchable'   => true,
@@ -117,49 +162,8 @@ final class Geolocation extends Component {
 						'_parent' => 'latitude',
 					],
 				],
-
-				'location'  => [
-					'editable'     => true,
-					'searchable'   => true,
-
-					'edit_field'   => [
-						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'      => 'location',
-						'countries' => $countries,
-						'required'  => true,
-						'_order'    => 25,
-					],
-
-					'search_field' => [
-						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'        => 'location',
-						'countries'   => $countries,
-						'_order'      => 20,
-					],
-				],
 			]
 		);
-	}
-
-	/**
-	 * Adds listing fields.
-	 *
-	 * @todo Remove once field-specific update hooks are fixed.
-	 * @param array $model Model arguments.
-	 * @return array
-	 */
-	public function add_fields( $model ) {
-		$attributes = hivepress()->attribute->get_attributes( 'listing' );
-
-		foreach ( [ 'latitude', 'longitude' ] as $field ) {
-			if ( isset( $attributes[ $field ] ) ) {
-				$model['fields'][ $field ] = $attributes[ $field ]['edit_field'];
-
-				$model['fields'][ $field ]['_external'] = true;
-			}
-		}
-
-		return $model;
 	}
 
 	/**
@@ -170,25 +174,50 @@ final class Geolocation extends Component {
 	 */
 	public function add_taxonomies( $taxonomies ) {
 		if ( get_option( 'hp_geolocation_generate_regions' ) ) {
-			$taxonomies['listing_region'] = [
-				'post_type'          => [ 'listing' ],
-				'hierarchical'       => true,
-				'show_in_quick_edit' => false,
-				'meta_box_cb'        => false,
-				'rewrite'            => [ 'slug' => 'listing-region' ],
+			$taxonomies = array_merge(
+				$taxonomies,
+				[
+					'listing_region' => [
+						'post_type'          => [ 'listing' ],
+						'hierarchical'       => true,
+						'show_in_quick_edit' => false,
+						'meta_box_cb'        => false,
+						'rewrite'            => [ 'slug' => 'listing-region' ],
 
-				'labels'             => [
-					'name'          => esc_html__( 'Regions', 'hivepress-geolocation' ),
-					'singular_name' => esc_html__( 'Region', 'hivepress-geolocation' ),
-					'add_new_item'  => esc_html__( 'Add Region', 'hivepress-geolocation' ),
-					'edit_item'     => esc_html__( 'Edit Region', 'hivepress-geolocation' ),
-					'update_item'   => esc_html__( 'Update Region', 'hivepress-geolocation' ),
-					'view_item'     => esc_html__( 'View Region', 'hivepress-geolocation' ),
-					'parent_item'   => esc_html__( 'Parent Region', 'hivepress-geolocation' ),
-					'search_items'  => esc_html__( 'Search Regions', 'hivepress-geolocation' ),
-					'not_found'     => esc_html__( 'No regions found', 'hivepress-geolocation' ),
-				],
-			];
+						'labels'             => [
+							'name'          => hivepress()->translator->get_string( 'regions' ),
+							'singular_name' => hivepress()->translator->get_string( 'region' ),
+							'add_new_item'  => hivepress()->translator->get_string( 'add_new_region' ),
+							'edit_item'     => hivepress()->translator->get_string( 'edit_region' ),
+							'update_item'   => hivepress()->translator->get_string( 'update_region' ),
+							'view_item'     => hivepress()->translator->get_string( 'view_region' ),
+							'parent_item'   => hivepress()->translator->get_string( 'parent_region' ),
+							'search_items'  => hivepress()->translator->get_string( 'search_regions' ),
+							'not_found'     => hivepress()->translator->get_string( 'not_found_regions' ),
+						],
+					],
+
+					'request_region' => [
+						'post_type'          => [ 'request' ],
+						'hierarchical'       => true,
+						'show_in_quick_edit' => false,
+						'meta_box_cb'        => false,
+						'rewrite'            => [ 'slug' => 'request-region' ],
+
+						'labels'             => [
+							'name'          => hivepress()->translator->get_string( 'regions' ),
+							'singular_name' => hivepress()->translator->get_string( 'region' ),
+							'add_new_item'  => hivepress()->translator->get_string( 'add_new_region' ),
+							'edit_item'     => hivepress()->translator->get_string( 'edit_region' ),
+							'update_item'   => hivepress()->translator->get_string( 'update_region' ),
+							'view_item'     => hivepress()->translator->get_string( 'view_region' ),
+							'parent_item'   => hivepress()->translator->get_string( 'parent_region' ),
+							'search_items'  => hivepress()->translator->get_string( 'search_regions' ),
+							'not_found'     => hivepress()->translator->get_string( 'not_found_regions' ),
+						],
+					],
+				]
+			);
 		}
 
 		return $taxonomies;
@@ -198,6 +227,22 @@ final class Geolocation extends Component {
 	 * Enqueues scripts.
 	 */
 	public function enqueue_scripts() {
+
+		if ( 'listing_edit_page' === hivepress()->router->get_current_route_name() ) {
+			// Get location format.
+			$format = get_option( 'hp_geolocation_location_format' );
+
+			if ( $format ) {
+				wp_localize_script(
+					'jquery',
+					'locationSettings',
+					[
+						'format' => esc_html( $format ),
+					]
+				);
+			}
+		}
+
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
 			wp_enqueue_style( 'mapbox', 'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css' );
 			wp_enqueue_style( 'mapbox-geocoder', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css' );
@@ -230,7 +275,8 @@ final class Geolocation extends Component {
 				'mapbox',
 				'mapboxData',
 				[
-					'apiKey' => get_option( 'hp_mapbox_api_key' ),
+					'apiKey'      => get_option( 'hp_mapbox_api_key' ),
+					'markerImage' => esc_url( WP_PLUGIN_URL . '/hivepress-geolocation/assets/images/mapbox_marker.png' ),
 				]
 			);
 		} else {
@@ -240,7 +286,7 @@ final class Geolocation extends Component {
 					[
 						'libraries' => 'places',
 						'callback'  => 'hivepress.initGeolocation',
-						'key'       => get_option( 'hp_gmaps_api_key' ),
+						'key'       => get_option( 'hp_gmaps_public_api_key' ),
 						'language'  => hivepress()->translator->get_language(),
 						'region'    => hivepress()->translator->get_region(),
 					]
@@ -272,25 +318,40 @@ final class Geolocation extends Component {
 	/**
 	 * Updates listing location.
 	 *
-	 * @param int $listing_id Listing ID.
+	 * @param int $model_id Listing ID.
 	 */
-	public function update_location( $listing_id ) {
+	public function update_location( $model_id ) {
 
 		// Check settings.
 		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
 			return;
 		}
 
-		// Get listing.
-		$listing = Models\Listing::query()->get_by_id( $listing_id );
+		// Get model.
+		$model = null;
 
-		if ( ! $listing ) {
+		// Get taxonomy.
+		$taxonomy = null;
+
+		if ( strpos( current_filter(), '/listing/' ) ) {
+
+			// Get listing.
+			$model    = Models\Listing::query()->get_by_id( $model_id );
+			$taxonomy = 'hp_listing_region';
+		} elseif ( strpos( current_filter(), '/request/' ) ) {
+
+			// Get request.
+			$model    = Models\Request::query()->get_by_id( $model_id );
+			$taxonomy = 'hp_request_region';
+		}
+
+		if ( ! $model ) {
 			return;
 		}
 
 		// Get coordinates.
-		$latitude  = $listing->get_latitude();
-		$longitude = $listing->get_longitude();
+		$latitude  = $model->get_latitude();
+		$longitude = $model->get_longitude();
 
 		if ( ! $latitude || ! $longitude ) {
 			return;
@@ -303,6 +364,42 @@ final class Geolocation extends Component {
 		$request_url = null;
 
 		if ( 'mapbox' === $provider ) {
+
+			// Get region types of map provider.
+			$region_types = [
+				'place',
+				'district',
+				'region',
+				'country',
+			];
+
+			// Get region types conformity.
+			$region_options = [
+				'city'    => 'place',
+				'county'  => 'district',
+				'state'   => 'region',
+				'country' => 'country',
+			];
+
+			if ( get_option( 'hp_geolocation_areas' ) ) {
+
+				// Clear region types of map provider.
+				$region_types = [];
+
+				// Add region types according to setting.
+				$region_types = array_filter(
+					array_map(
+						function( $key, $value ) {
+							if ( in_array( $key, get_option( 'hp_geolocation_areas' ), true ) ) {
+								return $value;
+							}
+						},
+						array_keys( $region_options ),
+						$region_options
+					)
+				);
+			}
+
 			$request_url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' . rawurlencode( $longitude . ',' . $latitude ) . '.json?' . http_build_query(
 				[
 					'access_token' => get_option( 'hp_mapbox_api_key' ),
@@ -310,30 +407,56 @@ final class Geolocation extends Component {
 
 					'types'        => implode(
 						',',
-						[
-							'place',
-							'district',
-							'region',
-							'country',
-						]
+						$region_types
 					),
 				]
 			);
 		} else {
+
+			// Get region types of map provider.
+			$region_types = [
+				'locality',
+				'administrative_area_level_2',
+				'administrative_area_level_1',
+				'country',
+			];
+
+			// Get region types conformity.
+			$region_options = [
+				'city'    => 'locality',
+				'county'  => 'administrative_area_level_2',
+				'state'   => 'administrative_area_level_1',
+				'country' => 'country',
+			];
+
+			if ( get_option( 'hp_geolocation_areas' ) ) {
+
+				// Clear region types of map provider.
+				$region_types = [];
+
+				// Add region types according to setting.
+				$region_types = array_filter(
+					array_map(
+						function( $key, $value ) {
+							if ( in_array( $key, get_option( 'hp_geolocation_areas' ), true ) ) {
+								return $value;
+							}
+						},
+						array_keys( $region_options ),
+						$region_options
+					)
+				);
+			}
+
 			$request_url = 'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query(
 				[
 					'latlng'      => $latitude . ',' . $longitude,
-					'key'         => get_option( 'hp_gmaps_api_key' ),
+					'key'         => get_option( 'hp_gmaps_secret_api_key' ) ? get_option( 'hp_gmaps_secret_api_key' ) : get_option( 'hp_gmaps_public_api_key' ),
 					'language'    => hivepress()->translator->get_language(),
 
 					'result_type' => implode(
 						'|',
-						[
-							'locality',
-							'administrative_area_level_2',
-							'administrative_area_level_1',
-							'country',
-						]
+						$region_types
 					),
 				]
 			);
@@ -365,14 +488,14 @@ final class Geolocation extends Component {
 		foreach ( array_reverse( $regions ) as $region_code => $region_name ) {
 
 			// Get region.
-			$region_args = term_exists( $region_name, 'hp_listing_region', $region_id );
+			$region_args = term_exists( $region_name, $taxonomy, $region_id );
 
 			if ( ! $region_args ) {
 
 				// Add region.
 				$region_args = wp_insert_term(
 					$region_name,
-					'hp_listing_region',
+					$taxonomy,
 					[
 						'parent' => $region_id,
 					]
@@ -393,7 +516,7 @@ final class Geolocation extends Component {
 		}
 
 		// Set region ID.
-		wp_set_object_terms( $listing->get_id(), $region_id, 'hp_listing_region' );
+		wp_set_object_terms( $model->get_id(), $region_id, $taxonomy );
 	}
 
 	/**
@@ -403,14 +526,16 @@ final class Geolocation extends Component {
 	 */
 	public function set_search_query( $query ) {
 
-		// Check query.
-		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
-			return;
-		}
-
 		// Check settings.
 		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
 			return;
+		}
+
+		// Get taxonomy.
+		$taxonomy = 'hp_listing_region';
+
+		if ( strpos( current_filter(), 'request_' ) ) {
+			$taxonomy = 'hp_request_region';
 		}
 
 		// Get region code.
@@ -424,7 +549,7 @@ final class Geolocation extends Component {
 		$region_id = hp\get_first_array_value(
 			get_terms(
 				[
-					'taxonomy'   => 'hp_listing_region',
+					'taxonomy'   => $taxonomy,
 					'fields'     => 'ids',
 					'number'     => 1,
 					'hide_empty' => false,
@@ -443,17 +568,11 @@ final class Geolocation extends Component {
 		$tax_query  = array_filter( (array) $query->get( 'tax_query' ) );
 
 		// Remove coordinate filters.
-		// @todo: Unset once query filter keys are implemented.
-		$meta_query = array_filter(
-			$meta_query,
-			function( $args ) {
-				return ! in_array( $args['key'], [ 'hp_latitude', 'hp_longitude' ], true );
-			}
-		);
+		unset( $meta_query['latitude'], $meta_query['longitude'] );
 
 		// Add region filter.
 		$tax_query[] = [
-			'taxonomy' => 'hp_listing_region',
+			'taxonomy' => $taxonomy,
 			'terms'    => $region_id,
 		];
 
@@ -473,7 +592,7 @@ final class Geolocation extends Component {
 		global $wpdb;
 
 		// Check query.
-		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
+		if ( ! $query->is_main_query() || ! $query->is_search() || ! in_array( $query->get( 'post_type' ), [ 'hp_listing', 'hp_request' ] ) ) {
 			return $orderby;
 		}
 
@@ -523,6 +642,11 @@ final class Geolocation extends Component {
 		if ( get_option( 'hp_geolocation_allow_radius' ) ) {
 			$radius = absint( hp\get_array_value( $_GET, '_radius' ) );
 
+			// Recalculate miles in kilometres.
+			if ( get_option( 'hp_geolocation_allow_radius' ) && get_option( 'hp_geolocation_metric' ) ) {
+				$radius *= 1.60934;
+			}
+
 			if ( $radius >= 1 && $radius <= 100 ) {
 				$value = $radius;
 			}
@@ -532,12 +656,12 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Alters listing search form.
+	 * Alters search form.
 	 *
 	 * @param array $form Form arguments.
 	 * @return array
 	 */
-	public function alter_listing_search_form( $form ) {
+	public function alter_search_form( $form ) {
 
 		// Get form flags.
 		$is_search = strpos( current_filter(), '_search' );
@@ -554,7 +678,7 @@ final class Geolocation extends Component {
 				],
 			];
 
-			if ( is_tax( 'hp_listing_region' ) ) {
+			if ( is_tax( 'hp_listing_region', 'hp_request_region' ) ) {
 
 				// Get region.
 				$region = get_queried_object();
@@ -581,7 +705,7 @@ final class Geolocation extends Component {
 
 				'statuses'   => [
 					'optional' => null,
-					'km'       => esc_html__( 'km', 'hivepress-geolocation' ),
+					get_option( 'hp_geolocation_metric' ) ? get_option( 'hp_geolocation_metric' ) : hivepress()->translator->get_string( 'km' ),
 				],
 
 				'attributes' => [
@@ -598,12 +722,12 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Alters listing sort form.
+	 * Alters sort form.
 	 *
 	 * @param array $form Form arguments.
 	 * @return array
 	 */
-	public function alter_listing_sort_form( $form ) {
+	public function alter_sort_form( $form ) {
 		if ( ! empty( $_GET['location'] ) && empty( $_GET['_region'] ) ) {
 			$form['fields']['_sort']['options'][''] = esc_html_x( 'Distance', 'sort order', 'hivepress-geolocation' );
 		}
@@ -652,7 +776,7 @@ final class Geolocation extends Component {
 							'listing_location' => [
 								'type'   => 'part',
 								'path'   => 'listing/view/listing-location',
-								'_label' => esc_html__( 'Location', 'hivepress-geolocation' ),
+								'_label' => hivepress()->translator->get_string( 'location' ),
 								'_order' => 5,
 							],
 						],
@@ -661,8 +785,8 @@ final class Geolocation extends Component {
 					'page_sidebar'            => [
 						'blocks' => [
 							'listing_map' => [
-								'type'       => 'listing_map',
-								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
+								'type'       => 'model_map',
+								'_label'     => hivepress()->translator->get_string( 'map' ),
 								'_order'     => 25,
 
 								'attributes' => [
@@ -690,8 +814,138 @@ final class Geolocation extends Component {
 					'page_sidebar' => [
 						'blocks' => [
 							'listing_map' => [
-								'type'       => 'listing_map',
-								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
+								'type'       => 'model_map',
+								'_label'     => hivepress()->translator->get_string( 'map' ),
+								'_order'     => 15,
+
+								'attributes' => [
+									'class' => [ 'widget' ],
+								],
+							],
+						],
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Deletes empty regions.
+	 */
+	public function delete_empty_regions() {
+
+		// Check option.
+		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
+			return;
+		}
+
+		// Get region terms ids.
+		$terms = array_filter(
+			array_map(
+				function ( $term ) {
+					if ( 0 === $term->count ) {
+						return $term;
+					}
+				},
+				(array) get_terms(
+					[
+						'hide_empty' => 0,
+						'orderby'    => 'parent',
+						'order'      => 'ASC',
+						'taxonomy'   => [ 'hp_listing_region', 'hp_request_region' ],
+						'pad_counts' => 1,
+						'number'     => 100,
+					]
+				)
+			)
+		);
+
+		foreach ( $terms as $term ) {
+			wp_delete_term( $term->term_id, $term->taxonomy );
+		}
+	}
+
+	/**
+	 * Alters request view block.
+	 *
+	 * @param array $template Template arguments.
+	 * @return array
+	 */
+	public function alter_request_view_block( $template ) {
+		return hp\merge_trees(
+			$template,
+			[
+				'blocks' => [
+					'request_details_primary' => [
+						'blocks' => [
+							'request_location' => [
+								'type'   => 'part',
+								'path'   => 'request/view/request-location',
+								'_order' => 5,
+							],
+						],
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Alters request view page.
+	 *
+	 * @param array $template Template arguments.
+	 * @return array
+	 */
+	public function alter_request_view_page( $template ) {
+		return hp\merge_trees(
+			$template,
+			[
+				'blocks' => [
+					'listing_details_primary' => [
+						'blocks' => [
+							'request_location' => [
+								'type'   => 'part',
+								'path'   => 'request/view/request-location',
+								'_label' => hivepress()->translator->get_string( 'location' ),
+								'_order' => 5,
+							],
+						],
+					],
+
+					'page_sidebar'            => [
+						'blocks' => [
+							'request_map' => [
+								'type'       => 'model_map',
+								'_label'     => hivepress()->translator->get_string( 'map' ),
+								'_order'     => 25,
+
+								'attributes' => [
+									'class' => [ 'hp-request__map', 'widget' ],
+								],
+							],
+						],
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Alters requests view page.
+	 *
+	 * @param array $template Template arguments.
+	 * @return array
+	 */
+	public function alter_requests_view_page( $template ) {
+		return hp\merge_trees(
+			$template,
+			[
+				'blocks' => [
+					'page_sidebar' => [
+						'blocks' => [
+							'request_map' => [
+								'type'       => 'model_map',
+								'_label'     => hivepress()->translator->get_string( 'map' ),
 								'_order'     => 15,
 
 								'attributes' => [
