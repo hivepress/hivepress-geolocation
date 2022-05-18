@@ -8,17 +8,8 @@ if ( $listing->get_location() ) :
 		<i class="hp-icon fas fa-map-marker-alt"></i>
 		<?php
 		if ( get_option( 'hp_geolocation_hide_address' ) ) :
-
-			$location = [];
-
-			foreach ( explode( ', ', $listing->get_location() ) as $value ) {
-				if ( ! preg_match( '/[0-9]/', $value ) ) {
-					$location[] = $value;
-				}
-			}
-
 			?>
-			<span><?php esc_html_e( implode( ', ', (array) $location ) ); ?></span>
+			<span><?php esc_html_e( preg_replace( '/\d+/u', '', $listing->get_location() ) ); ?></span>
 		<?php else : ?>
 			<a href="
 			<?php
