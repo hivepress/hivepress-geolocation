@@ -49,6 +49,9 @@ final class Geolocation extends Component {
 
 		if ( ! is_admin() ) {
 
+			// Alter related listings query.
+			add_action( 'hivepress/v1/models/listing/relate', [ $this, 'alter_listing_relate_query' ], 10, 2 );
+
 			// Set search query.
 			add_action( 'hivepress/v1/models/listing/search', [ $this, 'set_search_query' ] );
 			add_action( 'hivepress/v1/models/request/search', [ $this, 'set_search_query' ] );
@@ -957,5 +960,103 @@ final class Geolocation extends Component {
 				],
 			]
 		);
+	}
+
+	/**
+	 * Sets related listings order.
+	 *
+	 * @param string   $orderby Order clause.
+	 * @param WP_Query $query Query object.
+	 * @return string
+	 */
+	public function set_related_order( $orderby, $query ) {
+		global $wpdb;
+
+		// Get listing.
+		$listing = hivepress()->request->get_context( 'listing' );
+
+		// Check query.
+		if ( 'hp_listing' !== $query->get( 'post_type' ) || ! $listing ) {
+			return $orderby;
+		}
+
+		// Check parameters.
+		if ( ! $listing->get_latitude() || ! $listing->get_longitude() ) {
+			return $orderby;
+		}
+
+		// Get coordinates.
+		$latitude  = round( floatval( $listing->get_latitude() ), 6 );
+		$longitude = round( floatval( $listing->get_longitude() ), 6 );
+
+		if ( $latitude < -90 || $latitude > 90 || $longitude < -180 || $longitude > 180 ) {
+			return $orderby;
+		}
+
+		// Get table aliases.
+		$aliases = [];
+
+		foreach ( $query->meta_query->get_clauses() as $clause ) {
+			if ( in_array( $clause['key'], [ 'hp_latitude', 'hp_longitude' ], true ) ) {
+				$aliases[ hp\unprefix( $clause['key'] ) ] = sanitize_key( $clause['alias'] );
+			}
+		}
+
+		if ( count( $aliases ) < 2 ) {
+			return $orderby;
+		}
+
+		// Set order clause.
+		$orderby = $wpdb->prepare(
+			"POW( {$aliases['latitude']}.meta_value - %f, 2 ) + POW( {$aliases['longitude']}.meta_value - %f, 2 ) ASC",
+			$latitude,
+			$longitude
+		);
+
+		return $orderby;
+	}
+
+	/**
+	 * Alter related listings query.
+	 *
+	 * @param object $query Related query.
+	 * @param object $listing Listing object.
+	 */
+	public function alter_listing_relate_query( $query, $listing ) {
+
+		// Check option.
+		if ( ! get_option( 'hp_geolocation_enable_related' ) ) {
+			return;
+		}
+
+		// Get radius.
+		$radius = get_option( 'hp_geolocation_radius' );
+
+		// Get coordinates.
+		$latitude  = $listing->get_latitude();
+		$longitude = $listing->get_longitude();
+
+		// Change query.
+		$query->set_args(
+			[
+				'meta_query' => [
+					'latitude'  => [
+						'key'     => 'hp_latitude',
+						'type'    => 'DECIMAL(8,6)',
+						'compare' => 'BETWEEN',
+						'value'   => [ $latitude - round( $radius / 110.574, 6 ), $latitude + round( $radius / 110.574, 6 ) ],
+					],
+					'longitude' => [
+						'key'     => 'hp_longitude',
+						'type'    => 'DECIMAL(9,6)',
+						'compare' => 'BETWEEN',
+						'value'   => [ $longitude - round( $longitude / ( 111.320 * cos( deg2rad( $longitude ) ) ), 6 ), $longitude + round( $radius / ( 111.320 * cos( deg2rad( $longitude ) ) ), 6 ) ],
+					],
+				],
+			]
+		);
+
+		// Sets related listings order.
+		add_filter( 'posts_orderby', [ $this, 'set_related_order' ], 100, 2 );
 	}
 }
