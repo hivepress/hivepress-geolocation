@@ -205,6 +205,7 @@
 				// Fit bounds
 				map.fitBounds(bounds, {
 					maxZoom: maxZoom - 1,
+					padding: 50,
 					duration: 0,
 				});
 
@@ -213,6 +214,7 @@
 
 					map.fitBounds(bounds, {
 						maxZoom: maxZoom - 1,
+						padding: 50,
 						duration: 0,
 					});
 				}).observe(container.get(0));
@@ -313,7 +315,9 @@
 	}
 
 	$(document).on('hivepress:init', function(event, container) {
-		hivepress.initGeolocation(container);
+		if (!container.is('body')) {
+			hivepress.initGeolocation(container);
+		}
 	});
 
 	// Mapbox
