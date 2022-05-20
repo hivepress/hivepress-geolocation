@@ -73,10 +73,16 @@ return [
 						'_order'    => 50,
 					],
 
+					'geolocation_enable_related'   => [
+						'caption' => esc_html__( 'Allow to show nearest related listings within the set radius', 'hivepress-geolocation' ),
+						'type'    => 'checkbox',
+						'_order'  => 60,
+					],
+
 					'geolocation_allow_radius'     => [
 						'caption' => esc_html__( 'Allow users to change radius', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
-						'_order'  => 60,
+						'_order'  => 70,
 					],
 
 					'geolocation_metric'           => [
@@ -88,7 +94,7 @@ return [
 						],
 						'placeholder' => hivepress()->translator->get_string( 'km' ),
 						'_parent'     => 'geolocation_allow_radius',
-						'_order'      => 70,
+						'_order'      => 80,
 					],
 
 					'geolocation_generate_regions' => [
@@ -96,7 +102,7 @@ return [
 						'description' => esc_html__( 'Check this option to create a page for each region.', 'hivepress-geolocation' ),
 						'caption'     => esc_html__( 'Generate regions from locations', 'hivepress-geolocation' ),
 						'type'        => 'checkbox',
-						'_order'      => 80,
+						'_order'      => 90,
 					],
 
 					'geolocation_areas'            => [
@@ -111,14 +117,14 @@ return [
 						],
 						'multiple'    => true,
 						'_parent'     => 'geolocation_generate_regions',
-						'_order'      => 90,
+						'_order'      => 100,
 					],
 
 					'geolocation_hide_address'     => [
 						'label'   => esc_html__( 'Address', 'hivepress-geolocation' ),
 						'caption' => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
-						'_order'  => 100,
+						'_order'  => 110,
 					],
 				],
 			],
