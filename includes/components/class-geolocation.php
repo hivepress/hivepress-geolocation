@@ -617,7 +617,7 @@ final class Geolocation extends Component {
 
 		foreach ( $query->meta_query->get_clauses() as $clause ) {
 			if ( in_array( $clause['key'], [ 'hp_latitude', 'hp_longitude' ], true ) ) {
-				$aliases[ hp\unprefix( $clause['key'] ) ] = sanitize_key( $clause['alias'] );
+				$aliases[ hp\unprefix( $clause['key'] ) ] = $clause['alias'];
 			}
 		}
 
