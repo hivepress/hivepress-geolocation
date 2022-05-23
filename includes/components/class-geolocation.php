@@ -45,6 +45,11 @@ final class Geolocation extends Component {
 		// Update location.
 		add_action( 'hivepress/v1/models/listing/update_longitude', [ $this, 'update_location' ] );
 
+		// Alter templates.
+		add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
+		add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
+		add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
+
 		if ( ! is_admin() ) {
 
 			// Set search query.
@@ -62,11 +67,6 @@ final class Geolocation extends Component {
 			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_search_form' ], 200 );
 
 			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_sort_form' ], 200 );
-
-			// Alter templates.
-			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
-			add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
-			add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
 		}
 
 		parent::__construct( $args );
