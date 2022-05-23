@@ -323,7 +323,7 @@ final class Geolocation extends Component {
 			$request_url = 'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query(
 				[
 					'latlng'      => $latitude . ',' . $longitude,
-					'key'         => get_option( 'hp_gmaps_api_key' ),
+					'key'         => get_option( 'hp_gmaps_secret_key' ) ? get_option( 'hp_gmaps_secret_key' ) : get_option( 'hp_gmaps_api_key' ),
 					'language'    => hivepress()->translator->get_language(),
 
 					'result_type' => implode(
