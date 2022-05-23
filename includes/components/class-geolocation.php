@@ -45,6 +45,11 @@ final class Geolocation extends Component {
 		// Update location.
 		add_action( 'hivepress/v1/models/listing/update_longitude', [ $this, 'update_location' ] );
 
+		// Alter templates.
+		add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
+		add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
+		add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
+
 		if ( ! is_admin() ) {
 
 			// Set search query.
@@ -62,11 +67,6 @@ final class Geolocation extends Component {
 			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_search_form' ], 200 );
 
 			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_sort_form' ], 200 );
-
-			// Alter templates.
-			add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
-			add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
-			add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
 		}
 
 		parent::__construct( $args );
@@ -323,7 +323,7 @@ final class Geolocation extends Component {
 			$request_url = 'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query(
 				[
 					'latlng'      => $latitude . ',' . $longitude,
-					'key'         => get_option( 'hp_gmaps_api_key' ),
+					'key'         => get_option( 'hp_gmaps_secret_key' ) ? get_option( 'hp_gmaps_secret_key' ) : get_option( 'hp_gmaps_api_key' ),
 					'language'    => hivepress()->translator->get_language(),
 
 					'result_type' => implode(
@@ -495,7 +495,7 @@ final class Geolocation extends Component {
 
 		foreach ( $query->meta_query->get_clauses() as $clause ) {
 			if ( in_array( $clause['key'], [ 'hp_latitude', 'hp_longitude' ], true ) ) {
-				$aliases[ hp\unprefix( $clause['key'] ) ] = sanitize_key( $clause['alias'] );
+				$aliases[ hp\unprefix( $clause['key'] ) ] = $clause['alias'];
 			}
 		}
 
