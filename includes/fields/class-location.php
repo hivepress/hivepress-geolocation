@@ -78,6 +78,12 @@ class Location extends Text {
 		// Set component.
 		$attributes['data-component'] = 'location';
 
+		if ( get_option( 'hp_geolocation_location_format' ) ) {
+
+			// Set format.
+			$attributes['data-format'] = esc_html( get_option( 'hp_geolocation_location_format' ) );
+		}
+
 		$this->attributes = hp\merge_arrays( $this->attributes, $attributes );
 
 		Field::boot();

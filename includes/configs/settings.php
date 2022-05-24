@@ -30,15 +30,11 @@ return [
 					],
 
 					'geolocation_location_format'  => [
-						'label'       => hivepress()->translator->get_string( 'location' ),
+						'label'       => esc_html__( 'Location', 'hivepress-geolocation' ),
 						'description' => sprintf(
 						/* translators: 1: country token, 2: state token, 3: county token, 4: city token, 5: address token. */
-							esc_html__( 'Set the location display format to generate location based on tokens: %1$s, %2$s, %3$s, %4$s, %5$s.', 'hivepress-geolocation' ),
-							'%country%',
-							'%state%',
-							'%county%',
-							'%city%',
-							'%place_address%'
+							esc_html__( 'Set the location display format to generate location based on tokens: %s.', 'hivepress-geolocation' ),
+							'%country%, %state%, %county%, %city%, %place_address%'
 						),
 						'type'        => 'text',
 						'max_length'  => 256,
@@ -64,13 +60,13 @@ return [
 					],
 
 					'geolocation_radius'           => [
-						'label'     => esc_html__( 'Radius', 'hivepress-geolocation' ),
-						'statuses'  => [ get_option( 'hp_geolocation_metric' ) ? get_option( 'hp_geolocation_metric' ) : hivepress()->translator->get_string( 'km' ) ],
-						'type'      => 'number',
-						'min_value' => 1,
-						'default'   => 15,
-						'required'  => true,
-						'_order'    => 50,
+						'label'       => esc_html__( 'Radius', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Set the radius depends on the chosen unit of distance', 'hivepress-geolocation' ),
+						'type'        => 'number',
+						'min_value'   => 1,
+						'default'     => 15,
+						'required'    => true,
+						'_order'      => 50,
 					],
 
 					'geolocation_enable_related'   => [
@@ -90,9 +86,9 @@ return [
 						'description' => esc_html__( 'Choose unit of length for listing distance', 'hivepress-geolocation' ),
 						'type'        => 'select',
 						'options'     => [
-							'miles' => hivepress()->translator->get_string( 'miles' ),
+							'miles' => esc_html__( 'miles', 'hivepress-geolocation' ),
 						],
-						'placeholder' => hivepress()->translator->get_string( 'km' ),
+						'placeholder' => esc_html__( 'km', 'hivepress-geolocation' ),
 						'_parent'     => 'geolocation_allow_radius',
 						'_order'      => 80,
 					],
@@ -110,10 +106,10 @@ return [
 						'description' => esc_html__( 'Choose geographical areas which are used for location search', 'hivepress-geolocation' ),
 						'type'        => 'select',
 						'options'     => [
-							'country' => hivepress()->translator->get_string( 'country' ),
-							'state'   => hivepress()->translator->get_string( 'state' ),
-							'county'  => hivepress()->translator->get_string( 'county' ),
-							'city'    => hivepress()->translator->get_string( 'city' ),
+							'country' => esc_html__( 'Country', 'hivepress-geolocation' ),
+							'state'   => esc_html__( 'State', 'hivepress-geolocation' ),
+							'county'  => esc_html__( 'County', 'hivepress-geolocation' ),
+							'city'    => esc_html__( 'City', 'hivepress-geolocation' ),
 						],
 						'multiple'    => true,
 						'_parent'     => 'geolocation_generate_regions',
@@ -138,15 +134,15 @@ return [
 				'_order' => 30,
 
 				'fields' => [
-					'gmaps_public_api_key' => [
-						'label'      => hivepress()->translator->get_string( 'public_api_key' ),
+					'gmaps_api_key'        => [
+						'label'      => esc_html__( 'Public API Key', 'hivepress-geolocation' ),
 						'type'       => 'text',
 						'max_length' => 256,
 						'_order'     => 10,
 					],
 
 					'gmaps_secret_api_key' => [
-						'label'      => hivepress()->translator->get_string( 'secret_api_key' ),
+						'label'      => esc_html__( 'Secret API Key', 'hivepress-geolocation' ),
 						'type'       => 'text',
 						'max_length' => 256,
 						'_order'     => 20,
@@ -160,7 +156,7 @@ return [
 
 				'fields' => [
 					'mapbox_api_key' => [
-						'label'      => hivepress()->translator->get_string( 'public_api_key' ),
+						'label'      => esc_html__( 'Public API Key', 'hivepress-geolocation' ),
 						'type'       => 'text',
 						'max_length' => 256,
 						'_order'     => 10,

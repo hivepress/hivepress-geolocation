@@ -16,12 +16,8 @@ hivepress.initGeolocation = function() {
 					regionField = form.find('input[data-region]'),
 					button = container.find('a'),
 					settings = {},
-					locationFormat = '',
+					locationFormat = container.attr('data-format'),
 					locationFormatTokens = {};
-
-				if (typeof locationSettings !== 'undefined') {
-					locationFormat = locationSettings.format;
-				}
 
 				if (typeof mapboxData !== 'undefined') {
 					settings = {
@@ -75,82 +71,62 @@ hivepress.initGeolocation = function() {
 							}
 						}
 
-						if (locationFormat) {
+						if (typeof locationFormat !== typeof undefined && locationFormat !== false) {
 
-							locationFormat = locationSettings.format;
+							locationFormat = container.attr('data-format');
 
 							locationFormatTokens = {
-								address: '',
-								city: '',
-								county: '',
-								state: '',
-								country: '',
+								address: {
+									value: '',
+									token: '%place_address%',
+								},
+								place: {
+									value: '',
+									token: '%city%',
+								},
+								district: {
+									value: '',
+									token: '%county%',
+								},
+								region: {
+									value: '',
+									token: '%state%',
+								},
+								country: {
+									value: '',
+									token: '%country%',
+								},
 							};
 
 							// Get location parts values.
 							result.result.place_type.forEach(function(item) {
-								switch (item) {
-									case 'address':
-										locationFormatTokens.address = result.result.text;
+								if ('address' === item) {
+									locationFormatTokens.address.value = result.result.text;
 
-										if (typeof result.result.address !== 'undefined') {
-											locationFormatTokens.address += ' ' + result.result.address;
-										}
-
-										break;
-									case 'poi':
-										locationFormatTokens.address = result.result.properties.address;
-										break;
-									case 'place':
-										locationFormatTokens.city = result.result.text;
-										break;
-									case 'district':
-										locationFormatTokens.county = result.result.text;
-										break;
-									case 'region':
-										locationFormatTokens.state = result.result.text;
-										break;
-									case 'country':
-										locationFormatTokens.country = result.result.text;
-										break;
-									default:
-										break;
+									if (typeof result.result.address !== 'undefined') {
+										locationFormatTokens.address.value += ' ' + result.result.address;
+									}
+								} else if ('poi' === item) {
+									locationFormatTokens.address.value = result.result.properties.address;
+								} else {
+									if (locationFormatTokens[item] !== undefined) {
+										locationFormatTokens[item]['value'] = result.result.text;
+									}
 								}
 							});
 
 							// Get location parts values.
 							result.result.context.forEach(function(item) {
-								if (item.id.indexOf('place') >= 0) {
-									locationFormatTokens.city = item.text;
-								} else if (item.id.indexOf('district') >= 0) {
-									locationFormatTokens.county = item.text;
-								} else if (item.id.indexOf('region') >= 0) {
-									locationFormatTokens.state = item.text;
-								} else if (item.id.indexOf('country') >= 0) {
-									locationFormatTokens.country = item.text;
+								if (locationFormatTokens[item.id.split('.')[0]] !== undefined) {
+									locationFormatTokens[item.id.split('.')[0]]['value'] = item.text;
 								}
 							});
 
-							// Change location display format.
-							if (locationFormat.indexOf('%place_address%') >= 0) {
-								locationFormat = locationFormat.replace('%place_address%', locationFormatTokens.address);
-							}
+							$.each(locationFormatTokens, function(item) {
 
-							if (locationFormat.indexOf('%city%') >= 0) {
-								locationFormat = locationFormat.replace('%city%', locationFormatTokens.city);
-							}
-
-							if (locationFormat.indexOf('%county%') >= 0) {
-								locationFormat = locationFormat.replace('%county%', locationFormatTokens.county);
-							}
-
-							if (locationFormat.indexOf('%state%') >= 0) {
-								locationFormat = locationFormat.replace('%state%', locationFormatTokens.state);
-							}
-
-							if (locationFormat.indexOf('%country%') >= 0) {
-								locationFormat = locationFormat.replace('%country%', locationFormatTokens.country);
-							}
+								// Change location display format.
+								locationFormat = locationFormat.replace(locationFormatTokens[item]['token'], locationFormatTokens[item]['value']);
+							});
 
 							// Set location field value.
 							field.val(locationFormat);
@@ -200,81 +176,73 @@ hivepress.initGeolocation = function() {
 							}
 						}
 
-						// Set address
-						if (container.data('scatter')) {
+						if (typeof locationFormat !== typeof undefined && locationFormat !== false) {
 							types.push('route', 'street_number');
 
-							locationFormat = locationSettings.format;
+							if (typeof locationFormat !== typeof undefined && locationFormat !== false) {
+								locationFormat = container.attr('data-format');
 
-							locationFormatTokens = {
-								streetNumber: '',
-								address: '',
-								city: '',
-								county: '',
-								state: '',
-								country: '',
-							};
+								locationFormatTokens = {
+									route: {
+										value: '',
+										token: '%place_address%',
+									},
+									locality: {
+										value: '',
+										token: '%city%',
+									},
+									administrative_area_level_2: {
+										value: '',
+										token: '%county%',
+									},
+									administrative_area_level_1: {
+										value: '',
+										token: '%state%',
+									},
+									country: {
+										value: '',
+										token: '%country%',
+									},
+								};
+							}
 
 							$.each(result.address_components, function(index, component) {
 								if (component.types.filter(value => types.includes(value)).length) {
-									if (locationFormat) {
 
-										// Get location parts values.
-										component.types.forEach(function(item) {
-											switch (item) {
-												case 'street_number':
-													locationFormatTokens.streetNumber = component.long_name;
-													break;
-												case 'route':
-													locationFormatTokens.address = component.long_name;
-													break;
-												case 'locality':
-													locationFormatTokens.city = component.long_name;
-													break;
-												case 'administrative_area_level_2':
-													locationFormatTokens.county = component.long_name;
-													break;
-												case 'administrative_area_level_1':
-													locationFormatTokens.state = component.long_name;
-													break;
-												case 'country':
-													locationFormatTokens.country = component.long_name;
-													break;
-												default:
-													break;
+									// Get location parts values.
+									component.types.forEach(function(item) {
+										if ('street_number' === item && !container.data('scatter')) {
+											locationFormatTokens.route.value = ' ' + component.long_name;
+										} else if ('route' === item) {
+											locationFormatTokens.route.value = component.long_name + locationFormatTokens.route.value;
+										} else {
+											if (locationFormatTokens[item] !== undefined) {
+												locationFormatTokens[item]['value'] = component.long_name;
 											}
-										});
-									}
-									parts.push(component.long_name);
+										}
+									});
 								}
 							});
 
-							if (locationFormat) {
-
+							$.each(locationFormatTokens, function(item) {
 								// Change location display format.
-								if (locationFormat.indexOf('%place_address%') >= 0) {
-									locationFormat = locationFormat.replace('%place_address%', locationFormatTokens.address + ' ' + locationFormatTokens.streetNumber);
-								}
+								locationFormat = locationFormat.replace(locationFormatTokens[item]['token'], locationFormatTokens[item]['value']);
+							});
 
-								if (locationFormat.indexOf('%city%') >= 0) {
-									locationFormat = locationFormat.replace('%city%', locationFormatTokens.city);
-								}
+							// Set location field value.
+							field.val(locationFormat);
+						} else {
 
-								if (locationFormat.indexOf('%county%') >= 0) {
-									locationFormat = locationFormat.replace('%county%', locationFormatTokens.county);
-								}
+							// Set address
+							if (container.data('scatter')) {
+								types.push('route');
 
-								if (locationFormat.indexOf('%state%') >= 0) {
-									locationFormat = locationFormat.replace('%state%', locationFormatTokens.state);
-								}
+								$.each(result.address_components, function(index, component) {
+									if (component.types.filter(value => types.includes(value)).length) {
+										parts.push(component.long_name);
+									}
+								});
 
-								if (locationFormat.indexOf('%country%') >= 0) {
-									locationFormat = locationFormat.replace('%country%', locationFormatTokens.country);
-								}
-
-								// Set location field value.
-								field.val(locationFormat);
-							} else {
 								field.val(parts.join(', '));
 							}
 						}
