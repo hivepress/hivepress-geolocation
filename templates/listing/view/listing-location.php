@@ -9,7 +9,7 @@ if ( $listing->get_location() ) :
 		<?php
 		if ( get_option( 'hp_geolocation_hide_address' ) ) :
 			?>
-			<span><?php esc_html( $listing->get_location() ); ?></span>
+			<span><?php esc_html_e( $listing->get_location() ); ?></span>
 		<?php else : ?>
 			<a href="<?php echo esc_url( hivepress()->router->get_url( 'model_view_page', [ 'latitude' => $listing->get_latitude(), 'longitude' => $listing->get_longitude() ] ) ); ?>" target="_blank"><?php echo esc_html( $listing->get_location() ); ?></a>
 		<?php endif; ?>
