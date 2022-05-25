@@ -206,32 +206,30 @@ hivepress.initGeolocation = function() {
 						if (typeof locationFormat !== typeof undefined && locationFormat !== false) {
 							types.push('route', 'street_number');
 
-							if (typeof locationFormat !== typeof undefined && locationFormat !== false) {
-								locationFormat = container.attr('data-format');
+							locationFormat = container.attr('data-format');
 
-								locationFormatTokens = {
-									route: {
-										value: '',
-										token: '%place_address%',
-									},
-									locality: {
-										value: '',
-										token: '%city%',
-									},
-									administrative_area_level_2: {
-										value: '',
-										token: '%county%',
-									},
-									administrative_area_level_1: {
-										value: '',
-										token: '%state%',
-									},
-									country: {
-										value: '',
-										token: '%country%',
-									},
-								};
-							}
+							locationFormatTokens = {
+								route: {
+									value: '',
+									token: '%place_address%',
+								},
+								locality: {
+									value: '',
+									token: '%city%',
+								},
+								administrative_area_level_2: {
+									value: '',
+									token: '%county%',
+								},
+								administrative_area_level_1: {
+									value: '',
+									token: '%state%',
+								},
+								country: {
+									value: '',
+									token: '%country%',
+								},
+							};
 
 							$.each(result.address_components, function(index, component) {
 								if (component.types.filter(value => types.includes(value)).length) {
@@ -252,6 +250,7 @@ hivepress.initGeolocation = function() {
 							});
 
 							$.each(locationFormatTokens, function(item) {
+
 								// Change location display format.
 								locationFormat = locationFormat.replace(locationFormatTokens[item]['token'], locationFormatTokens[item]['value']);
 							});
