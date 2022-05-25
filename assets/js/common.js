@@ -103,11 +103,15 @@ hivepress.initGeolocation = function() {
 								if ('address' === item) {
 									locationFormatTokens.address.value = result.result.text;
 
-									if (typeof result.result.address !== 'undefined') {
+									if (typeof result.result.address !== 'undefined' && !container.data('scatter')) {
 										locationFormatTokens.address.value += ' ' + result.result.address;
 									}
 								} else if ('poi' === item) {
-									locationFormatTokens.address.value = result.result.properties.address;
+									if (container.data('scatter')) {
+										locationFormatTokens.address.value = result.result.properties.address.replace(/\d+/g, '').trim();
+									} else {
+										locationFormatTokens.address.value = result.result.properties.address;
+									}
 								} else {
 									if (locationFormatTokens[item] !== undefined) {
 										locationFormatTokens[item]['value'] = result.result.text;
@@ -130,6 +134,29 @@ hivepress.initGeolocation = function() {
 
 							// Set location field value.
 							field.val(locationFormat);
+						} else if (container.data('scatter')) {
+
+							var location = [];
+
+							// Get location parts values.
+							result.result.place_type.forEach(function(item) {
+								if ('address' === item) {
+									location.push(result.result.text);
+									return false;
+								} else if ('poi' === item) {
+									location.push(result.result.properties.address.replace(/\d+/g, '').trim());
+									return false;
+								}
+							});
+
+							result.result.context.forEach(function(item) {
+								if (item.id.split('.')[0] !== 'postcode') {
+									location.push(item.text);
+								}
+							});
+
+							// Set location field value.
+							field.val(location.join(', '));
 						}
 
 						// Set coordinates
