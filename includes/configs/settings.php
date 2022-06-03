@@ -11,7 +11,10 @@ use HivePress\Helpers as hp;
 defined( 'ABSPATH' ) || exit;
 
 return [
-	'listings'     => [
+	'geolocation'  => [
+		'title'    => esc_html__( 'Geolocation', 'hivepress-geolocation' ),
+		'_order'   => 990,
+
 		'sections' => [
 			'geolocation' => [
 				'title'  => esc_html__( 'Geolocation', 'hivepress-geolocation' ),
@@ -48,19 +51,25 @@ return [
 					],
 
 					'geolocation_radius'           => [
-						'label'     => esc_html__( 'Radius', 'hivepress-geolocation' ),
-						'statuses'  => [ esc_html__( 'km', 'hivepress-geolocation' ) ],
-						'type'      => 'number',
-						'min_value' => 1,
-						'default'   => 15,
-						'required'  => true,
-						'_order'    => 40,
+						'label'       => esc_html__( 'Radius', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'todo', 'hivepress-geolocation' ),
+						'type'        => 'number',
+						'min_value'   => 1,
+						'default'     => 15,
+						'required'    => true,
+						'_order'      => 40,
+					],
+
+					'geolocation_use_miles'        => [
+						'caption' => esc_html__( 'Use miles instead of kilometers', 'hivepress-geolocation' ),
+						'type'    => 'checkbox',
+						'_order'  => 50,
 					],
 
 					'geolocation_allow_radius'     => [
 						'caption' => esc_html__( 'Allow users to change radius', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
-						'_order'  => 50,
+						'_order'  => 60,
 					],
 
 					'geolocation_generate_regions' => [
@@ -68,14 +77,38 @@ return [
 						'description' => esc_html__( 'Check this option to create a page for each region.', 'hivepress-geolocation' ),
 						'caption'     => esc_html__( 'Generate regions from locations', 'hivepress-geolocation' ),
 						'type'        => 'checkbox',
-						'_order'      => 60,
+						'_order'      => 70,
+					],
+
+					'geolocation_region_levels'    => [
+						'label'       => esc_html__( 'Region Levels', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'todo', 'hivepress-geolocation' ),
+						'type'        => 'select',
+						'multiple'    => true,
+						'_parent'     => 'geolocation_generate_regions',
+						'_order'      => 80,
+
+						'options'     => [
+							'country' => esc_html__( 'Country', 'hivepress-geolocation' ),
+							'state'   => esc_html__( 'State', 'hivepress-geolocation' ),
+							'county'  => esc_html__( 'County', 'hivepress-geolocation' ),
+							'city'    => esc_html__( 'City', 'hivepress-geolocation' ),
+						],
+					],
+
+					'geolocation_address_format'   => [
+						'label'       => esc_html__( 'Address', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'todo', 'hivepress-geolocation' ) . ' ' . sprintf( hivepress()->translator->get_string( 'these_tokens_are_available' ), '%listing%, %vendor%' ),
+						'type'        => 'text',
+						'max_length'  => 256,
+						'_order'      => 90,
 					],
 
 					'geolocation_hide_address'     => [
-						'label'   => esc_html__( 'Address', 'hivepress-geolocation' ),
-						'caption' => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
-						'type'    => 'checkbox',
-						'_order'  => 70,
+						'description' => esc_html__( 'todo.', 'hivepress-geolocation' ),
+						'caption'     => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
+						'type'        => 'checkbox',
+						'_order'      => 100,
 					],
 				],
 			],
