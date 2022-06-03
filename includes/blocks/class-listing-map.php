@@ -158,7 +158,7 @@ class Listing_Map extends Block {
 
 			// Set marker.
 			$marker = [
-				'title'     => $model->get_title(),
+				'title'     => 'vendor' === $this->model ? $model->get_name() : $model->get_title(),
 				'latitude'  => $latitude,
 				'longitude' => $longitude,
 
