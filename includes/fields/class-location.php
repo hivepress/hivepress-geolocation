@@ -67,6 +67,9 @@ class Location extends Text {
 	protected function boot() {
 		$attributes = [];
 
+		// Set format.
+		$attributes['data-format'] = get_option( 'hp_geolocation_address_format' );
+
 		// Set scattering.
 		if ( get_option( 'hp_geolocation_hide_address' ) ) {
 			$attributes['data-scatter'] = 'true';
