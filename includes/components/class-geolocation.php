@@ -405,7 +405,7 @@ final class Geolocation extends Component {
 	 */
 	public function alter_settings( $settings ) {
 		if ( hivepress()->get_version( 'requests' ) ) {
-			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_models']['options']['requests'] = hivepress()->translator->get_string( 'requests' );
+			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_models']['options']['request'] = hivepress()->translator->get_string( 'requests' );
 		}
 
 		return $settings;
