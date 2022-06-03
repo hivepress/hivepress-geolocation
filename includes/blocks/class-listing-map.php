@@ -21,6 +21,13 @@ defined( 'ABSPATH' ) || exit;
 class Listing_Map extends Block {
 
 	/**
+	 * Model name.
+	 *
+	 * @var string
+	 */
+	protected $model;
+
+	/**
 	 * Map attributes.
 	 *
 	 * @var array
@@ -39,6 +46,9 @@ class Listing_Map extends Block {
 	 */
 	protected function boot() {
 		$attributes = [];
+
+		// Get model.
+		$this->model = hivepress()->geolocation->get_model_name();
 
 		// Set zoom.
 		$attributes['data-max-zoom'] = absint( get_option( 'hp_geolocation_max_zoom', 18 ) );
@@ -69,13 +79,18 @@ class Listing_Map extends Block {
 	public function render() {
 		$output = '';
 
+		// Check model.
+		if ( ! $this->model ) {
+			return $output;
+		}
+
 		// Get markers.
 		$markers = [];
 
 		// Get featured IDs.
 		$featured_ids = hivepress()->request->get_context( 'featured_ids' );
 
-		if ( $featured_ids ) {
+		if ( 'listing' === $this->model && $featured_ids ) {
 
 			// Query featured listings.
 			$featured_query = new \WP_Query(
@@ -99,7 +114,7 @@ class Listing_Map extends Block {
 			wp_reset_postdata();
 		}
 
-		// Query regular listings.
+		// Query regular models.
 		rewind_posts();
 
 		while ( have_posts() ) {
@@ -130,14 +145,14 @@ class Listing_Map extends Block {
 	protected function get_marker( $post ) {
 		$marker = null;
 
-		// Get listing.
-		$listing = Models\Listing::query()->get_by_id( $post );
+		// Get model.
+		$model = hivepress()->model->get_model_object( $this->model, $post );
 
-		if ( $listing && ! is_null( $listing->get_latitude() ) && ! is_null( $listing->get_longitude() ) ) {
+		if ( $model && ! is_null( $model->get_latitude() ) && ! is_null( $model->get_longitude() ) ) {
 
 			// Get position.
-			$latitude  = $listing->get_latitude();
-			$longitude = $listing->get_longitude();
+			$latitude  = $model->get_latitude();
+			$longitude = $model->get_longitude();
 
 			if ( $this->scatter ) {
 				$longitude += round( wp_rand( -100, 100 ) / 111320, 6 );
@@ -146,16 +161,16 @@ class Listing_Map extends Block {
 
 			// Set marker.
 			$marker = [
-				'title'     => $listing->get_title(),
+				'title'     => $model->get_title(),
 				'latitude'  => $latitude,
 				'longitude' => $longitude,
 
 				'content'   => ( new Template(
 					[
-						'template' => 'listing_map_block',
+						'template' => $this->model . '_map_block',
 
 						'context'  => [
-							'listing' => $listing,
+							$this->model => $model,
 						],
 					]
 				) )->render(),
