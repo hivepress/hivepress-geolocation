@@ -16,7 +16,7 @@ return [
 		'_order'   => 990,
 
 		'sections' => [
-			'geolocation' => [
+			'restrictions' => [
 				'title'  => esc_html__( 'Geolocation', 'hivepress-geolocation' ),
 				'_order' => 100,
 

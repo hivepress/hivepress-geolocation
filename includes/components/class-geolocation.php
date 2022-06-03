@@ -70,7 +70,11 @@ final class Geolocation extends Component {
 			add_filter( 'hivepress/v1/templates/' . $model . 's_view_page', [ $this, 'alter_models_view_page' ], 10, 2 );
 		}
 
-		if ( ! is_admin() ) {
+		if ( is_admin() ) {
+
+			// Alter settings.
+			add_filter( 'hivepress/v1/settings', [ $this, 'alter_settings' ] );
+		} else {
 
 			// Set search order.
 			add_filter( 'posts_orderby', [ $this, 'set_search_order' ], 100, 2 );
@@ -80,15 +84,6 @@ final class Geolocation extends Component {
 		}
 
 		parent::__construct( $args );
-	}
-
-	/**
-	 * Gets model names.
-	 *
-	 * @return array
-	 */
-	public function get_models() {
-		return $this->models;
 	}
 
 	/**
@@ -403,6 +398,20 @@ final class Geolocation extends Component {
 	}
 
 	/**
+	 * Alters settings.
+	 *
+	 * @param array $settings Settings configuration.
+	 * @return array
+	 */
+	public function alter_settings( $settings ) {
+		if ( hivepress()->get_version( 'requests' ) ) {
+			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_models']['options']['requests'] = hivepress()->translator->get_string( 'requests' );
+		}
+
+		return $settings;
+	}
+
+	/**
 	 * Sets search query.
 	 *
 	 * @param WP_Query $query Query object.
@@ -667,6 +676,7 @@ final class Geolocation extends Component {
 						'blocks' => [
 							$model . '_map' => [
 								'type'       => 'listing_map',
+								'model'      => $model,
 								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
 								'_order'     => 25,
 
@@ -699,6 +709,7 @@ final class Geolocation extends Component {
 						'blocks' => [
 							$model . '_map' => [
 								'type'       => 'listing_map',
+								'model'      => $model,
 								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
 								'_order'     => 15,
 

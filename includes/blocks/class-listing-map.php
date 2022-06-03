@@ -47,13 +47,6 @@ class Listing_Map extends Block {
 	protected function boot() {
 		$attributes = [];
 
-		// Get model.
-		$this->model = hp\unprefix( get_post_type() );
-
-		if ( ! in_array( $this->model, hivepress()->geolocation->get_models() ) ) {
-			$this->model = null;
-		}
-
 		// Set zoom.
 		$attributes['data-max-zoom'] = absint( get_option( 'hp_geolocation_max_zoom', 18 ) );
 
