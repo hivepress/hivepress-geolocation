@@ -55,11 +55,11 @@ final class Geolocation extends Component {
 			add_action( 'hivepress/v1/models/' . $model . '/update_longitude', [ $this, 'update_location' ] );
 
 			// Alter forms.
-			add_filter( 'hivepress/v1/forms/' . $model . '_search', [ $this, 'alter_model_search_form' ], 200, 2 );
-			add_filter( 'hivepress/v1/forms/' . $model . '_filter', [ $this, 'alter_model_search_form' ], 200, 2 );
-			add_filter( 'hivepress/v1/forms/' . $model . '_sort', [ $this, 'alter_model_search_form' ], 200, 2 );
+			add_filter( 'hivepress/v1/forms/' . $model . '_search', [ $this, 'alter_search_form' ], 200, 2 );
+			add_filter( 'hivepress/v1/forms/' . $model . '_filter', [ $this, 'alter_search_form' ], 200, 2 );
+			add_filter( 'hivepress/v1/forms/' . $model . '_sort', [ $this, 'alter_search_form' ], 200, 2 );
 
-			add_filter( 'hivepress/v1/forms/' . $model . '_sort', [ $this, 'alter_model_sort_form' ], 200 );
+			add_filter( 'hivepress/v1/forms/' . $model . '_sort', [ $this, 'alter_sort_form' ], 200 );
 
 			// Set search query.
 			add_action( 'hivepress/v1/models/' . $model . '/search', [ $this, 'set_search_query' ] );
@@ -83,14 +83,12 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Gets model name.
+	 * Gets model names.
 	 *
-	 * @param array $params Parameters.
-	 * @return string
+	 * @return array
 	 */
-	public function get_model_name( $params = [] ) {
-		// todo.
-		return 'request';
+	public function get_models() {
+		return $this->models;
 	}
 
 	/**
@@ -532,13 +530,13 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Alters model search form.
+	 * Alters search form.
 	 *
 	 * @param array  $form_args Form arguments.
 	 * @param object $form Form object.
 	 * @return array
 	 */
-	public function alter_model_search_form( $form_args, $form ) {
+	public function alter_search_form( $form_args, $form ) {
 
 		// Get form flags.
 		$is_search = strpos( current_filter(), '_search' );
@@ -599,12 +597,12 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Alters model sort form.
+	 * Alters sort form.
 	 *
 	 * @param array $form Form arguments.
 	 * @return array
 	 */
-	public function alter_model_sort_form( $form ) {
+	public function alter_sort_form( $form ) {
 		if ( ! empty( $_GET['location'] ) && empty( $_GET['_region'] ) ) {
 			$form['fields']['_sort']['options'][''] = esc_html_x( 'Distance', 'sort order', 'hivepress-geolocation' );
 		}
