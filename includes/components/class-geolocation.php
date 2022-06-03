@@ -535,6 +535,10 @@ final class Geolocation extends Component {
 			}
 		}
 
+		if ( get_option( 'hp_geolocation_use_miles' ) ) {
+			$value *= 1.60934;
+		}
+
 		return $value;
 	}
 
@@ -589,7 +593,7 @@ final class Geolocation extends Component {
 
 				'statuses'   => [
 					'optional' => null,
-					'km'       => esc_html__( 'km', 'hivepress-geolocation' ),
+					'unit'     => get_option( 'hp_geolocation_use_miles' ) ? esc_html_x( 'mi', 'miles', 'hivepress-geolocation' ) : esc_html_x( 'km', 'kilometers', 'hivepress-geolocation' ),
 				],
 
 				'attributes' => [
