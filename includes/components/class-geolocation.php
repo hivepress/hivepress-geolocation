@@ -65,9 +65,9 @@ final class Geolocation extends Component {
 			add_action( 'hivepress/v1/models/' . $model . '/search', [ $this, 'set_search_query' ] );
 
 			// Alter templates.
-			add_filter( 'hivepress/v1/templates/' . $model . '_view_block', [ $this, 'alter_model_view_block' ] );
-			add_filter( 'hivepress/v1/templates/' . $model . '_view_page', [ $this, 'alter_model_view_page' ] );
-			add_filter( 'hivepress/v1/templates/' . $model . 's_view_page', [ $this, 'alter_models_view_page' ] );
+			add_filter( 'hivepress/v1/templates/' . $model . '_view_block', [ $this, 'alter_model_view_block' ], 10, 2 );
+			add_filter( 'hivepress/v1/templates/' . $model . '_view_page', [ $this, 'alter_model_view_page' ], 10, 2 );
+			add_filter( 'hivepress/v1/templates/' . $model . 's_view_page', [ $this, 'alter_models_view_page' ], 10, 2 );
 		}
 
 		if ( ! is_admin() ) {
@@ -615,15 +615,15 @@ final class Geolocation extends Component {
 	/**
 	 * Alters model view block.
 	 *
-	 * @param array $template Template arguments.
+	 * @param array  $template_args Template arguments.
+	 * @param object $template Template object.
 	 * @return array
 	 */
-	public function alter_model_view_block( $template ) {
-		// todo.
-		$model = 'request';
+	public function alter_model_view_block( $template_args, $template ) {
+		$model = $template::get_meta( 'model' );
 
 		return hp\merge_trees(
-			$template,
+			$template_args,
 			[
 				'blocks' => [
 					$model . '_details_primary' => [
@@ -643,28 +643,31 @@ final class Geolocation extends Component {
 	/**
 	 * Alters model view page.
 	 *
-	 * @param array $template Template arguments.
+	 * @param array  $template_args Template arguments.
+	 * @param object $template Template object.
 	 * @return array
 	 */
-	public function alter_model_view_page( $template ) {
+	public function alter_model_view_page( $template_args, $template ) {
+		$model = $template::get_meta( 'model' );
+
 		return hp\merge_trees(
-			$template,
+			$template_args,
 			[
 				'blocks' => [
-					'listing_details_primary' => [
+					$model . '_details_primary' => [
 						'blocks' => [
-							'listing_location' => [
+							$model . '_location' => [
 								'type'   => 'part',
-								'path'   => 'listing/view/listing-location',
+								'path'   => $model . '/view/' . $model . '-location',
 								'_label' => esc_html__( 'Location', 'hivepress-geolocation' ),
 								'_order' => 5,
 							],
 						],
 					],
 
-					'page_sidebar'            => [
+					'page_sidebar'              => [
 						'blocks' => [
-							'listing_map' => [
+							$model . '_map' => [
 								'type'       => 'listing_map',
 								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
 								'_order'     => 25,
@@ -683,17 +686,20 @@ final class Geolocation extends Component {
 	/**
 	 * Alters models view page.
 	 *
-	 * @param array $template Template arguments.
+	 * @param array  $template_args Template arguments.
+	 * @param object $template Template object.
 	 * @return array
 	 */
-	public function alter_models_view_page( $template ) {
+	public function alter_models_view_page( $template_args, $template ) {
+		$model = $template::get_meta( 'model' );
+
 		return hp\merge_trees(
-			$template,
+			$template_args,
 			[
 				'blocks' => [
 					'page_sidebar' => [
 						'blocks' => [
-							'listing_map' => [
+							$model . '_map' => [
 								'type'       => 'listing_map',
 								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
 								'_order'     => 15,
