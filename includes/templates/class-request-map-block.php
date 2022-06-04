@@ -38,21 +38,9 @@ class Request_Map_Block extends Template {
 
 						'blocks'     => [
 							'request_title' => [
-								'type'       => 'container',
-								'tag'        => 'h5',
-								'_order'     => 10,
-
-								'attributes' => [
-									'class' => [ 'hp-listing__title' ],
-								],
-
-								'blocks'     => [
-									'request_title_text' => [
-										'type'   => 'part',
-										'path'   => 'request/view/block/request-title',
-										'_order' => 10,
-									],
-								],
+								'type'   => 'part',
+								'path'   => 'request/view/block/request-title',
+								'_order' => 10,
 							],
 						],
 					],
