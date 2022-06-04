@@ -39,7 +39,7 @@ class Vendor_Map_Block extends Template {
 						'blocks'     => [
 							'vendor_name' => [
 								'type'       => 'container',
-								'tag'        => 'h4',
+								'tag'        => 'h5',
 								'_order'     => 10,
 
 								'attributes' => [
