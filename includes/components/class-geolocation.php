@@ -144,6 +144,10 @@ final class Geolocation extends Component {
 		// Get radius.
 		$radius = absint( get_option( 'hp_geolocation_radius', 15 ) );
 
+		if ( get_option( 'hp_geolocation_use_miles' ) ) {
+			$radius *= 1.60934;
+		}
+
 		return array_merge(
 			$attributes,
 			[
@@ -623,10 +627,6 @@ final class Geolocation extends Component {
 			if ( $radius >= 1 && $radius <= 100 ) {
 				$value = $radius;
 			}
-		}
-
-		if ( get_option( 'hp_geolocation_use_miles' ) ) {
-			$value *= 1.60934;
 		}
 
 		return $value;
