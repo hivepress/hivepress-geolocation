@@ -76,6 +76,9 @@ final class Geolocation extends Component {
 			add_filter( 'hivepress/v1/settings', [ $this, 'alter_settings' ] );
 		} else {
 
+			// Set related query.
+			add_action( 'hivepress/v1/models/listing/relate', [ $this, 'set_related_query' ], 10, 2 );
+
 			// Set search order.
 			add_filter( 'posts_orderby', [ $this, 'set_search_order' ], 100, 2 );
 
@@ -409,6 +412,52 @@ final class Geolocation extends Component {
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * Sets related query.
+	 *
+	 * @todo Remove when related field flags are implemented.
+	 * @param WP_Query $query Query object.
+	 * @param object   $listing Listing object.
+	 */
+	public function set_related_query( $query, $listing ) {
+
+		// Check coordinates.
+		if ( ! $listing->get_latitude() || ! $listing->get_longitude() ) {
+			return;
+		}
+
+		// Get fields.
+		$latitude_field  = hp\get_array_value( $listing->_get_fields(), 'latitude' );
+		$longitude_field = hp\get_array_value( $listing->_get_fields(), 'longitude' );
+
+		// Update filter.
+		$longitude_field->set_parent_value( $listing->get_latitude() );
+		$longitude_field->update_filter();
+
+		foreach ( [ $latitude_field, $longitude_field ] as $field ) {
+
+			// Get filter.
+			$filter = $field->get_filter();
+
+			if ( $filter ) {
+
+				// Set filter.
+				$query->set_args(
+					[
+						'meta_query' => [
+							$field->get_name() => [
+								'key'     => hp\prefix( $filter['name'] ),
+								'type'    => $filter['type'],
+								'value'   => $filter['value'],
+								'compare' => $filter['operator'],
+							],
+						],
+					]
+				);
+			}
+		}
 	}
 
 	/**
