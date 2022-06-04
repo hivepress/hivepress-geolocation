@@ -17,13 +17,12 @@ return [
 
 		'sections' => [
 			'restrictions' => [
-				'title'  => esc_html__( 'Geolocation', 'hivepress-geolocation' ),
-				'_order' => 100,
+				'_order' => 10,
 
 				'fields' => [
 					'geolocation_models'           => [
-						'label'       => esc_html__( 'todo', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'todo', 'hivepress-geolocation' ),
+						'label'       => esc_html__( 'Content Types', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Select the content types that should have the location features.', 'hivepress-geolocation' ),
 						'type'        => 'select',
 						'default'     => [ 'listing' ],
 						'multiple'    => true,
@@ -38,6 +37,7 @@ return [
 
 					'geolocation_provider'         => [
 						'label'       => esc_html__( 'Map Provider', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Choose the map provider and set the API credentials for it in the Integrations section.', 'hivepress-geolocation' ),
 						'type'        => 'select',
 						'placeholder' => 'Google Maps',
 						'_order'      => 20,
@@ -48,26 +48,28 @@ return [
 					],
 
 					'geolocation_countries'        => [
-						'label'    => esc_html__( 'Countries', 'hivepress-geolocation' ),
-						'type'     => 'select',
-						'options'  => 'countries',
-						'multiple' => true,
-						'_order'   => 30,
+						'label'       => esc_html__( 'Countries', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Select countries to restrict the location of the search results.', 'hivepress-geolocation' ),
+						'type'        => 'select',
+						'options'     => 'countries',
+						'multiple'    => true,
+						'_order'      => 30,
 					],
 
 					'geolocation_max_zoom'         => [
-						'label'     => esc_html__( 'Zoom', 'hivepress-geolocation' ),
-						'type'      => 'number',
-						'min_value' => 2,
-						'max_value' => 20,
-						'default'   => 18,
-						'required'  => true,
-						'_order'    => 40,
+						'label'       => esc_html__( 'Zoom', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Set the maximum allowed zoom level for maps.', 'hivepress-geolocation' ),
+						'type'        => 'number',
+						'min_value'   => 2,
+						'max_value'   => 20,
+						'default'     => 18,
+						'required'    => true,
+						'_order'      => 40,
 					],
 
 					'geolocation_radius'           => [
 						'label'       => esc_html__( 'Radius', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'todo', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Set the radius that defines the location search area.', 'hivepress-geolocation' ),
 						'type'        => 'number',
 						'min_value'   => 1,
 						'default'     => 15,
@@ -95,35 +97,11 @@ return [
 						'_order'      => 80,
 					],
 
-					'geolocation_region_levels'    => [
-						'label'       => esc_html__( 'Region Levels', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'todo', 'hivepress-geolocation' ),
-						'type'        => 'select',
-						'multiple'    => true,
-						'_parent'     => 'geolocation_generate_regions',
-						'_order'      => 90,
-
-						'options'     => [
-							'country' => esc_html__( 'Country', 'hivepress-geolocation' ),
-							'state'   => esc_html__( 'State', 'hivepress-geolocation' ),
-							'county'  => esc_html__( 'County', 'hivepress-geolocation' ),
-							'city'    => esc_html__( 'City', 'hivepress-geolocation' ),
-						],
-					],
-
-					'geolocation_address_format'   => [
-						'label'       => esc_html__( 'Address', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'todo', 'hivepress-geolocation' ) . ' ' . sprintf( hivepress()->translator->get_string( 'these_tokens_are_available' ), '%listing%, %vendor%' ),
-						'type'        => 'text',
-						'max_length'  => 256,
-						'_order'      => 100,
-					],
-
 					'geolocation_hide_address'     => [
-						'description' => esc_html__( 'todo.', 'hivepress-geolocation' ),
-						'caption'     => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
-						'type'        => 'checkbox',
-						'_order'      => 110,
+						'label'   => esc_html__( 'Address', 'hivepress-geolocation' ),
+						'caption' => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
+						'type'    => 'checkbox',
+						'_order'  => 90,
 					],
 				],
 			],
