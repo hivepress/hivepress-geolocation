@@ -38,6 +38,7 @@ return [
 					'geolocation_provider'         => [
 						'label'       => esc_html__( 'Map Provider', 'hivepress-geolocation' ),
 						'description' => esc_html__( 'Choose the map provider and set the API credentials for it in the Integrations section.', 'hivepress-geolocation' ),
+						'statuses'    => [ 'optional' => null ],
 						'type'        => 'select',
 						'placeholder' => 'Google Maps',
 						'_order'      => 20,
