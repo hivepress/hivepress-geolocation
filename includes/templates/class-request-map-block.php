@@ -1,6 +1,6 @@
 <?php
 /**
- * Listing map block template.
+ * Request map block template.
  *
  * @package HivePress\Templates
  */
@@ -13,11 +13,11 @@ use HivePress\Helpers as hp;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Listing map block template class.
+ * Request map block template class.
  *
- * @class Listing_Map_Block
+ * @class Request_Map_Block
  */
-class Listing_Map_Block extends Template {
+class Request_Map_Block extends Template {
 
 	/**
 	 * Class constructor.
@@ -28,7 +28,7 @@ class Listing_Map_Block extends Template {
 		$args = hp\merge_trees(
 			[
 				'blocks' => [
-					'listing_container' => [
+					'request_container' => [
 						'type'       => 'container',
 						'_order'     => 10,
 
@@ -37,7 +37,7 @@ class Listing_Map_Block extends Template {
 						],
 
 						'blocks'     => [
-							'listing_title' => [
+							'request_title' => [
 								'type'       => 'container',
 								'tag'        => 'h5',
 								'_order'     => 10,
@@ -47,16 +47,10 @@ class Listing_Map_Block extends Template {
 								],
 
 								'blocks'     => [
-									'listing_title_text' => [
+									'request_title_text' => [
 										'type'   => 'part',
-										'path'   => 'listing/view/block/listing-title',
+										'path'   => 'request/view/block/request-title',
 										'_order' => 10,
-									],
-
-									'listing_verified_badge' => [
-										'type'   => 'part',
-										'path'   => 'listing/view/listing-verified-badge',
-										'_order' => 20,
 									],
 								],
 							],
