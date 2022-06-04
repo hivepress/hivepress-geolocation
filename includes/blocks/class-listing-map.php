@@ -47,6 +47,11 @@ class Listing_Map extends Block {
 	protected function boot() {
 		$attributes = [];
 
+		// Set model.
+		if ( ! $this->model ) {
+			$this->model = 'listing';
+		}
+
 		// Set zoom.
 		$attributes['data-max-zoom'] = absint( get_option( 'hp_geolocation_max_zoom', 18 ) );
 
@@ -75,11 +80,6 @@ class Listing_Map extends Block {
 	 */
 	public function render() {
 		$output = '';
-
-		// Check model.
-		if ( ! $this->model ) {
-			return $output;
-		}
 
 		// Get markers.
 		$markers = [];
