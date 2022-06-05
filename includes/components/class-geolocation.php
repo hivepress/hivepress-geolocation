@@ -37,6 +37,9 @@ final class Geolocation extends Component {
 		// Set models.
 		$this->models = array_intersect( $this->models, (array) get_option( 'hp_geolocation_models', [ 'listing' ] ) );
 
+		// Delete empty tags.
+		add_action( 'hivepress/v1/events/hourly', [ $this, 'delete_empty_regions' ] );
+
 		// Add taxonomies.
 		add_filter( 'hivepress/v1/taxonomies', [ $this, 'add_taxonomies' ] );
 
@@ -87,6 +90,44 @@ final class Geolocation extends Component {
 		}
 
 		parent::__construct( $args );
+	}
+
+	/**
+	 * Deletes empty regions.
+	 */
+	public function delete_empty_regions() {
+
+		// Check settings.
+		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
+			return;
+		}
+
+		// Get taxonomies.
+		$taxonomies = array_map(
+			function( $model ) {
+				return hp\prefix( $model . '_region' );
+			},
+			$this->models
+		);
+
+		// Get terms.
+		$terms = get_terms(
+			[
+				'taxonomy'   => $taxonomies,
+				'number'     => 100,
+				'orderby'    => 'count',
+				'order'      => 'ASC',
+				'hide_empty' => false,
+				'pad_counts' => true,
+			]
+		);
+
+		// Delete terms.
+		foreach ( $terms as $term ) {
+			if ( ! $term->count ) {
+				wp_delete_term( $term->term_id, $term->taxonomy );
+			}
+		}
 	}
 
 	/**
