@@ -21,59 +21,76 @@ defined( 'ABSPATH' ) || exit;
 final class Geolocation extends Component {
 
 	/**
+	 * Model names.
+	 *
+	 * @var array
+	 */
+	protected $models = [ 'listing', 'vendor', 'request' ];
+
+	/**
 	 * Class constructor.
 	 *
 	 * @param array $args Component arguments.
 	 */
 	public function __construct( $args = [] ) {
 
-		// Add attributes.
-		add_filter( 'hivepress/v1/models/listing/attributes', [ $this, 'add_attributes' ] );
-
-		// Add fields.
-		add_filter( 'hivepress/v1/models/listing', [ $this, 'add_fields' ] );
+		// Set models.
+		$this->models = array_intersect( $this->models, (array) get_option( 'hp_geolocation_models', [ 'listing' ] ) );
 
 		// Add taxonomies.
 		add_filter( 'hivepress/v1/taxonomies', [ $this, 'add_taxonomies' ] );
 
 		// Enqueue scripts.
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ], 1 );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ], 1 );
 
 		add_filter( 'hivepress/v1/scripts', [ $this, 'alter_scripts' ] );
 
-		// Update location.
-		add_action( 'hivepress/v1/models/listing/update_longitude', [ $this, 'update_location' ] );
+		foreach ( $this->models as $model ) {
 
-		// Alter templates.
-		add_filter( 'hivepress/v1/templates/listing_view_block', [ $this, 'alter_listing_view_block' ] );
-		add_filter( 'hivepress/v1/templates/listing_view_page', [ $this, 'alter_listing_view_page' ] );
-		add_filter( 'hivepress/v1/templates/listings_view_page', [ $this, 'alter_listings_view_page' ] );
+			// Add attributes.
+			add_filter( 'hivepress/v1/models/' . $model . '/attributes', [ $this, 'add_attributes' ] );
 
-		if ( ! is_admin() ) {
+			// Update location.
+			add_action( 'hivepress/v1/models/' . $model . '/update_longitude', [ $this, 'update_location' ] );
+
+			// Alter forms.
+			add_filter( 'hivepress/v1/forms/' . $model . '_search', [ $this, 'alter_search_form' ], 200, 2 );
+			add_filter( 'hivepress/v1/forms/' . $model . '_filter', [ $this, 'alter_search_form' ], 200, 2 );
+			add_filter( 'hivepress/v1/forms/' . $model . '_sort', [ $this, 'alter_search_form' ], 200, 2 );
+
+			add_filter( 'hivepress/v1/forms/' . $model . '_sort', [ $this, 'alter_sort_form' ], 200 );
 
 			// Set search query.
-			add_action( 'pre_get_posts', [ $this, 'set_search_query' ], 100 );
+			add_action( 'hivepress/v1/models/' . $model . '/search', [ $this, 'set_search_query' ] );
+
+			// Alter templates.
+			add_filter( 'hivepress/v1/templates/' . $model . '_view_block', [ $this, 'alter_model_view_block' ], 10, 2 );
+			add_filter( 'hivepress/v1/templates/' . $model . '_view_page', [ $this, 'alter_model_view_page' ], 10, 2 );
+			add_filter( 'hivepress/v1/templates/' . $model . 's_view_page', [ $this, 'alter_models_view_page' ], 10, 2 );
+		}
+
+		if ( is_admin() ) {
+
+			// Alter settings.
+			add_filter( 'hivepress/v1/settings', [ $this, 'alter_settings' ] );
+		} else {
+
+			// Set related query.
+			add_action( 'hivepress/v1/models/listing/relate', [ $this, 'set_related_query' ], 10, 2 );
 
 			// Set search order.
 			add_filter( 'posts_orderby', [ $this, 'set_search_order' ], 100, 2 );
 
 			// Set search radius.
 			add_filter( 'option_hp_geolocation_radius', [ $this, 'set_search_radius' ] );
-
-			// Alter forms.
-			add_filter( 'hivepress/v1/forms/listing_search', [ $this, 'alter_listing_search_form' ], 200 );
-			add_filter( 'hivepress/v1/forms/listing_filter', [ $this, 'alter_listing_search_form' ], 200 );
-			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_search_form' ], 200 );
-
-			add_filter( 'hivepress/v1/forms/listing_sort', [ $this, 'alter_listing_sort_form' ], 200 );
 		}
 
 		parent::__construct( $args );
 	}
 
 	/**
-	 * Adds listing attributes.
+	 * Adds model attributes.
 	 *
 	 * @param array $attributes Attributes.
 	 * @return array
@@ -86,9 +103,33 @@ final class Geolocation extends Component {
 		// Get radius.
 		$radius = absint( get_option( 'hp_geolocation_radius', 15 ) );
 
+		if ( get_option( 'hp_geolocation_use_miles' ) ) {
+			$radius *= 1.60934;
+		}
+
 		return array_merge(
 			$attributes,
 			[
+				'location'  => [
+					'editable'     => true,
+					'searchable'   => true,
+
+					'edit_field'   => [
+						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'      => 'location',
+						'countries' => $countries,
+						'required'  => true,
+						'_order'    => 25,
+					],
+
+					'search_field' => [
+						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'type'        => 'location',
+						'countries'   => $countries,
+						'_order'      => 20,
+					],
+				],
+
 				'latitude'  => [
 					'editable'     => true,
 					'searchable'   => true,
@@ -117,49 +158,8 @@ final class Geolocation extends Component {
 						'_parent' => 'latitude',
 					],
 				],
-
-				'location'  => [
-					'editable'     => true,
-					'searchable'   => true,
-
-					'edit_field'   => [
-						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'      => 'location',
-						'countries' => $countries,
-						'required'  => true,
-						'_order'    => 25,
-					],
-
-					'search_field' => [
-						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'        => 'location',
-						'countries'   => $countries,
-						'_order'      => 20,
-					],
-				],
 			]
 		);
-	}
-
-	/**
-	 * Adds listing fields.
-	 *
-	 * @todo Remove once field-specific update hooks are fixed.
-	 * @param array $model Model arguments.
-	 * @return array
-	 */
-	public function add_fields( $model ) {
-		$attributes = hivepress()->attribute->get_attributes( 'listing' );
-
-		foreach ( [ 'latitude', 'longitude' ] as $field ) {
-			if ( isset( $attributes[ $field ] ) ) {
-				$model['fields'][ $field ] = $attributes[ $field ]['edit_field'];
-
-				$model['fields'][ $field ]['_external'] = true;
-			}
-		}
-
-		return $model;
 	}
 
 	/**
@@ -170,25 +170,27 @@ final class Geolocation extends Component {
 	 */
 	public function add_taxonomies( $taxonomies ) {
 		if ( get_option( 'hp_geolocation_generate_regions' ) ) {
-			$taxonomies['listing_region'] = [
-				'post_type'          => [ 'listing' ],
-				'hierarchical'       => true,
-				'show_in_quick_edit' => false,
-				'meta_box_cb'        => false,
-				'rewrite'            => [ 'slug' => 'listing-region' ],
+			foreach ( $this->models as $model ) {
+				$taxonomies[ $model . '_region' ] = [
+					'post_type'          => [ $model ],
+					'hierarchical'       => true,
+					'show_in_quick_edit' => false,
+					'meta_box_cb'        => false,
+					'rewrite'            => [ 'slug' => $model . '-region' ],
 
-				'labels'             => [
-					'name'          => esc_html__( 'Regions', 'hivepress-geolocation' ),
-					'singular_name' => esc_html__( 'Region', 'hivepress-geolocation' ),
-					'add_new_item'  => esc_html__( 'Add Region', 'hivepress-geolocation' ),
-					'edit_item'     => esc_html__( 'Edit Region', 'hivepress-geolocation' ),
-					'update_item'   => esc_html__( 'Update Region', 'hivepress-geolocation' ),
-					'view_item'     => esc_html__( 'View Region', 'hivepress-geolocation' ),
-					'parent_item'   => esc_html__( 'Parent Region', 'hivepress-geolocation' ),
-					'search_items'  => esc_html__( 'Search Regions', 'hivepress-geolocation' ),
-					'not_found'     => esc_html__( 'No regions found', 'hivepress-geolocation' ),
-				],
-			];
+					'labels'             => [
+						'name'          => esc_html__( 'Regions', 'hivepress-geolocation' ),
+						'singular_name' => esc_html__( 'Region', 'hivepress-geolocation' ),
+						'add_new_item'  => esc_html__( 'Add Region', 'hivepress-geolocation' ),
+						'edit_item'     => esc_html__( 'Edit Region', 'hivepress-geolocation' ),
+						'update_item'   => esc_html__( 'Update Region', 'hivepress-geolocation' ),
+						'view_item'     => esc_html__( 'View Region', 'hivepress-geolocation' ),
+						'parent_item'   => esc_html__( 'Parent Region', 'hivepress-geolocation' ),
+						'search_items'  => esc_html__( 'Search Regions', 'hivepress-geolocation' ),
+						'not_found'     => esc_html__( 'No regions found', 'hivepress-geolocation' ),
+					],
+				];
+			}
 		}
 
 		return $taxonomies;
@@ -270,27 +272,34 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Updates listing location.
+	 * Updates model location.
 	 *
-	 * @param int $listing_id Listing ID.
+	 * @param int $model_id Model ID.
 	 */
-	public function update_location( $listing_id ) {
+	public function update_location( $model_id ) {
 
 		// Check settings.
 		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
 			return;
 		}
 
-		// Get listing.
-		$listing = Models\Listing::query()->get_by_id( $listing_id );
+		// Get model name.
+		$model_name = hp\get_array_value( explode( '/', current_action() ), 3 );
 
-		if ( ! $listing ) {
+		if ( ! in_array( $model_name, $this->models ) ) {
+			return;
+		}
+
+		// Get model object.
+		$model = hivepress()->model->get_model_object( $model_name, $model_id );
+
+		if ( ! $model ) {
 			return;
 		}
 
 		// Get coordinates.
-		$latitude  = $listing->get_latitude();
-		$longitude = $listing->get_longitude();
+		$latitude  = $model->get_latitude();
+		$longitude = $model->get_longitude();
 
 		if ( ! $latitude || ! $longitude ) {
 			return;
@@ -359,20 +368,23 @@ final class Geolocation extends Component {
 			}
 		}
 
+		// Get region taxonomy.
+		$region_taxonomy = hp\prefix( $model_name . '_region' );
+
 		// Get region ID.
 		$region_id = null;
 
 		foreach ( array_reverse( $regions ) as $region_code => $region_name ) {
 
 			// Get region.
-			$region_args = term_exists( $region_name, 'hp_listing_region', $region_id );
+			$region_args = term_exists( $region_name, $region_taxonomy, $region_id );
 
 			if ( ! $region_args ) {
 
 				// Add region.
 				$region_args = wp_insert_term(
 					$region_name,
-					'hp_listing_region',
+					$region_taxonomy,
 					[
 						'parent' => $region_id,
 					]
@@ -393,7 +405,67 @@ final class Geolocation extends Component {
 		}
 
 		// Set region ID.
-		wp_set_object_terms( $listing->get_id(), $region_id, 'hp_listing_region' );
+		wp_set_object_terms( $model->get_id(), $region_id, $region_taxonomy );
+	}
+
+	/**
+	 * Alters settings.
+	 *
+	 * @param array $settings Settings configuration.
+	 * @return array
+	 */
+	public function alter_settings( $settings ) {
+		if ( hivepress()->get_version( 'requests' ) ) {
+			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_models']['options']['request'] = hivepress()->translator->get_string( 'requests' );
+		}
+
+		return $settings;
+	}
+
+	/**
+	 * Sets related query.
+	 *
+	 * @todo Remove when related field flags are implemented.
+	 * @param WP_Query $query Query object.
+	 * @param object   $listing Listing object.
+	 */
+	public function set_related_query( $query, $listing ) {
+
+		// Check coordinates.
+		if ( ! $listing->get_latitude() || ! $listing->get_longitude() ) {
+			return;
+		}
+
+		// Get fields.
+		$latitude_field  = hp\get_array_value( $listing->_get_fields(), 'latitude' );
+		$longitude_field = hp\get_array_value( $listing->_get_fields(), 'longitude' );
+
+		// Update filter.
+		$longitude_field->set_parent_value( $listing->get_latitude() );
+		$longitude_field->update_filter();
+
+		foreach ( [ $latitude_field, $longitude_field ] as $field ) {
+
+			// Get filter.
+			$filter = $field->get_filter();
+
+			if ( $filter ) {
+
+				// Set filter.
+				$query->set_args(
+					[
+						'meta_query' => [
+							$field->get_name() => [
+								'key'     => hp\prefix( $filter['name'] ),
+								'type'    => $filter['type'],
+								'value'   => $filter['value'],
+								'compare' => $filter['operator'],
+							],
+						],
+					]
+				);
+			}
+		}
 	}
 
 	/**
@@ -402,11 +474,6 @@ final class Geolocation extends Component {
 	 * @param WP_Query $query Query object.
 	 */
 	public function set_search_query( $query ) {
-
-		// Check query.
-		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
-			return;
-		}
 
 		// Check settings.
 		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
@@ -420,11 +487,14 @@ final class Geolocation extends Component {
 			return;
 		}
 
+		// Get region taxonomy.
+		$region_taxonomy = $query->get( 'post_type' ) . '_region';
+
 		// Get region ID.
 		$region_id = hp\get_first_array_value(
 			get_terms(
 				[
-					'taxonomy'   => 'hp_listing_region',
+					'taxonomy'   => $region_taxonomy,
 					'fields'     => 'ids',
 					'number'     => 1,
 					'hide_empty' => false,
@@ -443,17 +513,11 @@ final class Geolocation extends Component {
 		$tax_query  = array_filter( (array) $query->get( 'tax_query' ) );
 
 		// Remove coordinate filters.
-		// @todo: Unset once query filter keys are implemented.
-		$meta_query = array_filter(
-			$meta_query,
-			function( $args ) {
-				return ! in_array( $args['key'], [ 'hp_latitude', 'hp_longitude' ], true );
-			}
-		);
+		unset( $meta_query['latitude'], $meta_query['longitude'] );
 
 		// Add region filter.
 		$tax_query[] = [
-			'taxonomy' => 'hp_listing_region',
+			'taxonomy' => $region_taxonomy,
 			'terms'    => $region_id,
 		];
 
@@ -473,7 +537,7 @@ final class Geolocation extends Component {
 		global $wpdb;
 
 		// Check query.
-		if ( ! $query->is_main_query() || ! $query->is_search() || $query->get( 'post_type' ) !== 'hp_listing' ) {
+		if ( ! $query->is_main_query() || ! $query->is_search() || ! in_array( $query->get( 'post_type' ), hp\prefix( $this->models ) ) ) {
 			return $orderby;
 		}
 
@@ -532,12 +596,13 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Alters listing search form.
+	 * Alters search form.
 	 *
-	 * @param array $form Form arguments.
+	 * @param array  $form_args Form arguments.
+	 * @param object $form Form object.
 	 * @return array
 	 */
-	public function alter_listing_search_form( $form ) {
+	public function alter_search_form( $form_args, $form ) {
 
 		// Get form flags.
 		$is_search = strpos( current_filter(), '_search' );
@@ -546,7 +611,7 @@ final class Geolocation extends Component {
 		if ( get_option( 'hp_geolocation_generate_regions' ) ) {
 
 			// Add region field.
-			$form['fields']['_region'] = [
+			$form_args['fields']['_region'] = [
 				'type'       => 'hidden',
 
 				'attributes' => [
@@ -554,16 +619,16 @@ final class Geolocation extends Component {
 				],
 			];
 
-			if ( is_tax( 'hp_listing_region' ) ) {
+			if ( is_tax( hp\prefix( $form::get_meta( 'model' ) . '_region' ) ) ) {
 
 				// Get region.
 				$region = get_queried_object();
 
 				// Set defaults.
-				$form['fields']['_region']['default'] = get_term_meta( $region->term_id, 'hp_code', true );
+				$form_args['fields']['_region']['default'] = get_term_meta( $region->term_id, 'hp_code', true );
 
-				if ( isset( $form['fields']['location'] ) ) {
-					$form['fields']['location']['default'] = $region->name;
+				if ( isset( $form_args['fields']['location'] ) ) {
+					$form_args['fields']['location']['default'] = $region->name;
 				}
 			}
 		}
@@ -571,7 +636,7 @@ final class Geolocation extends Component {
 		if ( get_option( 'hp_geolocation_allow_radius' ) && ! $is_search && hp\get_array_value( $_GET, 'location' ) && ! hp\get_array_value( $_GET, '_region' ) ) {
 
 			// Add radius field.
-			$form['fields']['_radius'] = [
+			$form_args['fields']['_radius'] = [
 				'label'      => esc_html__( 'Radius', 'hivepress-geolocation' ),
 				'type'       => 'number',
 				'min_value'  => 1,
@@ -581,7 +646,7 @@ final class Geolocation extends Component {
 
 				'statuses'   => [
 					'optional' => null,
-					'km'       => esc_html__( 'km', 'hivepress-geolocation' ),
+					'unit'     => get_option( 'hp_geolocation_use_miles' ) ? esc_html_x( 'mi', 'miles', 'hivepress-geolocation' ) : esc_html_x( 'km', 'kilometers', 'hivepress-geolocation' ),
 				],
 
 				'attributes' => [
@@ -590,20 +655,20 @@ final class Geolocation extends Component {
 			];
 
 			if ( ! $is_filter ) {
-				$form['fields']['_radius']['display_type'] = 'hidden';
+				$form_args['fields']['_radius']['display_type'] = 'hidden';
 			}
 		}
 
-		return $form;
+		return $form_args;
 	}
 
 	/**
-	 * Alters listing sort form.
+	 * Alters sort form.
 	 *
 	 * @param array $form Form arguments.
 	 * @return array
 	 */
-	public function alter_listing_sort_form( $form ) {
+	public function alter_sort_form( $form ) {
 		if ( ! empty( $_GET['location'] ) && empty( $_GET['_region'] ) ) {
 			$form['fields']['_sort']['options'][''] = esc_html_x( 'Distance', 'sort order', 'hivepress-geolocation' );
 		}
@@ -612,21 +677,31 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Alters listing view block.
+	 * Alters model view block.
 	 *
-	 * @param array $template Template arguments.
+	 * @param array  $template_args Template arguments.
+	 * @param object $template Template object.
 	 * @return array
 	 */
-	public function alter_listing_view_block( $template ) {
+	public function alter_model_view_block( $template_args, $template ) {
+
+		// Get model name.
+		$model = $template::get_meta( 'model' );
+
+		// @todo remove once models are set, also below.
+		if ( ! $model ) {
+			$model = 'listing';
+		}
+
 		return hp\merge_trees(
-			$template,
+			$template_args,
 			[
 				'blocks' => [
-					'listing_details_primary' => [
+					$model . '_details_primary' => [
 						'blocks' => [
-							'listing_location' => [
+							$model . '_location' => [
 								'type'   => 'part',
-								'path'   => 'listing/view/listing-location',
+								'path'   => $model . '/view/' . $model . '-location',
 								'_order' => 5,
 							],
 						],
@@ -637,60 +712,85 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Alters listing view page.
+	 * Alters model view page.
 	 *
-	 * @param array $template Template arguments.
+	 * @param array  $template_args Template arguments.
+	 * @param object $template Template object.
 	 * @return array
 	 */
-	public function alter_listing_view_page( $template ) {
-		return hp\merge_trees(
-			$template,
-			[
+	public function alter_model_view_page( $template_args, $template ) {
+
+		// Get model name.
+		$model = $template::get_meta( 'model' );
+
+		if ( ! $model ) {
+			$model = 'listing';
+		}
+
+		// Get new blocks.
+		$blocks = [
+			$model . '_details_primary' => [
 				'blocks' => [
-					'listing_details_primary' => [
-						'blocks' => [
-							'listing_location' => [
-								'type'   => 'part',
-								'path'   => 'listing/view/listing-location',
-								'_label' => esc_html__( 'Location', 'hivepress-geolocation' ),
-								'_order' => 5,
-							],
-						],
+					$model . '_location' => [
+						'type'   => 'part',
+						'path'   => $model . '/view/' . $model . '-location',
+						'_label' => esc_html__( 'Location', 'hivepress-geolocation' ),
+						'_order' => 5,
 					],
+				],
+			],
+		];
 
-					'page_sidebar'            => [
-						'blocks' => [
-							'listing_map' => [
-								'type'       => 'listing_map',
-								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
-								'_order'     => 25,
+		if ( 'vendor' !== $model ) {
+			$blocks['page_sidebar'] = [
+				'blocks' => [
+					$model . '_map' => [
+						'type'       => 'listing_map',
+						'model'      => $model,
+						'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
+						'_order'     => 25,
 
-								'attributes' => [
-									'class' => [ 'hp-listing__map', 'widget' ],
-								],
-							],
+						'attributes' => [
+							'class' => [ 'hp-' . $model . '__map', 'hp-listing__map', 'widget' ],
 						],
 					],
 				],
+			];
+		}
+
+		return hp\merge_trees(
+			$template_args,
+			[
+				'blocks' => $blocks,
 			]
 		);
 	}
 
 	/**
-	 * Alters listings view page.
+	 * Alters models view page.
 	 *
-	 * @param array $template Template arguments.
+	 * @param array  $template_args Template arguments.
+	 * @param object $template Template object.
 	 * @return array
 	 */
-	public function alter_listings_view_page( $template ) {
+	public function alter_models_view_page( $template_args, $template ) {
+
+		// Get model name.
+		$model = $template::get_meta( 'model' );
+
+		if ( ! $model ) {
+			$model = 'listing';
+		}
+
 		return hp\merge_trees(
-			$template,
+			$template_args,
 			[
 				'blocks' => [
 					'page_sidebar' => [
 						'blocks' => [
-							'listing_map' => [
+							$model . '_map' => [
 								'type'       => 'listing_map',
+								'model'      => $model,
 								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
 								'_order'     => 15,
 

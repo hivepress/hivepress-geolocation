@@ -1,6 +1,6 @@
 <?php
 /**
- * Listing map block template.
+ * Vendor map block template.
  *
  * @package HivePress\Templates
  */
@@ -13,11 +13,11 @@ use HivePress\Helpers as hp;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Listing map block template class.
+ * Vendor map block template class.
  *
- * @class Listing_Map_Block
+ * @class Vendor_Map_Block
  */
-class Listing_Map_Block extends Template {
+class Vendor_Map_Block extends Template {
 
 	/**
 	 * Class constructor.
@@ -28,34 +28,34 @@ class Listing_Map_Block extends Template {
 		$args = hp\merge_trees(
 			[
 				'blocks' => [
-					'listing_container' => [
+					'vendor_container' => [
 						'type'       => 'container',
 						'_order'     => 10,
 
 						'attributes' => [
-							'class' => [ 'hp-listing', 'hp-listing--map-block' ],
+							'class' => [ 'hp-vendor', 'hp-vendor--map-block' ],
 						],
 
 						'blocks'     => [
-							'listing_title' => [
+							'vendor_name' => [
 								'type'       => 'container',
 								'tag'        => 'h5',
 								'_order'     => 10,
 
 								'attributes' => [
-									'class' => [ 'hp-listing__title' ],
+									'class' => [ 'hp-vendor__name' ],
 								],
 
 								'blocks'     => [
-									'listing_title_text' => [
+									'vendor_name_text' => [
 										'type'   => 'part',
-										'path'   => 'listing/view/block/listing-title',
+										'path'   => 'vendor/view/block/vendor-name',
 										'_order' => 10,
 									],
 
-									'listing_verified_badge' => [
+									'vendor_verified_badge' => [
 										'type'   => 'part',
-										'path'   => 'listing/view/listing-verified-badge',
+										'path'   => 'vendor/view/vendor-verified-badge',
 										'_order' => 20,
 									],
 								],

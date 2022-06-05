@@ -30,6 +30,7 @@
 		&__location {
 			display: flex;
 			align-items: center;
+			max-width: 100%;
 
 			i {
 				margin-right: 0.5rem;
@@ -41,6 +42,16 @@
 				text-overflow: ellipsis;
 				text-decoration: none;
 				color: inherit;
+			}
+		}
+	}
+	/*--------------------------------------------------------------
+	Vendors
+	--------------------------------------------------------------*/
+	&-vendor {
+		&__location {
+			&:not(:last-child) {
+				margin-bottom: 0.5rem;
 			}
 		}
 	}
