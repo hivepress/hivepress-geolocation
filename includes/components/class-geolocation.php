@@ -688,6 +688,7 @@ final class Geolocation extends Component {
 		// Get model name.
 		$model = $template::get_meta( 'model' );
 
+		// @todo remove once models are set, also below.
 		if ( ! $model ) {
 			$model = 'listing';
 		}
