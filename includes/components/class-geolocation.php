@@ -37,9 +37,6 @@ final class Geolocation extends Component {
 		// Set models.
 		$this->models = array_intersect( $this->models, (array) get_option( 'hp_geolocation_models', [ 'listing' ] ) );
 
-		// Delete empty tags.
-		add_action( 'hivepress/v1/events/hourly', [ $this, 'delete_empty_regions' ] );
-
 		// Add taxonomies.
 		add_filter( 'hivepress/v1/taxonomies', [ $this, 'add_taxonomies' ] );
 
@@ -90,44 +87,6 @@ final class Geolocation extends Component {
 		}
 
 		parent::__construct( $args );
-	}
-
-	/**
-	 * Deletes empty regions.
-	 */
-	public function delete_empty_regions() {
-
-		// Check settings.
-		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
-			return;
-		}
-
-		// Get taxonomies.
-		$taxonomies = array_map(
-			function( $model ) {
-				return hp\prefix( $model . '_region' );
-			},
-			$this->models
-		);
-
-		// Get terms.
-		$terms = get_terms(
-			[
-				'taxonomy'   => $taxonomies,
-				'number'     => 100,
-				'orderby'    => 'count',
-				'order'      => 'ASC',
-				'hide_empty' => false,
-				'pad_counts' => true,
-			]
-		);
-
-		// Delete terms.
-		foreach ( $terms as $term ) {
-			if ( ! $term->count ) {
-				wp_delete_term( $term->term_id, $term->taxonomy );
-			}
-		}
 	}
 
 	/**
@@ -325,7 +284,11 @@ final class Geolocation extends Component {
 		}
 
 		// Get model name.
-		$model_name = 'todo';
+		$model_name = hp\get_array_value( explode( '/', current_action() ), 3 );
+
+		if ( ! in_array( $model_name, $this->models ) ) {
+			return;
+		}
 
 		// Get model object.
 		$model = hivepress()->model->get_model_object( $model_name, $model_id );
@@ -721,7 +684,13 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function alter_model_view_block( $template_args, $template ) {
+
+		// Get model name.
 		$model = $template::get_meta( 'model' );
+
+		if ( ! $model ) {
+			$model = 'listing';
+		}
 
 		return hp\merge_trees(
 			$template_args,
@@ -753,6 +722,10 @@ final class Geolocation extends Component {
 		// Get model name.
 		$model = $template::get_meta( 'model' );
 
+		if ( ! $model ) {
+			$model = 'listing';
+		}
+
 		// Get new blocks.
 		$blocks = [
 			$model . '_details_primary' => [
@@ -777,7 +750,7 @@ final class Geolocation extends Component {
 						'_order'     => 25,
 
 						'attributes' => [
-							'class' => [ 'hp-listing__map', 'widget' ],
+							'class' => [ 'hp-' . $model . '__map', 'hp-listing__map', 'widget' ],
 						],
 					],
 				],
@@ -800,7 +773,13 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function alter_models_view_page( $template_args, $template ) {
+
+		// Get model name.
 		$model = $template::get_meta( 'model' );
+
+		if ( ! $model ) {
+			$model = 'listing';
+		}
 
 		return hp\merge_trees(
 			$template_args,
