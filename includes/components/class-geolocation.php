@@ -49,6 +49,9 @@ final class Geolocation extends Component {
 
 		add_filter( 'hivepress/v1/scripts', [ $this, 'alter_scripts' ] );
 
+		// Create listing.
+		add_action( 'hivepress/v1/models/listing/create', [ $this, 'set_location' ], 10, 2 );
+
 		foreach ( $this->models as $model ) {
 
 			// Add attributes.
@@ -844,5 +847,30 @@ final class Geolocation extends Component {
 				],
 			]
 		);
+	}
+
+	/**
+	 * Set listing location.
+	 *
+	 * @param int    $listing_id Listing ID.
+	 * @param object $listing Listing object.
+	 */
+	public function set_location( $listing_id, $listing ) {
+
+		// Get vendor.
+		$vendor = $listing->get_vendor();
+
+		if ( ! $vendor || ! $vendor->get_location() ) {
+			return;
+		}
+
+		// Set location.
+		$listing->fill(
+			[
+				'location'  => $vendor->get_location(),
+				'latitude'  => $vendor->get_latitude(),
+				'longitude' => $vendor->get_longitude(),
+			]
+		)->save( [ 'location', 'latitude', 'longitude' ] );
 	}
 }
