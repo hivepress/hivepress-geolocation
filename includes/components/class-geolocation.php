@@ -467,7 +467,7 @@ final class Geolocation extends Component {
 		$provider = get_option( 'hp_geolocation_provider' ) ? 'gmaps' : 'mapbox';
 
 		// Hide inappropriate fields for the provider.
-		unset( $settings['integrations']['sections'][ $provider ]['fields'][ $provider . '_api_key' ], $settings['integrations']['sections'][ $provider ]['fields'][ $provider . '_secret_key' ] );
+		unset( $settings['integrations']['sections'][ $provider ] );
 
 		return $settings;
 	}
