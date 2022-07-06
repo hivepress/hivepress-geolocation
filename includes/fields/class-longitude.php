@@ -99,12 +99,19 @@ class Longitude extends Number {
 			$radius = round( $this->radius / $divisor, 6 );
 		}
 
+		// Set query value.
+		$query_value = [ $this->value - $radius, $this->value + $radius ];
+
+		if ( $this->value + $radius < 0 ) {
+			$query_value = [ $this->value + $radius, $this->value - $radius ];
+		}
+
 		// Set filter.
 		$this->filter = array_merge(
 			$this->filter,
 			[
 				'operator' => 'BETWEEN',
-				'value'    => [ $this->value - $radius, $this->value + $radius ],
+				'value'    => $query_value,
 			]
 		);
 	}
