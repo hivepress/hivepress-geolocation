@@ -35,7 +35,6 @@ class Latitude extends Number {
 		$meta = hp\merge_arrays(
 			[
 				'label'    => null,
-				'type'     => 'DECIMAL(8,6)',
 				'sortable' => false,
 			],
 			$meta

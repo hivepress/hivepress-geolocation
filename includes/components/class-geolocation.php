@@ -119,7 +119,7 @@ final class Geolocation extends Component {
 						'type'      => 'location',
 						'countries' => $countries,
 						'required'  => true,
-						'_order'    => 25,
+						'_order'    => 35,
 					],
 
 					'search_field' => [
@@ -247,7 +247,7 @@ final class Geolocation extends Component {
 						'region'    => hivepress()->translator->get_region(),
 					]
 				),
-				[ 'hivepress-geolocation' ],
+				[],
 				null,
 				true
 			);
@@ -266,6 +266,11 @@ final class Geolocation extends Component {
 	public function alter_scripts( $scripts ) {
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
 			$scripts['geolocation']['deps'][] = 'mapbox-language';
+		} else {
+			$scripts['geolocation']['deps'] = array_merge(
+				$scripts['geolocation']['deps'],
+				[ 'geocomplete', 'markerclustererplus', 'markerspiderfier' ]
+			);
 		}
 
 		return $scripts;
