@@ -119,7 +119,7 @@ final class Geolocation extends Component {
 						'type'      => 'location',
 						'countries' => $countries,
 						'required'  => true,
-						'_order'    => 25,
+						'_order'    => 35,
 					],
 
 					'search_field' => [
