@@ -251,6 +251,31 @@ final class Geolocation extends Component {
 				]
 			);
 		} else {
+
+			wp_enqueue_script(
+				'geocomplete',
+				hivepress()->get_url( 'geolocation' ) . '/assets/js/jquery.geocomplete.min.js',
+				[ 'hivepress-geolocation' ],
+				hivepress()->get_version( 'geolocation' ),
+				true
+			);
+
+			wp_enqueue_script(
+				'markerclustererplus',
+				hivepress()->get_url( 'geolocation' ) . '/assets/js/markerclustererplus.min.js',
+				[ 'hivepress-geolocation' ],
+				hivepress()->get_version( 'geolocation' ),
+				true
+			);
+
+			wp_enqueue_script(
+				'markerspiderfier',
+				hivepress()->get_url( 'geolocation' ) . '/assets/js/oms.min.js',
+				[ 'hivepress-geolocation' ],
+				hivepress()->get_version( 'geolocation' ),
+				true
+			);
+
 			wp_enqueue_script(
 				'google-maps',
 				'https://maps.googleapis.com/maps/api/js?' . http_build_query(

@@ -11,30 +11,6 @@ use HivePress\Helpers as hp;
 defined( 'ABSPATH' ) || exit;
 
 return [
-	'geocomplete'          => [
-		'handle'  => 'geocomplete',
-		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/jquery.geocomplete.min.js',
-		'version' => hivepress()->get_version( 'geolocation' ),
-		'deps'    => [ 'google-maps' ],
-		'scope'   => [ 'frontend', 'backend' ],
-	],
-
-	'markerclustererplus'  => [
-		'handle'  => 'markerclustererplus',
-		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/markerclustererplus.min.js',
-		'version' => hivepress()->get_version( 'geolocation' ),
-		'deps'    => [ 'google-maps' ],
-		'scope'   => [ 'frontend', 'backend' ],
-	],
-
-	'markerspiderfier'     => [
-		'handle'  => 'markerspiderfier',
-		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/oms.min.js',
-		'version' => hivepress()->get_version( 'geolocation' ),
-		'deps'    => [ 'google-maps' ],
-		'scope'   => [ 'frontend', 'backend' ],
-	],
-
 	'geolocation'          => [
 		'handle'  => 'hivepress-geolocation',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/common.min.js',
