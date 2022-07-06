@@ -35,7 +35,6 @@ class Longitude extends Number {
 		$meta = hp\merge_arrays(
 			[
 				'label'    => null,
-				'type'     => 'DECIMAL(9,6)',
 				'sortable' => false,
 			],
 			$meta
@@ -99,19 +98,12 @@ class Longitude extends Number {
 			$radius = round( $this->radius / $divisor, 6 );
 		}
 
-		// Set query value.
-		$query_value = [ $this->value - $radius, $this->value + $radius ];
-
-		if ( $this->value + $radius < 0 ) {
-			$query_value = [ $this->value + $radius, $this->value - $radius ];
-		}
-
 		// Set filter.
 		$this->filter = array_merge(
 			$this->filter,
 			[
 				'operator' => 'BETWEEN',
-				'value'    => $query_value,
+				'value'    => [ $this->value - $radius, $this->value + $radius ],
 			]
 		);
 	}
