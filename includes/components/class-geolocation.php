@@ -251,9 +251,6 @@ final class Geolocation extends Component {
 				null,
 				true
 			);
-
-			wp_script_add_data( 'google-maps', 'async', true );
-			wp_script_add_data( 'google-maps', 'defer', true );
 		}
 	}
 
