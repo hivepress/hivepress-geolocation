@@ -241,7 +241,6 @@ final class Geolocation extends Component {
 				'https://maps.googleapis.com/maps/api/js?' . http_build_query(
 					[
 						'libraries' => 'places',
-						'callback'  => 'hivepress.initGeolocation',
 						'key'       => get_option( 'hp_gmaps_api_key' ),
 						'language'  => hivepress()->translator->get_language(),
 						'region'    => hivepress()->translator->get_region(),
@@ -251,9 +250,6 @@ final class Geolocation extends Component {
 				null,
 				true
 			);
-
-			wp_script_add_data( 'google-maps', 'async', true );
-			wp_script_add_data( 'google-maps', 'defer', true );
 		}
 	}
 

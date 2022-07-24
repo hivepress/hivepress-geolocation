@@ -1,10 +1,7 @@
 (function($) {
 	'use strict';
 
-	hivepress.initGeolocation = function(container = null) {
-		if (container === null) {
-			container = $('body');
-		}
+	hivepress.initGeolocation = function(container) {
 
 		// Location
 		container.find(hivepress.getSelector('location')).each(function() {
@@ -315,13 +312,6 @@
 	}
 
 	$(document).on('hivepress:init', function(event, container) {
-		if (!container.is('body')) {
-			hivepress.initGeolocation(container);
-		}
+		hivepress.initGeolocation(container);
 	});
-
-	// Mapbox
-	if (typeof mapboxData !== 'undefined') {
-		hivepress.initGeolocation();
-	}
 })(jQuery);
