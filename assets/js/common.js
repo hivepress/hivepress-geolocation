@@ -1,7 +1,7 @@
 (function($) {
 	'use strict';
 
-	hivepress.initGeolocation = function() {
+	hivepress.initGeolocation = function(container) {
 
 		// Location
 		container.find(hivepress.getSelector('location')).each(function() {
