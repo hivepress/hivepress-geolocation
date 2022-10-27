@@ -157,7 +157,7 @@
 
 			// Clear field
 			field.focusout(function() {
-				if (typeof mapboxData !== 'undefined' && !latitudeField.val() && !longitudeField.val()) {
+				if (!latitudeField.val() && !longitudeField.val()) {
 					field.val('');
 				}
 			});
