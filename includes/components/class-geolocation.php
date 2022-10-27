@@ -46,6 +46,8 @@ final class Geolocation extends Component {
 
 		add_filter( 'hivepress/v1/scripts', [ $this, 'alter_scripts' ] );
 
+		add_filter( 'style_loader_tag', [ $this, 'add_styles_async' ], 1000, 2 );
+
 		foreach ( $this->models as $model ) {
 
 			// Add attributes.
@@ -197,12 +199,27 @@ final class Geolocation extends Component {
 	}
 
 	/**
+	 * Adds async to map styles.
+	 *
+	 * @param string $tag Taxonomies.
+	 * @param string $handle Taxonomies.
+	 * @return string
+	 */
+	public function add_styles_async( $tag, $handle ) {
+		if ( in_array( $handle, [ 'mapbox', 'mapbox-geocoder' ] ) ) {
+			$tag = str_replace( 'media=\'print\'', 'onload="this.onload=null;this.media=\'all\'"', $tag );
+		}
+
+		return $tag;
+	}
+
+	/**
 	 * Enqueues scripts.
 	 */
 	public function enqueue_scripts() {
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
-			wp_enqueue_style( 'mapbox', 'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css' );
-			wp_enqueue_style( 'mapbox-geocoder', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css' );
+			wp_enqueue_style( 'mapbox', 'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css', [], null, 'print' );
+			wp_enqueue_style( 'mapbox-geocoder', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css', [], null, 'print' );
 
 			wp_enqueue_script(
 				'mapbox',
@@ -235,6 +252,8 @@ final class Geolocation extends Component {
 					'apiKey' => get_option( 'hp_mapbox_api_key' ),
 				]
 			);
+
+			wp_script_add_data( 'mapbox', 'async', true );
 		} else {
 			wp_enqueue_script(
 				'google-maps',
