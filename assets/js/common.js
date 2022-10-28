@@ -125,6 +125,13 @@
 				});
 			}
 
+			// Clear field
+			field.focusout(function() {
+				if (!latitudeField.val() || !longitudeField.val()) {
+					field.val('');
+				}
+			});
+
 			// Clear location
 			field.on('input', function() {
 				if (!field.val()) {
@@ -154,13 +161,6 @@
 			} else {
 				button.hide();
 			}
-
-			// Clear field
-			field.focusout(function() {
-				if (!latitudeField.val() && !longitudeField.val()) {
-					field.val('');
-				}
-			});
 		});
 
 		// Map
