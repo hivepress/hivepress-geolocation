@@ -1,7 +1,11 @@
 (function($) {
 	'use strict';
 
-	hivepress.initGeolocation = function(container) {
+	hivepress.initGeolocation = function(container = null) {
+
+		if (container === null) {
+			container = $('body');
+		}
 
 		// Location
 		container.find(hivepress.getSelector('location')).each(function() {
