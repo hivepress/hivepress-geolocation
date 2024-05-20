@@ -135,6 +135,7 @@ final class Geolocation extends Component {
 					'searchable'   => true,
 
 					'edit_field'   => [
+						'label' => esc_html__( 'Latitude', 'hivepress-geolocation' ),
 						'type' => 'latitude',
 					],
 
@@ -149,6 +150,7 @@ final class Geolocation extends Component {
 					'searchable'   => true,
 
 					'edit_field'   => [
+						'label' => esc_html__( 'Longitude', 'hivepress-geolocation' ),
 						'type' => 'longitude',
 					],
 
