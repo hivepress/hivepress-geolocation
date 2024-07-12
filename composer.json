@@ -3,5 +3,11 @@
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
 		"wp-coding-standards/wpcs": "~2.3.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1.0"
+	},
+	"config": {
+		"autoloader-suffix": "c33dffe505f1afd5071fd3128f0173f3",
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }
