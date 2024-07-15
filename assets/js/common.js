@@ -264,6 +264,13 @@
 							},
 						};
 
+					if (container.data('icon')) {
+						markerSettings['icon'] = {
+							url: container.data('icon'),
+							scaledSize: new google.maps.Size(50, 50),
+						};
+					}
+
 					if (container.data('scatter')) {
 						markerSettings['icon'] = iconSettings;
 					}
