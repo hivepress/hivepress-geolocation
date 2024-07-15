@@ -125,6 +125,13 @@
 				});
 			}
 
+			// Clear field
+			field.focusout(function() {
+				if (!latitudeField.val() || !longitudeField.val()) {
+					field.val('');
+				}
+			});
+
 			// Clear location
 			field.on('input', function() {
 				if (!field.val()) {
