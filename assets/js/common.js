@@ -262,13 +262,16 @@
 								lat: data.latitude,
 								lng: data.longitude,
 							},
-						};
+						},
+						options = container.data('options');
 
-					if (container.data('icon')) {
-						markerSettings['icon'] = {
-							url: container.data('icon'),
-							scaledSize: new google.maps.Size(50, 50),
-						};
+					if (options) {
+						if (options.icon) {
+							markerSettings['icon'] = {
+								url: options.icon,
+								scaledSize: new google.maps.Size(50, 50),
+							};
+						}
 					}
 
 					if (container.data('scatter')) {
