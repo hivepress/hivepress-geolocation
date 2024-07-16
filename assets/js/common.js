@@ -160,7 +160,8 @@
 		container.find(hivepress.getSelector('map')).each(function() {
 			var container = $(this),
 				height = container.width(),
-				maxZoom = container.data('max-zoom');
+				maxZoom = container.data('max-zoom'),
+				options = container.data('options');
 
 			// Set height
 			if (container.is('[data-height]')) {
@@ -262,8 +263,7 @@
 								lat: data.latitude,
 								lng: data.longitude,
 							},
-						},
-						options = container.data('options');
+						};
 
 					if (options) {
 						if (options.icon) {
