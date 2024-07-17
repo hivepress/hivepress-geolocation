@@ -265,6 +265,31 @@
 							},
 						};
 
+					if (data.price) {
+						var overlay = new google.maps.OverlayView();
+
+						overlay.onAdd = function() {
+							var layer = document.createElement('div');
+
+							layer.style.position = 'absolute';
+							layer.style.backgroundColor = 'white';
+							layer.style.border = '1px solid black';
+							layer.style.padding = '5px';
+							layer.innerHTML = data.price;
+
+							this.getPanes().overlayLayer.appendChild(layer);
+
+							overlay.draw = function() {
+								var position = this.getProjection().fromLatLngToDivPixel(marker.getPosition());
+
+								layer.style.left = position.x + 'px';
+								layer.style.top = position.y + 'px';
+							};
+						};
+
+						overlay.setMap(map);
+					}
+
 					if (options) {
 						if (options.icon) {
 							markerSettings['icon'] = {
