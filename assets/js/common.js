@@ -290,13 +290,11 @@
 						overlay.setMap(map);
 					}
 
-					if (options) {
-						if (options.icon) {
-							markerSettings['icon'] = {
-								url: options.icon,
-								scaledSize: new google.maps.Size(50, 50),
-							};
-						}
+					if (options && options.icon) {
+						markerSettings['icon'] = {
+							url: options.icon,
+							scaledSize: new google.maps.Size(50, 50),
+						};
 					}
 
 					if (container.data('scatter')) {
