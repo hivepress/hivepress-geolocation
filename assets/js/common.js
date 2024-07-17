@@ -161,7 +161,7 @@
 			var container = $(this),
 				height = container.width(),
 				maxZoom = container.data('max-zoom'),
-				marker = container.data('marker');
+				markerIcon = container.data('marker');
 
 			// Set height
 			if (container.is('[data-height]')) {
@@ -265,9 +265,9 @@
 							},
 						};
 
-					if (marker) {
+					if (markerIcon) {
 						markerSettings['icon'] = {
-							url: marker,
+							url: markerIcon,
 							scaledSize: new google.maps.Size(50, 50),
 						};
 					}
