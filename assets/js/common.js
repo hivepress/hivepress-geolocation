@@ -160,7 +160,8 @@
 		container.find(hivepress.getSelector('map')).each(function() {
 			var container = $(this),
 				height = container.width(),
-				maxZoom = container.data('max-zoom');
+				maxZoom = container.data('max-zoom'),
+				markerIcon = container.data('marker');
 
 			// Set height
 			if (container.is('[data-height]')) {
@@ -263,6 +264,13 @@
 								lng: data.longitude,
 							},
 						};
+
+					if (markerIcon) {
+						markerSettings['icon'] = {
+							url: markerIcon,
+							scaledSize: new google.maps.Size(50, 50),
+						};
+					}
 
 					if (container.data('scatter')) {
 						markerSettings['icon'] = iconSettings;
