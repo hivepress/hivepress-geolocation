@@ -37,9 +37,6 @@ final class Geolocation extends Component {
 		// Set models.
 		$this->models = array_intersect( $this->models, (array) get_option( 'hp_geolocation_models', [ 'listing' ] ) );
 
-		// Delete empty tags.
-		add_action( 'hivepress/v1/events/hourly', [ $this, 'delete_empty_regions' ] );
-
 		// Add taxonomies.
 		add_filter( 'hivepress/v1/taxonomies', [ $this, 'add_taxonomies' ] );
 
@@ -48,9 +45,6 @@ final class Geolocation extends Component {
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ], 1 );
 
 		add_filter( 'hivepress/v1/scripts', [ $this, 'alter_scripts' ] );
-
-		// Create listing.
-		add_action( 'hivepress/v1/models/listing/create', [ $this, 'set_location' ], 10, 2 );
 
 		foreach ( $this->models as $model ) {
 
@@ -96,44 +90,6 @@ final class Geolocation extends Component {
 	}
 
 	/**
-	 * Deletes empty regions.
-	 */
-	public function delete_empty_regions() {
-
-		// Check settings.
-		if ( ! get_option( 'hp_geolocation_generate_regions' ) ) {
-			return;
-		}
-
-		// Get taxonomies.
-		$taxonomies = array_map(
-			function( $model ) {
-				return hp\prefix( $model . '_region' );
-			},
-			$this->models
-		);
-
-		// Get terms.
-		$terms = get_terms(
-			[
-				'taxonomy'   => $taxonomies,
-				'number'     => 100,
-				'orderby'    => 'count',
-				'order'      => 'ASC',
-				'hide_empty' => false,
-				'pad_counts' => true,
-			]
-		);
-
-		// Delete terms.
-		foreach ( $terms as $term ) {
-			if ( ! $term->count ) {
-				wp_delete_term( $term->term_id, $term->taxonomy );
-			}
-		}
-	}
-
-	/**
 	 * Adds model attributes.
 	 *
 	 * @param array $attributes Attributes.
@@ -163,7 +119,7 @@ final class Geolocation extends Component {
 						'type'      => 'location',
 						'countries' => $countries,
 						'required'  => true,
-						'_order'    => 40,
+						'_order'    => 35,
 					],
 
 					'search_field' => [
@@ -179,6 +135,7 @@ final class Geolocation extends Component {
 					'searchable'   => true,
 
 					'edit_field'   => [
+						'label' => esc_html__( 'Latitude', 'hivepress-geolocation' ),
 						'type' => 'latitude',
 					],
 
@@ -193,6 +150,7 @@ final class Geolocation extends Component {
 					'searchable'   => true,
 
 					'edit_field'   => [
+						'label' => esc_html__( 'Longitude', 'hivepress-geolocation' ),
 						'type' => 'longitude',
 					],
 
@@ -285,19 +243,15 @@ final class Geolocation extends Component {
 				'https://maps.googleapis.com/maps/api/js?' . http_build_query(
 					[
 						'libraries' => 'places',
-						'callback'  => 'hivepress.initGeolocation',
 						'key'       => get_option( 'hp_gmaps_api_key' ),
 						'language'  => hivepress()->translator->get_language(),
 						'region'    => hivepress()->translator->get_region(),
 					]
 				),
-				[ 'hivepress-geolocation' ],
+				[],
 				null,
 				true
 			);
-
-			wp_script_add_data( 'google-maps', 'async', true );
-			wp_script_add_data( 'google-maps', 'defer', true );
 		}
 	}
 
@@ -310,6 +264,11 @@ final class Geolocation extends Component {
 	public function alter_scripts( $scripts ) {
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
 			$scripts['geolocation']['deps'][] = 'mapbox-language';
+		} else {
+			$scripts['geolocation']['deps'] = array_merge(
+				$scripts['geolocation']['deps'],
+				[ 'geocomplete', 'markerclustererplus', 'markerspiderfier' ]
+			);
 		}
 
 		return $scripts;
@@ -462,12 +421,6 @@ final class Geolocation extends Component {
 		if ( hivepress()->get_version( 'requests' ) ) {
 			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_models']['options']['request'] = hivepress()->translator->get_string( 'requests' );
 		}
-
-		// Get map provider.
-		$provider = get_option( 'hp_geolocation_provider' ) ? 'gmaps' : 'mapbox';
-
-		// Hide inappropriate fields for the provider.
-		unset( $settings['integrations']['sections'][ $provider ] );
 
 		return $settings;
 	}
@@ -853,30 +806,5 @@ final class Geolocation extends Component {
 				],
 			]
 		);
-	}
-
-	/**
-	 * Set listing location.
-	 *
-	 * @param int    $listing_id Listing ID.
-	 * @param object $listing Listing object.
-	 */
-	public function set_location( $listing_id, $listing ) {
-
-		// Get vendor.
-		$vendor = $listing->get_vendor();
-
-		if ( ! $vendor || ! $vendor->get_location() ) {
-			return;
-		}
-
-		// Set location.
-		$listing->fill(
-			[
-				'location'  => $vendor->get_location(),
-				'latitude'  => $vendor->get_latitude(),
-				'longitude' => $vendor->get_longitude(),
-			]
-		)->save( [ 'location', 'latitude', 'longitude' ] );
 	}
 }

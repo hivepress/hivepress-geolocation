@@ -1,10 +1,7 @@
 (function($) {
 	'use strict';
 
-	hivepress.initGeolocation = function(container = null) {
-		if (container === null) {
-			container = $('body');
-		}
+	hivepress.initGeolocation = function(container) {
 
 		// Location
 		container.find(hivepress.getSelector('location')).each(function() {
@@ -163,7 +160,8 @@
 		container.find(hivepress.getSelector('map')).each(function() {
 			var container = $(this),
 				height = container.width(),
-				maxZoom = container.data('max-zoom');
+				maxZoom = container.data('max-zoom'),
+				markerIcon = container.data('marker');
 
 			// Set height
 			if (container.is('[data-height]')) {
@@ -267,6 +265,13 @@
 							},
 						};
 
+					if (markerIcon) {
+						markerSettings['icon'] = {
+							url: markerIcon,
+							scaledSize: new google.maps.Size(50, 50),
+						};
+					}
+
 					if (container.data('scatter')) {
 						markerSettings['icon'] = iconSettings;
 					}
@@ -315,13 +320,6 @@
 	}
 
 	$(document).on('hivepress:init', function(event, container) {
-		if (!container.is('body')) {
-			hivepress.initGeolocation(container);
-		}
+		hivepress.initGeolocation(container);
 	});
-
-	// Mapbox
-	if (typeof mapboxData !== 'undefined') {
-		hivepress.initGeolocation();
-	}
 })(jQuery);

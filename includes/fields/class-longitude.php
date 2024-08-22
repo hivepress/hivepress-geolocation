@@ -35,7 +35,6 @@ class Longitude extends Number {
 		$meta = hp\merge_arrays(
 			[
 				'label'    => null,
-				'type'     => 'DECIMAL(9,6)',
 				'sortable' => false,
 			],
 			$meta
