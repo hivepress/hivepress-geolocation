@@ -104,30 +104,6 @@ return [
 						'type'    => 'checkbox',
 						'_order'  => 90,
 					],
-
-					'geolocation_region_levels'    => [
-						'label'       => esc_html__( 'Region Levels', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'todo', 'hivepress-geolocation' ),
-						'type'        => 'select',
-						'multiple'    => true,
-						'_parent'     => 'geolocation_generate_regions',
-						'_order'      => 90,
-
-						'options'     => [
-							'country' => esc_html__( 'Country', 'hivepress-geolocation' ),
-							'state'   => esc_html__( 'State', 'hivepress-geolocation' ),
-							'county'  => esc_html__( 'County', 'hivepress-geolocation' ),
-							'city'    => esc_html__( 'City', 'hivepress-geolocation' ),
-						],
-					],
-
-					'geolocation_address_format'   => [
-						'label'       => esc_html__( 'Address', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'todo', 'hivepress-geolocation' ) . ' ' . sprintf( hivepress()->translator->get_string( 'these_tokens_are_available' ), '%todo%' ),
-						'type'        => 'text',
-						'max_length'  => 256,
-						'_order'      => 100,
-					],
 				],
 			],
 		],
