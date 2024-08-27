@@ -37,6 +37,9 @@ final class Geolocation extends Component {
 		// Set models.
 		$this->models = array_intersect( $this->models, (array) get_option( 'hp_geolocation_models', [ 'listing' ] ) );
 
+		// Update settings.
+		add_action( 'hivepress/v1/activate', [ $this, 'update_settings' ] );
+
 		// Add taxonomies.
 		add_filter( 'hivepress/v1/taxonomies', [ $this, 'add_taxonomies' ] );
 
@@ -107,61 +110,63 @@ final class Geolocation extends Component {
 			$radius *= 1.60934;
 		}
 
-		return array_merge(
-			$attributes,
-			[
-				'location'  => [
-					'editable'     => true,
-					'searchable'   => true,
+		// Set fields.
+		$fields = [
+			'latitude'  => [
+				'editable'     => true,
+				'searchable'   => true,
 
-					'edit_field'   => [
-						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'      => 'location',
-						'countries' => $countries,
-						'required'  => true,
-						'_order'    => 35,
-					],
-
-					'search_field' => [
-						'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'type'        => 'location',
-						'countries'   => $countries,
-						'_order'      => 20,
-					],
+				'edit_field'   => [
+					'label' => esc_html__( 'Latitude', 'hivepress-geolocation' ),
+					'type' => 'latitude',
 				],
 
-				'latitude'  => [
-					'editable'     => true,
-					'searchable'   => true,
+				'search_field' => [
+					'type'   => 'latitude',
+					'radius' => $radius,
+				],
+			],
 
-					'edit_field'   => [
-						'label' => esc_html__( 'Latitude', 'hivepress-geolocation' ),
-						'type' => 'latitude',
-					],
+			'longitude' => [
+				'editable'     => true,
+				'searchable'   => true,
 
-					'search_field' => [
-						'type'   => 'latitude',
-						'radius' => $radius,
-					],
+				'edit_field'   => [
+					'label' => esc_html__( 'Longitude', 'hivepress-geolocation' ),
+					'type' => 'longitude',
 				],
 
-				'longitude' => [
-					'editable'     => true,
-					'searchable'   => true,
-
-					'edit_field'   => [
-						'label' => esc_html__( 'Longitude', 'hivepress-geolocation' ),
-						'type' => 'longitude',
-					],
-
-					'search_field' => [
-						'type'    => 'longitude',
-						'radius'  => $radius,
-						'_parent' => 'latitude',
-					],
+				'search_field' => [
+					'type'    => 'longitude',
+					'radius'  => $radius,
+					'_parent' => 'latitude',
 				],
-			]
-		);
+			],
+		];
+
+		if ( in_array( 'location', (array) get_option( 'hp_listing_search_fields' ) ) ) {
+			$fields['location'] = [
+				'editable'     => true,
+				'searchable'   => true,
+
+				'edit_field'   => [
+					'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
+					'type'      => 'location',
+					'countries' => $countries,
+					'required'  => true,
+					'_order'    => 35,
+				],
+
+				'search_field' => [
+					'placeholder' => esc_html__( 'Location', 'hivepress-geolocation' ),
+					'type'        => 'location',
+					'countries'   => $countries,
+					'_order'      => 20,
+				],
+			];
+		}
+
+		return array_merge( $attributes, $fields );
 	}
 
 	/**
@@ -412,12 +417,25 @@ final class Geolocation extends Component {
 	}
 
 	/**
+	 * Updates settings.
+	 */
+	public function update_settings() {
+
+		// Update option.
+		update_option( 'hp_listing_search_fields', array_merge( (array) get_option( 'hp_listing_search_fields' ), [ 'location' ] ) );
+	}
+
+	/**
 	 * Alters settings.
 	 *
 	 * @param array $settings Settings configuration.
 	 * @return array
 	 */
 	public function alter_settings( $settings ) {
+
+		// Add location option.
+		$settings['listings']['sections']['search']['fields']['listing_search_fields']['options']['location'] = esc_html__( 'Location', 'hivepress-geolocation' );
+
 		if ( hivepress()->get_version( 'requests' ) ) {
 			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_models']['options']['request'] = hivepress()->translator->get_string( 'requests' );
 		}
