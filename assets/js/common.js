@@ -129,6 +129,7 @@
 			field.on('input', function() {
 				if (!field.val()) {
 					form.find('input[data-coordinate]').val('');
+					regionField.val('');
 				}
 			});
 
