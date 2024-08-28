@@ -190,14 +190,111 @@
 				// Set language
 				map.addControl(new MapboxLanguage());
 
-				// Add markers
-				$.each(container.data('markers'), function(index, data) {
-					bounds.extend([data.longitude, data.latitude]);
+				map.on('load', () => {
+					map.addSource('markers', {
+						type: 'geojson',
+						data: {
+							"type": "FeatureCollection",
+							"features": container.data('markers').map(data => ({
+								"type": "Feature",
+								"geometry": {
+									"type": "Point",
+									"coordinates": [
+										data.longitude + (Math.random() - 0.5) * 0.0005,
+										data.latitude + (Math.random() - 0.5) * 0.0005,
+									],
+								},
+								"properties": {
+									"content": data.content,
+								},
+							})),
+						},
+						cluster: true,
+						clusterMaxZoom: 14,
+						clusterRadius: 50,
+					});
 
-					var marker = new mapboxgl.Marker()
-						.setLngLat([data.longitude, data.latitude])
-						.setPopup(new mapboxgl.Popup().setHTML(data.content))
-						.addTo(map);
+					map.loadImage(hivepressGeolocationData.assetURL + '/images/markerclustererplus/m1.png', (error, image) => {
+						if (error) {
+							throw error;
+						}
+
+						map.addImage('custom-cluster', image);
+
+						map.addLayer({
+							id: 'clusters',
+							type: 'symbol',
+							source: 'markers',
+							filter: ['has', 'point_count'],
+							layout: {
+								'icon-image': 'custom-cluster',
+								'text-field': ['get', 'point_count_abbreviated'],
+								'text-size': 14,
+								'text-anchor': 'center',
+							},
+							paint: {
+								'text-color': '#000',
+							},
+						});
+					});
+
+					map.addLayer({
+						id: 'unclustered-point',
+						type: 'circle',
+						source: 'markers',
+						filter: ['!', ['has', 'point_count']],
+						paint: {
+							'circle-color': '#11b4da',
+							'circle-radius': 5,
+							'circle-stroke-width': 2,
+							'circle-stroke-color': '#fff',
+						},
+					});
+
+					map.on('click', 'unclustered-point', (e) => {
+						var coordinates = e.features[0].geometry.coordinates.slice(),
+							content = e.features[0].properties.content;
+
+						if (['mercator', 'equirectangular'].includes(map.getProjection().name)) {
+							while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+								coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+							}
+						}
+
+						new mapboxgl.Popup()
+							.setLngLat(coordinates)
+							.setHTML(content)
+							.addTo(map);
+					});
+
+					map.on('click', 'clusters', (e) => {
+						var features = map.queryRenderedFeatures(e.point, {
+								layers: ['clusters']
+							}),
+							clusterId = features[0].properties.cluster_id;
+
+						map.getSource('markers').getClusterExpansionZoom(
+							clusterId,
+							(err, zoom) => {
+								if (err) {
+									return;
+								}
+
+								map.easeTo({
+									center: features[0].geometry.coordinates,
+									zoom: zoom
+								});
+							}
+						);
+					});
+
+					map.on('mouseenter', 'clusters', () => {
+						map.getCanvas().style.cursor = 'pointer';
+					});
+					
+					map.on('mouseleave', 'clusters', () => {
+						map.getCanvas().style.cursor = '';
+					});
 				});
 
 				// Fit bounds
