@@ -112,7 +112,7 @@ final class Geolocation extends Component {
 			[
 				'location'  => [
 					'editable'     => true,
-					'searchable'   => in_array( 'location', (array) get_option( 'hp_listing_search_fields' ) ),
+					'searchable'   => true,
 
 					'edit_field'   => [
 						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
@@ -419,15 +419,25 @@ final class Geolocation extends Component {
 	 */
 	public function alter_settings( $settings ) {
 
-		$settings['listings']['sections']['search']['fields']['listing_search_fields']['default'] = array_merge(
-			(array) $settings['listings']['sections']['search']['fields']['listing_search_fields']['default'],
-			[
-				'location',
-			]
-		);
+		foreach ( $this->models as $model ) {
 
-		// Add location option.
-		$settings['listings']['sections']['search']['fields']['listing_search_fields']['options']['location'] = esc_html__( 'Location', 'hivepress-geolocation' );
+			$setting = $model . 's';
+			$field = $model . '_search_fields';
+
+			if ( ! isset( $settings[ $setting ]['sections']['search'] ) || ! isset( $settings[ $setting ]['sections']['search']['fields'][ $field ] ) ) {
+				continue;
+			}
+
+			$settings[ $setting ]['sections']['search']['fields'][ $field ]['default'] = array_merge(
+				(array) $settings[ $setting ]['sections']['search']['fields'][ $field ]['default'],
+				[
+					'location',
+				]
+			);
+
+			// Add location option.
+			$settings[ $model . 's' ]['sections']['search']['fields'][ $model . '_search_fields' ]['options']['location'] = esc_html__( 'Location', 'hivepress-geolocation' );
+		}
 
 		if ( hivepress()->get_version( 'requests' ) ) {
 			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_models']['options']['request'] = hivepress()->translator->get_string( 'requests' );
@@ -617,6 +627,14 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function alter_search_form( $form_args, $form ) {
+
+		if ( ! in_array( 'location', (array) get_option( 'hp_' .  $form::get_meta( 'model' ) . '_search_fields' ) ) ) {
+			unset( $form_args['fields']['location'] );
+			unset( $form_args['fields']['latitude'] );
+			unset( $form_args['fields']['longitude'] );
+
+			return $form_args;
+		}
 
 		// Get form flags.
 		$is_search = strpos( current_filter(), '_search' );
