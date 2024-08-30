@@ -202,7 +202,11 @@ final class Geolocation extends Component {
 	 * Enqueues scripts.
 	 */
 	public function enqueue_scripts() {
-		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
+
+		// Get provider.
+		$provider = get_option( 'hp_geolocation_provider' );
+
+		if ( $provider === 'mapbox' ) {
 			wp_enqueue_style( 'mapbox', 'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css' );
 			wp_enqueue_style( 'mapbox-geocoder', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css' );
 
@@ -237,6 +241,32 @@ final class Geolocation extends Component {
 					'apiKey' => get_option( 'hp_mapbox_api_key' ),
 				]
 			);
+		} elseif ( $provider === 'openstreetmap' ) {
+			wp_enqueue_style( 'openstreetmap-leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css' );
+			wp_enqueue_style( 'openstreetmap-marker-cluster', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css' );
+			wp_enqueue_style( 'openstreetmap-marker-cluster-default', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css' );
+
+			wp_enqueue_script(
+				'openstreetmap',
+				'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
+				[],
+				null,
+				true
+			);
+
+			wp_enqueue_script(
+				'openstreetmap-clustering',
+				'https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js',
+				[],
+				null,
+				true
+			);
+
+			wp_localize_script(
+				'openstreetmap',
+				'openStreetMap',
+				[]
+			);
 		} else {
 			wp_enqueue_script(
 				'google-maps',
@@ -262,9 +292,13 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function alter_scripts( $scripts ) {
-		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
+
+		// Get provider.
+		$provider = get_option( 'hp_geolocation_provider' );
+
+		if ( $provider === 'mapbox' ) {
 			$scripts['geolocation']['deps'][] = 'mapbox-language';
-		} else {
+		} elseif ( $provider === '' ) {
 			$scripts['geolocation']['deps'] = array_merge(
 				$scripts['geolocation']['deps'],
 				[ 'geocomplete', 'markerclustererplus', 'markerspiderfier' ]
@@ -331,6 +365,8 @@ final class Geolocation extends Component {
 					),
 				]
 			);
+		} elseif ( 'openstreetmap' === $provider ) {
+
 		} else {
 			$request_url = 'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query(
 				[
@@ -365,6 +401,8 @@ final class Geolocation extends Component {
 			foreach ( $response['features'] as $result ) {
 				$regions[ $result['id'] ] = $result['text'];
 			}
+		} elseif ( 'openstreetmap' === $provider ) {
+
 		} else {
 			foreach ( $response['results'] as $result ) {
 				$regions[ $result['place_id'] ] = $result['address_components'][0]['long_name'];
