@@ -267,7 +267,7 @@ final class Geolocation extends Component {
 		} else {
 			$scripts['geolocation']['deps'] = array_merge(
 				$scripts['geolocation']['deps'],
-				[ 'geocomplete', 'markerclustererplus', 'markerspiderfier' ]
+				[ 'markerclustererplus', 'markerspiderfier' ]
 			);
 		}
 
