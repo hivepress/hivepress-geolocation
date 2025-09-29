@@ -136,7 +136,7 @@ final class Geolocation extends Component {
 
 					'edit_field'   => [
 						'label' => esc_html__( 'Latitude', 'hivepress-geolocation' ),
-						'type' => 'latitude',
+						'type'  => 'latitude',
 					],
 
 					'search_field' => [
@@ -151,7 +151,7 @@ final class Geolocation extends Component {
 
 					'edit_field'   => [
 						'label' => esc_html__( 'Longitude', 'hivepress-geolocation' ),
-						'type' => 'longitude',
+						'type'  => 'longitude',
 					],
 
 					'search_field' => [
@@ -317,7 +317,7 @@ final class Geolocation extends Component {
 		if ( 'mapbox' === $provider ) {
 			$request_url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' . rawurlencode( $longitude . ',' . $latitude ) . '.json?' . http_build_query(
 				[
-					'access_token' => get_option( 'hp_mapbox_api_key' ),
+					'access_token' => get_option( 'hp_mapbox_secret_key' ) ? get_option( 'hp_mapbox_secret_key' ) : get_option( 'hp_mapbox_api_key' ),
 					'language'     => hivepress()->translator->get_language(),
 
 					'types'        => implode(

@@ -138,11 +138,19 @@ return [
 				'_order' => 40,
 
 				'fields' => [
-					'mapbox_api_key' => [
+					'mapbox_api_key'    => [
 						'label'      => hivepress()->translator->get_string( 'api_key' ),
 						'type'       => 'text',
 						'max_length' => 256,
 						'_order'     => 10,
+					],
+
+					'mapbox_secret_key' => [
+						'label'       => hivepress()->translator->get_string( 'secret_key' ),
+						'description' => esc_html__( 'Set the API key without HTTP restrictions used for generating regions from locations.', 'hivepress-geolocation' ),
+						'type'        => 'text',
+						'max_length'  => 256,
+						'_order'      => 20,
 					],
 				],
 			],
