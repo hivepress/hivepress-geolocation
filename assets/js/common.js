@@ -70,6 +70,8 @@
 					longitudeField.val(result.result.geometry.coordinates[0]);
 					latitudeField.val(result.result.geometry.coordinates[1]);
 				});
+			} else if (typeof openStreetMap !== 'undefined') {
+
 			} else {
 				settings = {
 					details: form,
@@ -144,6 +146,8 @@
 
 							geocoder.options.reverseGeocode = false;
 							geocoder.options.limit = 5;
+						} else if (typeof openStreetMap !== 'undefined') {
+
 						} else {
 							field.geocomplete('find', position.coords.latitude + ' ' + position.coords.longitude);
 						}
@@ -216,6 +220,25 @@
 						duration: 0,
 					});
 				}).observe(container.get(0));
+			} else if (typeof openStreetMap !== 'undefined') {
+				var map = L.map(container.get(0), {
+						center: [0, 0],
+						zoom: 1,
+						layers: [
+							L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+								maxZoom: maxZoom,
+								attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, Points &copy 2012 LINZ',
+							}),
+						],
+					}),
+					clusterGroup = L.markerClusterGroup().addTo(map);
+
+				// Add markers
+				$.each(container.data('markers'), function(index, data) {
+					var marker = L.marker([data.latitude, data.longitude])
+						.bindPopup(data.content)
+						.addTo(clusterGroup);
+				});
 			} else {
 				var prevWindow = false,
 					markers = [],

@@ -44,7 +44,8 @@ return [
 						'_order'      => 20,
 
 						'options'     => [
-							'mapbox' => 'Mapbox',
+							'mapbox'        => 'Mapbox',
+							'openstreetmap' => 'OpenStreetMap',
 						],
 					],
 
