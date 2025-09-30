@@ -127,12 +127,18 @@
 
 			// Clear location
 			field.on('input', function () {
-				if (!field.val()) {
+				if (field.val().length <= 1) {
 					form.find('input[data-coordinate]').val('');
 
 					if (regionField.length) {
 						regionField.val('');
 					}
+				}
+			});
+
+			field.on('focusout', function () {
+				if (!latitudeField.val() || !longitudeField.val()) {
+					field.val('');
 				}
 			});
 
