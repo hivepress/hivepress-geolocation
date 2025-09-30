@@ -1,10 +1,10 @@
-(function($) {
+(function ($) {
 	'use strict';
 
-	hivepress.initGeolocation = function(container) {
+	hivepress.initGeolocation = function (container) {
 
 		// Location
-		container.find(hivepress.getSelector('location')).each(function() {
+		container.find(hivepress.getSelector('location')).each(function () {
 			var container = $(this),
 				form = container.closest('form'),
 				field = container.find('input[type=text]'),
@@ -42,14 +42,14 @@
 				field.remove();
 				field = mapboxContainer.find('input[type=text]');
 
-				$.each(fieldAttributes, function() {
+				$.each(fieldAttributes, function () {
 					field.attr(this.name, this.value);
 				});
 
 				mapboxContainer.detach().prependTo(container);
 
 				// Set location
-				geocoder.on('result', function(result) {
+				geocoder.on('result', function (result) {
 					var types = [
 						'place',
 						'district',
@@ -92,7 +92,7 @@
 				field.geocomplete(settings);
 
 				// Set location
-				field.bind('geocode:result', function(event, result) {
+				field.bind('geocode:result', function (event, result) {
 					var parts = [],
 						types = [
 							'locality',
@@ -114,7 +114,7 @@
 					if (container.data('scatter')) {
 						types.push('route');
 
-						$.each(result.address_components, function(index, component) {
+						$.each(result.address_components, function (index, component) {
 							if (component.types.filter(value => types.includes(value)).length) {
 								parts.push(component.long_name);
 							}
@@ -126,16 +126,26 @@
 			}
 
 			// Clear location
-			field.on('input', function() {
-				if (!field.val()) {
+			field.on('input', function () {
+				if (field.val().length <= 1) {
 					form.find('input[data-coordinate]').val('');
+
+					if (regionField.length) {
+						regionField.val('');
+					}
+				}
+			});
+
+			field.on('focusout', function () {
+				if (!latitudeField.val() || !longitudeField.val()) {
+					field.val('');
 				}
 			});
 
 			// Detect location
 			if (navigator.geolocation) {
-				button.on('click', function(e) {
-					navigator.geolocation.getCurrentPosition(function(position) {
+				button.on('click', function (e) {
+					navigator.geolocation.getCurrentPosition(function (position) {
 						if (typeof mapboxData !== 'undefined') {
 							geocoder.options.reverseGeocode = true;
 							geocoder.options.limit = 1;
@@ -157,7 +167,7 @@
 		});
 
 		// Map
-		container.find(hivepress.getSelector('map')).each(function() {
+		container.find(hivepress.getSelector('map')).each(function () {
 			var container = $(this),
 				height = container.width(),
 				maxZoom = container.data('max-zoom'),
@@ -191,7 +201,7 @@
 				map.addControl(new MapboxLanguage());
 
 				// Add markers
-				$.each(container.data('markers'), function(index, data) {
+				$.each(container.data('markers'), function (index, data) {
 					bounds.extend([data.longitude, data.latitude]);
 
 					var marker = new mapboxgl.Marker()
@@ -207,7 +217,7 @@
 					duration: 0,
 				});
 
-				var observer = new ResizeObserver(function() {
+				var observer = new ResizeObserver(function () {
 					map.resize();
 
 					map.fitBounds(bounds, {
@@ -253,10 +263,10 @@
 					};
 
 				// Add markers
-				$.each(container.data('markers'), function(index, data) {
+				$.each(container.data('markers'), function (index, data) {
 					var nextWindow = new google.maps.InfoWindow({
-							content: data.content,
-						}),
+						content: data.content,
+					}),
 						markerSettings = {
 							title: data.title,
 							position: {
@@ -278,7 +288,7 @@
 
 					var marker = new google.maps.Marker(markerSettings);
 
-					marker.addListener('spider_click', function() {
+					marker.addListener('spider_click', function () {
 						if (prevWindow) {
 							prevWindow.close();
 						}
@@ -296,7 +306,7 @@
 				// Fit bounds
 				map.fitBounds(bounds);
 
-				var observer = new ResizeObserver(function() {
+				var observer = new ResizeObserver(function () {
 					map.fitBounds(bounds);
 				}).observe(container.get(0));
 
@@ -307,10 +317,10 @@
 				});
 
 				if (container.data('scatter')) {
-					map.addListener('zoom_changed', function() {
+					map.addListener('zoom_changed', function () {
 						iconSettings['scale'] = Math.pow(1.3125, map.getZoom());
 
-						$.each(markers, function(index, marker) {
+						$.each(markers, function (index, marker) {
 							markers[index].setIcon(iconSettings);
 						});
 					});
@@ -319,7 +329,7 @@
 		});
 	}
 
-	$(document).on('hivepress:init', function(event, container) {
+	$(document).on('hivepress:init', function (event, container) {
 		hivepress.initGeolocation(container);
 	});
 })(jQuery);

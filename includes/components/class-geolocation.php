@@ -97,6 +97,9 @@ final class Geolocation extends Component {
 	 */
 	public function add_attributes( $attributes ) {
 
+		// Get model.
+		$model = explode( '/', current_filter() )[3];
+
 		// Get countries.
 		$countries = array_filter( (array) get_option( 'hp_geolocation_countries' ) );
 
@@ -107,7 +110,8 @@ final class Geolocation extends Component {
 			$radius *= 1.60934;
 		}
 
-		return array_merge(
+		// Add attributes.
+		$attributes = array_merge(
 			$attributes,
 			[
 				'location'  => [
@@ -136,7 +140,7 @@ final class Geolocation extends Component {
 
 					'edit_field'   => [
 						'label' => esc_html__( 'Latitude', 'hivepress-geolocation' ),
-						'type' => 'latitude',
+						'type'  => 'latitude',
 					],
 
 					'search_field' => [
@@ -151,7 +155,7 @@ final class Geolocation extends Component {
 
 					'edit_field'   => [
 						'label' => esc_html__( 'Longitude', 'hivepress-geolocation' ),
-						'type' => 'longitude',
+						'type'  => 'longitude',
 					],
 
 					'search_field' => [
@@ -162,6 +166,29 @@ final class Geolocation extends Component {
 				],
 			]
 		);
+
+		if ( get_option( 'hp_geolocation_generate_regions' ) ) {
+			$field_args = [
+				'label'       => esc_html__( 'Region', 'hivepress-geolocation' ),
+				'type'        => 'select',
+				'options'     => 'terms',
+				'_order'      => 99,
+
+				'option_args' => [
+					'taxonomy' => hp\prefix( $model . '_region' ),
+				],
+			];
+
+			$attributes['region'] = [
+				'protected'    => true,
+				'filterable'   => true,
+
+				'edit_field'   => $field_args,
+				'search_field' => $field_args,
+			];
+		}
+
+		return $attributes;
 	}
 
 	/**
@@ -317,7 +344,7 @@ final class Geolocation extends Component {
 		if ( 'mapbox' === $provider ) {
 			$request_url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' . rawurlencode( $longitude . ',' . $latitude ) . '.json?' . http_build_query(
 				[
-					'access_token' => get_option( 'hp_mapbox_api_key' ),
+					'access_token' => get_option( 'hp_mapbox_secret_key' ) ? get_option( 'hp_mapbox_secret_key' ) : get_option( 'hp_mapbox_api_key' ),
 					'language'     => hivepress()->translator->get_language(),
 
 					'types'        => implode(
@@ -612,6 +639,9 @@ final class Geolocation extends Component {
 		$is_filter = strpos( current_filter(), '_filter' );
 
 		if ( get_option( 'hp_geolocation_generate_regions' ) ) {
+
+			// Remove region field.
+			unset( $form_args['fields']['region'] );
 
 			// Add region field.
 			$form_args['fields']['_region'] = [
