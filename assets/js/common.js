@@ -2,7 +2,7 @@ const attachShadow = Element.prototype.attachShadow;
 
 Element.prototype.attachShadow = function (init) {
 	// Check if we are the new Google places autocomplete element...
-	if (this.localName === "gmp-place-autocomplete" && false) {
+	if (this.localName === "gmp-place-autocomplete") {
 		// If we are, we need to override the default behaviour of attachShadow() to
 		// set the mode to open to allow us to crowbar a style element into the shadow DOM.
 		const shadow = attachShadow.call(this, {
@@ -14,61 +14,7 @@ Element.prototype.attachShadow = function (init) {
 
 		// Apply our own styles to the shadow DOM.
 		style.textContent = `
-      .widget-container {
-        border: none !important;
-      }
-      .input-container {
-        padding: 0px !important;
-      }
-      .focus-ring {
-        display: none !important;
-      }
-      .dropdown {
-        --tw-bg-opacity: 1 !important;
-        background-color: rgb(48 50 59 / var(--tw-bg-opacity)) !important;
-        color: rgb(185 193 203 / var(--tw-text-opacity)) !important;
-      }
-      .place-autocomplete-element-place-icon {
-        display: none !important;
-      }
-      .place-autocomplete-element-text-div {
-        --tw-bg-opacity: 1 !important;
-        color: rgb(185 193 203 / var(--tw-text-opacity)) !important;
-      }
-      .place-autocomplete-element-place-name {
-        --tw-bg-opacity: 1 !important;
-        color: rgb(185 193 203 / var(--tw-text-opacity)) !important;
-      }
-      .place-autocomplete-element-place-details {
-        --tw-bg-opacity: 1 !important;
-        color: rgb(185 193 203 / var(--tw-text-opacity)) !important;
-      }
-      .place-autocomplete-element-place-result--matched {
-        --tw-bg-opacity: 1 !important;
-        color: rgb(255 178 135 / var(--tw-text-opacity)) !important;
-      }
-      ul {
-        border: none !important;
-      }
-      li {
-        padding: 0px !important;
-        margin: 5px !important;
-        border: none !important;
-        border-radius: 5px !important;
-        min-height: 50px !important;
-      }
-      li:hover {
-        --tw-bg-opacity: 1 !important;
-        cursor: pointer !important;
-        padding: 0px !important;
-        margin: 5px !important;
-        background-color: rgb(62 65 76 / var(--tw-bg-opacity)) !important;
-      }
-      input {
-        --tw-text-opacity: 1;
-        color: rgb(185 193 203 / var(--tw-text-opacity));
-        background-color: transparent;
-      }
+
     `;
 
 		shadow.appendChild(style);
@@ -174,8 +120,28 @@ Element.prototype.attachShadow = function (init) {
 
 				container.get(0).appendChild(placeAutocomplete);
 
+				console.log(placeAutocomplete.shadowRoot.querySelector('input'));
+
 				// Replace field
+				var fieldAttributes = field.prop('attributes');
+
 				field.remove();
+
+				var observer = new MutationObserver(function (mutations, observer) {
+					field = $(placeAutocomplete.shadowRoot.querySelector('input'));
+
+					$.each(fieldAttributes, function () {
+						field.attr(this.name, this.value);
+					});
+
+					observer.disconnect();
+				}).observe(placeAutocomplete.shadowRoot, {
+					childList: true, subtree: true
+				});
+
+
+
+
 
 				// Set location
 				placeAutocomplete.addEventListener('gmp-select', async ({ placePrediction }) => {
