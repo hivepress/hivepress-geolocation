@@ -292,7 +292,10 @@ final class Geolocation extends Component {
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
 			$scripts['geolocation']['deps'][] = 'mapbox-language';
 		} else {
-			$scripts['geolocation']['deps'] = array_merge( $scripts['geolocation']['deps'], [ 'markerclustererplus', 'markerspiderfier' ] );
+			$scripts['geolocation']['deps'] = array_merge(
+				$scripts['geolocation']['deps'],
+				[ 'markerclustererplus', 'markerspiderfier' ]
+			);
 
 			if ( get_option( 'hp_gmaps_use_legacy_api', true ) ) {
 				$scripts['geolocation']['deps'][] = 'geocomplete';
