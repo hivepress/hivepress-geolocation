@@ -294,7 +294,7 @@ final class Geolocation extends Component {
 		} else {
 			$scripts['geolocation']['deps'] = array_merge( $scripts['geolocation']['deps'], [ 'markerclustererplus', 'markerspiderfier' ] );
 
-			if ( get_option( 'hp_gmaps_use_legacy_api' ) ) {
+			if ( get_option( 'hp_gmaps_use_legacy_api', true ) ) {
 				$scripts['geolocation']['deps'][] = 'geocomplete';
 			} else {
 				$scripts['geolocation']['deps'][] = 'jquery-ui-autocomplete';
