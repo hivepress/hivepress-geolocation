@@ -292,10 +292,15 @@ final class Geolocation extends Component {
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
 			$scripts['geolocation']['deps'][] = 'mapbox-language';
 		} else {
-			$scripts['geolocation']['deps'] = array_merge(
-				$scripts['geolocation']['deps'],
-				[ 'geocomplete', 'markerclustererplus', 'markerspiderfier' ]
-			);
+			$scripts['geolocation']['deps'] = array_merge( $scripts['geolocation']['deps'], [ 'markerclustererplus', 'markerspiderfier' ] );
+
+			if ( get_option( 'hp_gmaps_use_legacy_api' ) ) {
+				$scripts['geolocation']['deps'][] = 'geocomplete';
+			} else {
+				$scripts['geolocation']['deps'][] = 'jquery-ui-autocomplete';
+
+				unset( $scripts['geocomplete'] );
+			}
 		}
 
 		return $scripts;
@@ -447,6 +452,10 @@ final class Geolocation extends Component {
 	public function alter_settings( $settings ) {
 		if ( hivepress()->get_version( 'requests' ) ) {
 			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_models']['options']['request'] = hivepress()->translator->get_string( 'requests' );
+		}
+
+		if ( get_option( 'hp_installed_time' ) < strtotime( '2025-10-05' ) ) {
+			$settings['integrations']['sections']['gmaps']['fields']['gmaps_use_legacy_api']['default'] = true;
 		}
 
 		return $settings;
