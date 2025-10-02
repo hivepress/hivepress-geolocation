@@ -165,6 +165,8 @@
 						response(results);
 					},
 					select: async function (e, ui) {
+						e.preventDefault();
+
 						const place = ui.item.value.toPlace();
 
 						await place.fetchFields({ fields: ['location', 'addressComponents'] });
@@ -204,8 +206,6 @@
 
 							field.val(parts.join(', '));
 						}
-
-						e.preventDefault();
 					},
 				});
 			}
