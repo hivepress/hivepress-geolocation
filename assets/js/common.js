@@ -70,7 +70,7 @@
 					longitudeField.val(result.result.geometry.coordinates[0]);
 					latitudeField.val(result.result.geometry.coordinates[1]);
 				});
-			} else {
+			} else if ($.fn.geocomplete) {
 				settings = {
 					details: form,
 					detailsAttribute: 'data-coordinate',
@@ -123,6 +123,91 @@
 						field.val(parts.join(', '));
 					}
 				});
+			} else {
+				settings = {
+					language: hivepressCoreData.language,
+					sessionToken: false,
+				};
+
+				// Set countries
+				if (container.data('countries')) {
+					settings['includedRegionCodes'] = container.data('countries');
+				}
+
+				// Set types
+				if (container.data('types')) {
+					settings['includedPrimaryTypes'] = container.data('types');
+				}
+
+				// Create Geocoder
+				var geocoder = new google.maps.Geocoder();
+
+				// Initialize Autocomplete
+				field.autocomplete({
+					source: async function (request, response) {
+						var results = [];
+
+						if (!settings['sessionToken']) {
+							settings['sessionToken'] = new google.maps.places.AutocompleteSessionToken();
+						}
+
+						const { suggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions($.extend(settings, {
+							input: request.term,
+						}));
+
+						for (let suggestion of suggestions) {
+							results.push({
+								label: suggestion.placePrediction.text.toString(),
+								value: suggestion.placePrediction,
+							});
+						}
+
+						response(results);
+					},
+					select: async function (e, ui) {
+						e.preventDefault();
+
+						const place = ui.item.value.toPlace();
+
+						await place.fetchFields({ fields: ['location', 'addressComponents'] });
+
+						settings['sessionToken'] = false;
+
+						field.val(ui.item.label);
+						latitudeField.val(place.location.lat);
+						longitudeField.val(place.location.lng);
+
+						var parts = [],
+							types = [
+								'locality',
+								'administrative_area_level_2',
+								'administrative_area_level_1',
+								'country',
+							];
+
+						// Set region
+						if (regionField.length) {
+							if (place.addressComponents[0].types.filter(value => types.includes(value)).length) {
+								regionField.val(place.id);
+							} else {
+								regionField.val('');
+							}
+						}
+
+						// Set address
+						if (container.data('scatter')) {
+							types.push('route');
+
+							$.each(place.addressComponents, function (index, component) {
+								if (component.types.filter(value => types.includes(value)).length) {
+									parts.push(component.longText);
+								}
+							});
+
+							field.val(parts.join(', '));
+						}
+					},
+				});
 			}
 
 			// Clear location
@@ -154,8 +239,14 @@
 
 							geocoder.options.reverseGeocode = false;
 							geocoder.options.limit = 5;
-						} else {
+						} else if ($.fn.geocomplete) {
 							field.geocomplete('find', position.coords.latitude + ' ' + position.coords.longitude);
+						} else {
+							geocoder.geocode({ location: { lat: position.coords.latitude, lng: position.coords.longitude } }, (results, status) => {
+								if (status === 'OK' && results.length) {
+									field.val(results[0].formatted_address).focus().autocomplete('search');
+								}
+							});
 						}
 					});
 
