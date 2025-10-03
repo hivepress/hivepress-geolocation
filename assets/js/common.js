@@ -207,7 +207,17 @@
 							field.val(parts.join(', '));
 						}
 					},
+					open: function () {
+						var widget = $(this).autocomplete('widget');
+
+						widget.addClass('pac-container pac-logo hdpi').removeClass('ui-menu ui-widget ui-widget-content ui-autocomplete ui-front');
+						widget.find('li').removeClass('ui-menu-item').children('span').removeClass('ui-menu-item-wrapper ui-state-active');
+					},
 				});
+
+				field.data('ui-autocomplete')._renderItem = function (ul, item) {
+					return $('<li>').addClass('pac-item').append('<span class="pac-item-query">' + item.label + '</span>').appendTo(ul);
+				};
 			}
 
 			// Clear location
