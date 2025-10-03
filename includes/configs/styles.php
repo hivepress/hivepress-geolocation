@@ -11,6 +11,13 @@ use HivePress\Helpers as hp;
 defined( 'ABSPATH' ) || exit;
 
 return [
+	'geolocation'          => [
+		'handle'  => 'hivepress-geolocation',
+		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/css/common.min.css',
+		'version' => hivepress()->get_version( 'geolocation' ),
+		'scope'   => [ 'frontend', 'backend' ],
+	],
+
 	'geolocation_backend'  => [
 		'handle'  => 'hivepress-geolocation-backend',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/css/backend.min.css',

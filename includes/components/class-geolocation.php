@@ -415,7 +415,23 @@ final class Geolocation extends Component {
 		foreach ( array_reverse( $regions ) as $region_code => $region_name ) {
 
 			// Get region.
-			$region_args = term_exists( $region_name, $region_taxonomy, $region_id );
+			$region_args = array_filter(
+				[
+					'term_id' => hp\get_first_array_value(
+						get_terms(
+							[
+								'taxonomy'   => $region_taxonomy,
+								'fields'     => 'ids',
+								'number'     => 1,
+								'hide_empty' => false,
+								'meta_key'   => 'hp_code',
+								'meta_value' => $region_code,
+								'parent'     => $region_id,
+							]
+						)
+					),
+				]
+			);
 
 			if ( ! $region_args ) {
 
