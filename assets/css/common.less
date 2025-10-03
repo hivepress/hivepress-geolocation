@@ -1,0 +1,27 @@
+/*--------------------------------------------------------------
+Mapbox
+--------------------------------------------------------------*/
+.mapboxgl {
+	&-ctrl-geocoder {
+		max-width: none !important;
+		box-shadow: none !important;
+		min-width: auto !important;
+		z-index: 2 !important;
+
+		.suggestions-wrapper {
+			li {
+				margin-bottom: 0 !important;
+			}
+
+			a {
+				margin-left: 0 !important;
+				background-color: inherit !important;
+			}
+		}
+
+		&--icon,
+		&--pin-right {
+			display: none !important;
+		}
+	}
+}
