@@ -211,7 +211,7 @@
 						var widget = $(this).autocomplete('widget');
 
 						widget.addClass('pac-container pac-logo hdpi').removeClass('ui-menu ui-widget ui-widget-content ui-autocomplete ui-front');
-						widget.find('li').removeClass('ui-menu-item').children('span').removeClass('ui-menu-item-wrapper ui-state-active');
+						widget.find('li').children('span').removeClass('ui-menu-item-wrapper ui-state-active');
 
 						widget.width(field.outerWidth());
 					},
