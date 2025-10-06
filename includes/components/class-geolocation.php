@@ -763,17 +763,15 @@ final class Geolocation extends Component {
 			$model = 'listing';
 		}
 
-		return hp\merge_trees(
+		return hivepress()->template->merge_blocks(
 			$template_args,
 			[
-				'blocks' => [
-					$model . '_details_primary' => [
-						'blocks' => [
-							$model . '_location' => [
-								'type'   => 'part',
-								'path'   => $model . '/view/' . $model . '-location',
-								'_order' => 5,
-							],
+				$model . '_details_primary' => [
+					'blocks' => [
+						$model . '_location' => [
+							'type'   => 'part',
+							'path'   => $model . '/view/' . $model . '-location',
+							'_order' => 5,
 						],
 					],
 				],
@@ -797,39 +795,34 @@ final class Geolocation extends Component {
 			$model = 'listing';
 		}
 
-		// Get new blocks.
-		$blocks = [
-			$model . '_details_primary' => [
-				'blocks' => [
-					$model . '_location' => [
-						'type'   => 'part',
-						'path'   => $model . '/view/' . $model . '-location',
-						'_label' => esc_html__( 'Location', 'hivepress-geolocation' ),
-						'_order' => 5,
-					],
-				],
-			],
-
-			'page_sidebar'              => [
-				'blocks' => [
-					$model . '_map' => [
-						'type'       => 'listing_map',
-						'model'      => $model,
-						'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
-						'_order'     => 25,
-
-						'attributes' => [
-							'class' => [ 'hp-' . $model . '__map', 'hp-listing__map', 'widget' ],
+		return hivepress()->template->merge_blocks(
+			$template_args,
+			[
+				$model . '_details_primary' => [
+					'blocks' => [
+						$model . '_location' => [
+							'type'   => 'part',
+							'path'   => $model . '/view/' . $model . '-location',
+							'_label' => esc_html__( 'Location', 'hivepress-geolocation' ),
+							'_order' => 5,
 						],
 					],
 				],
-			],
-		];
 
-		return hp\merge_trees(
-			$template_args,
-			[
-				'blocks' => $blocks,
+				'page_sidebar'              => [
+					'blocks' => [
+						$model . '_map' => [
+							'type'       => 'listing_map',
+							'model'      => $model,
+							'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
+							'_order'     => 25,
+
+							'attributes' => [
+								'class' => [ 'hp-' . $model . '__map', 'hp-listing__map', 'widget' ],
+							],
+						],
+					],
+				],
 			]
 		);
 	}
@@ -850,21 +843,19 @@ final class Geolocation extends Component {
 			$model = 'listing';
 		}
 
-		return hp\merge_trees(
+		return hivepress()->template->merge_blocks(
 			$template_args,
 			[
-				'blocks' => [
-					'page_sidebar' => [
-						'blocks' => [
-							$model . '_map' => [
-								'type'       => 'listing_map',
-								'model'      => $model,
-								'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
-								'_order'     => 15,
+				'page_sidebar' => [
+					'blocks' => [
+						$model . '_map' => [
+							'type'       => 'listing_map',
+							'model'      => $model,
+							'_label'     => esc_html__( 'Map', 'hivepress-geolocation' ),
+							'_order'     => 15,
 
-								'attributes' => [
-									'class' => [ 'widget' ],
-								],
+							'attributes' => [
+								'class' => [ 'widget' ],
 							],
 						],
 					],
