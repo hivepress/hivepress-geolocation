@@ -795,21 +795,11 @@ final class Geolocation extends Component {
 			$model = 'listing';
 		}
 
-		return hivepress()->template->merge_blocks(
+		// Add map.
+		$template_args = hivepress()->template->merge_blocks(
 			$template_args,
 			[
-				$model . '_details_primary' => [
-					'blocks' => [
-						$model . '_location' => [
-							'type'   => 'part',
-							'path'   => $model . '/view/' . $model . '-location',
-							'_label' => esc_html__( 'Location', 'hivepress-geolocation' ),
-							'_order' => 5,
-						],
-					],
-				],
-
-				'page_sidebar'              => [
+				'page_sidebar' => [
 					'blocks' => [
 						$model . '_map' => [
 							'type'       => 'listing_map',
@@ -820,6 +810,22 @@ final class Geolocation extends Component {
 							'attributes' => [
 								'class' => [ 'hp-' . $model . '__map', 'hp-listing__map', 'widget' ],
 							],
+						],
+					],
+				],
+			]
+		);
+
+		return hivepress()->template->merge_blocks(
+			$template_args,
+			[
+				$model . '_details_primary' => [
+					'blocks' => [
+						$model . '_location' => [
+							'type'   => 'part',
+							'path'   => $model . '/view/' . $model . '-location',
+							'_label' => esc_html__( 'Location', 'hivepress-geolocation' ),
+							'_order' => 5,
 						],
 					],
 				],
