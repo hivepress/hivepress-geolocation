@@ -809,10 +809,8 @@ final class Geolocation extends Component {
 					],
 				],
 			],
-		];
 
-		if ( 'vendor' !== $model ) {
-			$blocks['page_sidebar'] = [
+			'page_sidebar'              => [
 				'blocks' => [
 					$model . '_map' => [
 						'type'       => 'listing_map',
@@ -825,8 +823,8 @@ final class Geolocation extends Component {
 						],
 					],
 				],
-			];
-		}
+			],
+		];
 
 		return hp\merge_trees(
 			$template_args,
