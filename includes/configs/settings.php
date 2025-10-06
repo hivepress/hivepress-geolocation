@@ -70,7 +70,7 @@ return [
 
 					'geolocation_radius'           => [
 						'label'       => esc_html__( 'Radius', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'Set the radius that defines the location search area.', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Set the default radius used for the location search.', 'hivepress-geolocation' ),
 						'type'        => 'number',
 						'min_value'   => 1,
 						'default'     => 15,
@@ -78,31 +78,63 @@ return [
 						'_order'      => 50,
 					],
 
-					'geolocation_use_miles'        => [
-						'caption' => esc_html__( 'Use miles instead of kilometers', 'hivepress-geolocation' ),
+					'geolocation_max_radius'       => [
+						'label'       => esc_html__( 'Maximum Radius', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Set the maximum radius allowed for the location search.', 'hivepress-geolocation' ),
+						'type'        => 'number',
+						'min_value'   => 1,
+						'default'     => 100,
+						'required'    => true,
+						'_parent'     => 'geolocation_allow_radius',
+						'_order'      => 55,
+					],
+
+					'geolocation_allow_radius'     => [
+						'caption' => esc_html__( 'Allow users to adjust the radius', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
 						'_order'  => 60,
 					],
 
-					'geolocation_allow_radius'     => [
-						'caption' => esc_html__( 'Allow users to change radius', 'hivepress-geolocation' ),
+					'geolocation_use_miles'        => [
+						'caption' => esc_html__( 'Use miles instead of kilometers', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
 						'_order'  => 70,
 					],
 
 					'geolocation_generate_regions' => [
 						'label'       => esc_html__( 'Regions', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'Check this option to create a page for each region.', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Check this option to create pages for regions and enable region-specific search.', 'hivepress-geolocation' ),
 						'caption'     => esc_html__( 'Generate regions from locations', 'hivepress-geolocation' ),
 						'type'        => 'checkbox',
 						'_order'      => 80,
 					],
 
+					'geolocation_region_types'     => [
+						'label'       => esc_html__( 'Region Types', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Select which region types should have page creation and location search enabled.', 'hivepress-geolocation' ),
+						'type'        => 'select',
+						'default'     => [ 'place', 'district', 'region', 'country' ],
+						'multiple'    => true,
+						'required'    => true,
+						'_parent'     => 'geolocation_generate_regions',
+						'_order'      => 85,
+
+						'options'     => [
+							'country'  => esc_html__( 'Country', 'hivepress-geolocation' ),
+							'region'   => esc_html__( 'Region', 'hivepress-geolocation' ),
+							'district' => esc_html__( 'Subregion', 'hivepress-geolocation' ),
+							'place'    => esc_html__( 'City', 'hivepress-geolocation' ),
+							'locality' => esc_html__( 'District', 'hivepress-geolocation' ),
+							'postcode' => esc_html__( 'Postcode', 'hivepress-geolocation' ),
+						],
+					],
+
 					'geolocation_hide_address'     => [
-						'label'   => esc_html__( 'Address', 'hivepress-geolocation' ),
-						'caption' => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
-						'type'    => 'checkbox',
-						'_order'  => 90,
+						'label'       => esc_html__( 'Address', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Check this option to prevent displaying exact locations.', 'hivepress-geolocation' ),
+						'caption'     => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
+						'type'        => 'checkbox',
+						'_order'      => 90,
 					],
 				],
 			],

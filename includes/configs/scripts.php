@@ -11,7 +11,7 @@ use HivePress\Helpers as hp;
 defined( 'ABSPATH' ) || exit;
 
 return [
-	'geocomplete'          => [
+	'geocomplete'         => [
 		'handle'  => 'geocomplete',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/jquery.geocomplete.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
@@ -19,7 +19,7 @@ return [
 		'scope'   => [ 'frontend', 'backend' ],
 	],
 
-	'markerclustererplus'  => [
+	'markerclustererplus' => [
 		'handle'  => 'markerclustererplus',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/markerclustererplus.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
@@ -27,7 +27,7 @@ return [
 		'scope'   => [ 'frontend', 'backend' ],
 	],
 
-	'markerspiderfier'     => [
+	'markerspiderfier'    => [
 		'handle'  => 'markerspiderfier',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/oms.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
@@ -35,7 +35,7 @@ return [
 		'scope'   => [ 'frontend', 'backend' ],
 	],
 
-	'geolocation'          => [
+	'geolocation'         => [
 		'handle'  => 'hivepress-geolocation',
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/common.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
@@ -45,12 +45,5 @@ return [
 		'data'    => [
 			'assetURL' => hivepress()->get_url( 'geolocation' ) . '/assets',
 		],
-	],
-
-	'geolocation_frontend' => [
-		'handle'  => 'hivepress-geolocation-frontend',
-		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/frontend.min.js',
-		'version' => hivepress()->get_version( 'geolocation' ),
-		'deps'    => [ 'hivepress-core' ],
 	],
 ];

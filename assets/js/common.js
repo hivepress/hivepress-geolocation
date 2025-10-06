@@ -11,8 +11,13 @@
 				latitudeField = form.find('input[data-coordinate=lat]'),
 				longitudeField = form.find('input[data-coordinate=lng]'),
 				regionField = form.find('input[data-region]'),
+				regionTypes = [],
 				button = container.find('a'),
 				settings = {};
+
+			if (field.data('region-types')) {
+				regionTypes = field.data('region-types');
+			}
 
 			if (typeof mapboxData !== 'undefined') {
 				settings = {
@@ -50,12 +55,7 @@
 
 				// Set location
 				geocoder.on('result', function (result) {
-					var types = [
-						'place',
-						'district',
-						'region',
-						'country',
-					];
+					var types = regionTypes;
 
 					// Set region
 					if (regionField.length) {
@@ -94,12 +94,7 @@
 				// Set location
 				field.bind('geocode:result', function (event, result) {
 					var parts = [],
-						types = [
-							'locality',
-							'administrative_area_level_2',
-							'administrative_area_level_1',
-							'country',
-						];
+						types = regionTypes;
 
 					// Set region
 					if (regionField.length) {
@@ -178,12 +173,7 @@
 						longitudeField.val(place.location.lng);
 
 						var parts = [],
-							types = [
-								'locality',
-								'administrative_area_level_2',
-								'administrative_area_level_1',
-								'country',
-							];
+							types = regionTypes;
 
 						// Set region
 						if (regionField.length) {

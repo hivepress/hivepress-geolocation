@@ -114,14 +114,20 @@ class Listing_Map extends Block {
 		// Query regular models.
 		rewind_posts();
 
-		while ( have_posts() ) {
-			the_post();
+		if ( 'vendor' === $this->model ) {
 
 			// Add marker.
 			$markers[] = $this->get_marker( get_post() );
-		}
+		} else {
+			while ( have_posts() ) {
+				the_post();
 
-		rewind_posts();
+				// Add marker.
+				$markers[] = $this->get_marker( get_post() );
+			}
+
+			rewind_posts();
+		}
 
 		// Render markers.
 		$markers = array_filter( $markers );
