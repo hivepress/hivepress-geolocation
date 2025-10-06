@@ -645,7 +645,7 @@ final class Geolocation extends Component {
 		if ( get_option( 'hp_geolocation_allow_radius' ) ) {
 			$radius = absint( hp\get_array_value( $_GET, '_radius' ) );
 
-			if ( $radius >= 1 && $radius <= 100 ) {
+			if ( $radius >= 1 && $radius <= get_option( 'hp_geolocation_max_radius', 100 ) ) {
 				$value = $radius;
 			}
 		}
@@ -701,7 +701,7 @@ final class Geolocation extends Component {
 				'label'      => esc_html__( 'Radius', 'hivepress-geolocation' ),
 				'type'       => 'number',
 				'min_value'  => 1,
-				'max_value'  => 100,
+				'max_value'  => get_option( 'hp_geolocation_max_radius', 100 ),
 				'default'    => get_option( 'hp_geolocation_radius' ),
 				'_order'     => 15,
 

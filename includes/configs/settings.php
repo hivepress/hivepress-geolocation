@@ -78,14 +78,25 @@ return [
 						'_order'      => 50,
 					],
 
-					'geolocation_use_miles'        => [
-						'caption' => esc_html__( 'Use miles instead of kilometers', 'hivepress-geolocation' ),
+					'geolocation_max_radius'       => [
+						'label'       => esc_html__( 'Maximum Radius', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Set the maximum radius allowed in the location search.', 'hivepress-geolocation' ),
+						'type'        => 'number',
+						'min_value'   => 1,
+						'default'     => 100,
+						'required'    => true,
+						'_parent'     => 'geolocation_allow_radius',
+						'_order'      => 55,
+					],
+
+					'geolocation_allow_radius'     => [
+						'caption' => esc_html__( 'Allow users to adjust the radius', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
 						'_order'  => 60,
 					],
 
-					'geolocation_allow_radius'     => [
-						'caption' => esc_html__( 'Allow users to change radius', 'hivepress-geolocation' ),
+					'geolocation_use_miles'        => [
+						'caption' => esc_html__( 'Use miles instead of kilometers', 'hivepress-geolocation' ),
 						'type'    => 'checkbox',
 						'_order'  => 70,
 					],
