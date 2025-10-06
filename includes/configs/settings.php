@@ -70,7 +70,7 @@ return [
 
 					'geolocation_radius'           => [
 						'label'       => esc_html__( 'Radius', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'Set the radius that defines the location search area.', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Set the default radius used for the location search.', 'hivepress-geolocation' ),
 						'type'        => 'number',
 						'min_value'   => 1,
 						'default'     => 15,
@@ -80,7 +80,7 @@ return [
 
 					'geolocation_max_radius'       => [
 						'label'       => esc_html__( 'Maximum Radius', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'Set the maximum radius allowed in the location search.', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Set the maximum radius allowed for the location search.', 'hivepress-geolocation' ),
 						'type'        => 'number',
 						'min_value'   => 1,
 						'default'     => 100,
