@@ -78,6 +78,9 @@ class Location extends Text {
 		// Set countries.
 		$attributes['data-countries'] = wp_json_encode( $this->countries );
 
+		// Set region types.
+		$attributes['data-region-types'] = wp_json_encode( hivepress()->geolocation->get_region_types() );
+
 		// Set component.
 		$attributes['data-component'] = 'location';
 

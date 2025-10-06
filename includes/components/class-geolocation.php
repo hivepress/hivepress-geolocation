@@ -90,6 +90,33 @@ final class Geolocation extends Component {
 	}
 
 	/**
+	 * Gets region types.
+	 *
+	 * @return array
+	 */
+	public function get_region_types() {
+		$types = (array) get_option( 'hp_geolocation_region_types', [ 'place', 'district', 'region', 'country' ] );
+
+		if ( get_option( 'hp_geolocation_provider' ) !== 'mapbox' ) {
+			$types = array_values(
+				array_intersect_key(
+					[
+						'postcode' => 'postal_code',
+						'locality' => 'sublocality',
+						'place'    => 'locality',
+						'district' => 'administrative_area_level_2',
+						'region'   => 'administrative_area_level_1',
+						'country'  => 'country',
+					],
+					array_flip( $types )
+				)
+			);
+		}
+
+		return $types;
+	}
+
+	/**
 	 * Adds model attributes.
 	 *
 	 * @param array $attributes Attributes.
@@ -354,16 +381,7 @@ final class Geolocation extends Component {
 				[
 					'access_token' => get_option( 'hp_mapbox_secret_key' ) ? get_option( 'hp_mapbox_secret_key' ) : get_option( 'hp_mapbox_api_key' ),
 					'language'     => hivepress()->translator->get_language(),
-
-					'types'        => implode(
-						',',
-						[
-							'place',
-							'district',
-							'region',
-							'country',
-						]
-					),
+					'types'        => implode( ',', $this->get_region_types() ),
 				]
 			);
 		} else {
@@ -372,16 +390,7 @@ final class Geolocation extends Component {
 					'latlng'      => $latitude . ',' . $longitude,
 					'key'         => get_option( 'hp_gmaps_secret_key' ) ? get_option( 'hp_gmaps_secret_key' ) : get_option( 'hp_gmaps_api_key' ),
 					'language'    => hivepress()->translator->get_language(),
-
-					'result_type' => implode(
-						'|',
-						[
-							'locality',
-							'administrative_area_level_2',
-							'administrative_area_level_1',
-							'country',
-						]
-					),
+					'result_type' => implode( '|', $this->get_region_types() ),
 				]
 			);
 		}
@@ -711,7 +720,7 @@ final class Geolocation extends Component {
 				],
 
 				'attributes' => [
-					'data-component' => 'radius-slider',
+					'data-mode' => 'range',
 				],
 			];
 

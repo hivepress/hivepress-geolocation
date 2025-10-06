@@ -103,17 +103,38 @@ return [
 
 					'geolocation_generate_regions' => [
 						'label'       => esc_html__( 'Regions', 'hivepress-geolocation' ),
-						'description' => esc_html__( 'Check this option to create a page for each region.', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Check this option to create pages for regions and enable region-specific search.', 'hivepress-geolocation' ),
 						'caption'     => esc_html__( 'Generate regions from locations', 'hivepress-geolocation' ),
 						'type'        => 'checkbox',
 						'_order'      => 80,
 					],
 
+					'geolocation_region_types'     => [
+						'label'       => esc_html__( 'Region Types', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Select which region types should have page creation and location search enabled.', 'hivepress-geolocation' ),
+						'type'        => 'select',
+						'default'     => [ 'place', 'district', 'region', 'country' ],
+						'multiple'    => true,
+						'required'    => true,
+						'_parent'     => 'geolocation_generate_regions',
+						'_order'      => 85,
+
+						'options'     => [
+							'country'  => esc_html__( 'Country', 'hivepress-geolocation' ),
+							'region'   => esc_html__( 'Region', 'hivepress-geolocation' ),
+							'district' => esc_html__( 'Subregion', 'hivepress-geolocation' ),
+							'place'    => esc_html__( 'City', 'hivepress-geolocation' ),
+							'locality' => esc_html__( 'District', 'hivepress-geolocation' ),
+							'postcode' => esc_html__( 'Postcode', 'hivepress-geolocation' ),
+						],
+					],
+
 					'geolocation_hide_address'     => [
-						'label'   => esc_html__( 'Address', 'hivepress-geolocation' ),
-						'caption' => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
-						'type'    => 'checkbox',
-						'_order'  => 90,
+						'label'       => esc_html__( 'Address', 'hivepress-geolocation' ),
+						'description' => esc_html__( 'Check this option to prevent displaying exact locations.', 'hivepress-geolocation' ),
+						'caption'     => esc_html__( 'Hide the exact address', 'hivepress-geolocation' ),
+						'type'        => 'checkbox',
+						'_order'      => 90,
 					],
 				],
 			],
