@@ -101,6 +101,15 @@ return [
 						'_order'  => 70,
 					],
 
+					'geolocation_enable_sorting'   => [
+						'label'       => hivepress()->translator->get_string( 'sorting' ),
+						'description' => esc_html__( 'Check this option to sort entries by distance instead of date when searched by location.', 'hivepress-geolocation' ),
+						'caption'     => esc_html__( 'Enable sorting by distance', 'hivepress-geolocation' ),
+						'type'        => 'checkbox',
+						'default'     => true,
+						'_order'      => 75,
+					],
+
 					'geolocation_generate_regions' => [
 						'label'       => esc_html__( 'Regions', 'hivepress-geolocation' ),
 						'description' => esc_html__( 'Check this option to create pages for regions and enable region-specific search.', 'hivepress-geolocation' ),
