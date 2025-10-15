@@ -482,6 +482,10 @@ final class Geolocation extends Component {
 			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_models']['options']['request'] = hivepress()->translator->get_string( 'requests' );
 		}
 
+		if ( get_option( 'hp_installed_time' ) > strtotime( '2025-10-15' ) ) {
+			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_generate_regions']['default'] = true;
+		}
+
 		if ( get_option( 'hp_installed_time' ) < strtotime( '2025-10-05' ) ) {
 			$settings['integrations']['sections']['gmaps']['fields']['gmaps_use_legacy_api']['default'] = true;
 		}
