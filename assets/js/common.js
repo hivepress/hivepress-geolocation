@@ -69,15 +69,6 @@
 					// Set coordinates
 					longitudeField.val(result.result.geometry.coordinates[0]);
 					latitudeField.val(result.result.geometry.coordinates[1]);
-
-					// Set address
-					if (field.data('address')) {
-						if (!field.val()) {
-							field.val(field.data('address'));
-						}
-
-						field.removeData('address');
-					}
 				});
 			} else if ($.fn.geocomplete) {
 				settings = {
@@ -115,14 +106,6 @@
 					}
 
 					// Set address
-					if (field.data('address')) {
-						if (!field.val()) {
-							field.val(field.data('address'));
-						}
-
-						field.removeData('address');
-					}
-
 					if (container.data('scatter')) {
 						types.push('route');
 
@@ -202,14 +185,6 @@
 						}
 
 						// Set address
-						if (field.data('address')) {
-							if (!field.val()) {
-								field.val(field.data('address'));
-							}
-
-							field.removeData('address');
-						}
-
 						if (container.data('scatter')) {
 							types.push('route');
 
@@ -249,9 +224,7 @@
 			});
 
 			field.on('focusout', function () {
-				if (field.val() && (!latitudeField.val() || !longitudeField.val())) {
-					field.data('address', field.val());
-
+				if (!latitudeField.val() || !longitudeField.val()) {
 					field.val('');
 				}
 			});
