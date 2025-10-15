@@ -15,8 +15,8 @@
 				button = container.find('a'),
 				settings = {};
 
-			if (field.data('region-types')) {
-				regionTypes = field.data('region-types');
+			if (container.data('region-types')) {
+				regionTypes = container.data('region-types');
 			}
 
 			if (typeof mapboxData !== 'undefined') {

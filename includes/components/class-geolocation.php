@@ -482,8 +482,20 @@ final class Geolocation extends Component {
 			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_models']['options']['request'] = hivepress()->translator->get_string( 'requests' );
 		}
 
+		if ( get_option( 'hp_installed_time' ) > strtotime( '2025-10-15' ) ) {
+			$settings['geolocation']['sections']['restrictions']['fields']['geolocation_generate_regions']['default'] = true;
+		}
+
 		if ( get_option( 'hp_installed_time' ) < strtotime( '2025-10-05' ) ) {
 			$settings['integrations']['sections']['gmaps']['fields']['gmaps_use_legacy_api']['default'] = true;
+		}
+
+		if ( isset( $settings['listings']['sections']['display']['fields']['listing_related_criteria'] ) ) {
+			$settings['listings']['sections']['display']['fields']['listing_related_criteria']['options']['location'] = esc_html__( 'Location', 'hivepress-geolocation' );
+
+			if ( get_option( 'hp_installed_time' ) < strtotime( '2025-10-15' ) ) {
+				$settings['listings']['sections']['display']['fields']['listing_related_criteria']['default'][] = 'location';
+			}
 		}
 
 		return $settings;
@@ -497,6 +509,11 @@ final class Geolocation extends Component {
 	 * @param object   $listing Listing object.
 	 */
 	public function set_related_query( $query, $listing ) {
+
+		// Check settings.
+		if ( ! in_array( 'location', (array) get_option( 'hp_listing_related_criteria', [ 'location' ] ) ) ) {
+			return;
+		}
 
 		// Check coordinates.
 		if ( ! $listing->get_latitude() || ! $listing->get_longitude() ) {
@@ -602,6 +619,11 @@ final class Geolocation extends Component {
 	 */
 	public function set_search_order( $orderby, $query ) {
 		global $wpdb;
+
+		// Check settings.
+		if ( ! get_option( 'hp_geolocation_enable_sorting', true ) ) {
+			return $orderby;
+		}
 
 		// Check query.
 		if ( ! $query->is_main_query() || ! $query->is_search() || ! in_array( $query->get( 'post_type' ), hp\prefix( $this->models ) ) ) {
@@ -739,7 +761,7 @@ final class Geolocation extends Component {
 	 * @return array
 	 */
 	public function alter_sort_form( $form ) {
-		if ( ! empty( $_GET['location'] ) && empty( $_GET['_region'] ) ) {
+		if ( get_option( 'hp_geolocation_enable_sorting', true ) && ! empty( $_GET['location'] ) && empty( $_GET['_region'] ) ) {
 			$form['fields']['_sort']['options'][''] = esc_html_x( 'Distance', 'sort order', 'hivepress-geolocation' );
 		}
 
