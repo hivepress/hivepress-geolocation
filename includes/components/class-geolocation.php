@@ -318,6 +318,11 @@ final class Geolocation extends Component {
 	public function alter_scripts( $scripts ) {
 		if ( get_option( 'hp_geolocation_provider' ) === 'mapbox' ) {
 			$scripts['geolocation']['deps'][] = 'mapbox-language';
+
+			// @todo replace temporary fix.
+			unset( $scripts['geocomplete'] );
+			unset( $scripts['markerclustererplus'] );
+			unset( $scripts['markerspiderfier'] );
 		} else {
 			$scripts['geolocation']['deps'] = array_merge(
 				$scripts['geolocation']['deps'],
