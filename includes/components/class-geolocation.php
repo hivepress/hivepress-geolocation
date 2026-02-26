@@ -127,6 +127,9 @@ final class Geolocation extends Component {
 		// Get model.
 		$model = explode( '/', current_filter() )[3];
 
+		// Get searchability.
+		$searchable = get_option( 'hp_installed_time' ) < strtotime( '2026-02-11' ) || in_array( 'location', (array) get_option( hp\prefix( $model . '_search_fields' ), [ 'location' ] ) );
+
 		// Get countries.
 		$countries = array_filter( (array) get_option( 'hp_geolocation_countries' ) );
 
@@ -143,7 +146,7 @@ final class Geolocation extends Component {
 			[
 				'location'  => [
 					'editable'     => true,
-					'searchable'   => true,
+					'searchable'   => $searchable,
 
 					'edit_field'   => [
 						'label'     => esc_html__( 'Location', 'hivepress-geolocation' ),
@@ -163,7 +166,7 @@ final class Geolocation extends Component {
 
 				'latitude'  => [
 					'editable'     => true,
-					'searchable'   => true,
+					'searchable'   => $searchable,
 
 					'edit_field'   => [
 						'label' => esc_html__( 'Latitude', 'hivepress-geolocation' ),
@@ -178,7 +181,7 @@ final class Geolocation extends Component {
 
 				'longitude' => [
 					'editable'     => true,
-					'searchable'   => true,
+					'searchable'   => $searchable,
 
 					'edit_field'   => [
 						'label' => esc_html__( 'Longitude', 'hivepress-geolocation' ),
@@ -208,7 +211,8 @@ final class Geolocation extends Component {
 
 			$attributes['region'] = [
 				'protected'    => true,
-				'filterable'   => true,
+				// todo also check other functions related to search and disable them, for example _region search
+				'filterable'   => $searchable,
 
 				'edit_field'   => $field_args,
 				'search_field' => $field_args,
@@ -493,6 +497,16 @@ final class Geolocation extends Component {
 
 		if ( get_option( 'hp_installed_time' ) < strtotime( '2025-10-05' ) ) {
 			$settings['integrations']['sections']['gmaps']['fields']['gmaps_use_legacy_api']['default'] = true;
+		}
+
+		if ( get_option( 'hp_installed_time' ) > strtotime( '2026-02-11' ) ) {
+			foreach ( $this->models as $model ) {
+				if ( isset( $settings[ $model . 's' ]['sections']['search']['fields'][ $model . '_search_fields' ] ) ) {
+					$settings[ $model . 's' ]['sections']['search']['fields'][ $model . '_search_fields' ]['options']['location'] = esc_html__( 'Location', 'hivepress-geolocation' );
+
+					$settings[ $model . 's' ]['sections']['search']['fields'][ $model . '_search_fields' ]['default'][] = 'location';
+				}
+			}
 		}
 
 		if ( isset( $settings['listings']['sections']['display']['fields']['listing_related_criteria'] ) ) {
