@@ -34,8 +34,9 @@ class Latitude extends Number {
 	public static function init( $meta = [] ) {
 		$meta = hp\merge_arrays(
 			[
-				'label'    => null,
-				'sortable' => false,
+				'label'       => null,
+				'sortable'    => false,
+				'prefillable' => false,
 			],
 			$meta
 		);
