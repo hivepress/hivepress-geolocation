@@ -16,6 +16,7 @@ return [
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/css/common.min.css',
 		'version' => hivepress()->get_version( 'geolocation' ),
 		'scope'   => [ 'frontend', 'backend' ],
+		'rtl'     => true,
 	],
 
 	'geolocation_backend'  => [
@@ -23,6 +24,7 @@ return [
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/css/backend.min.css',
 		'version' => hivepress()->get_version( 'geolocation' ),
 		'scope'   => 'backend',
+		'rtl'     => true,
 	],
 
 	'geolocation_frontend' => [
@@ -30,5 +32,6 @@ return [
 		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/css/frontend.min.css',
 		'version' => hivepress()->get_version( 'geolocation' ),
 		'scope'   => [ 'frontend', 'editor' ],
+		'rtl'     => true,
 	],
 ];
