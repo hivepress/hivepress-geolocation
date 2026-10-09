@@ -278,6 +278,11 @@
 				// Set API key
 				mapboxgl.accessToken = mapboxData.apiKey;
 
+				// Set RTL plugin
+				if (mapboxgl.getRTLTextPluginStatus() === 'unavailable') {
+					mapboxgl.setRTLTextPlugin(mapboxData.rtlPluginURL, null, true);
+				}
+
 				// Create map
 				var bounds = new mapboxgl.LngLatBounds(),
 					map = new mapboxgl.Map({

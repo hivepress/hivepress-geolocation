@@ -289,7 +289,8 @@ final class Geolocation extends Component {
 				'mapbox',
 				'mapboxData',
 				[
-					'apiKey' => get_option( 'hp_mapbox_api_key' ),
+					'apiKey'       => get_option( 'hp_mapbox_api_key' ),
+					'rtlPluginURL' => 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js',
 				]
 			);
 		} else {
