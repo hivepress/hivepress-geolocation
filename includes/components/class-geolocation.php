@@ -199,6 +199,7 @@ final class Geolocation extends Component {
 				'label'       => esc_html__( 'Region', 'hivepress-geolocation' ),
 				'type'        => 'select',
 				'options'     => 'terms',
+				'source'      => true,
 				'_order'      => 99,
 
 				'option_args' => [
