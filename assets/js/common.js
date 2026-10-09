@@ -278,6 +278,11 @@
 				// Set API key
 				mapboxgl.accessToken = mapboxData.apiKey;
 
+				// Set RTL plugin
+				if (mapboxgl.getRTLTextPluginStatus() === 'unavailable') {
+					mapboxgl.setRTLTextPlugin(mapboxData.rtlPluginURL, null, true);
+				}
+
 				// Create map
 				var bounds = new mapboxgl.LngLatBounds(),
 					map = new mapboxgl.Map({
@@ -405,7 +410,7 @@
 
 				// Cluster markers
 				var clusterer = new MarkerClusterer(map, markers, {
-					imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
+					imagePath: hivepressGeolocationData.assetURL + '/vendor/@google/markerclustererplus/images/m',
 					maxZoom: maxZoom - 1,
 				});
 

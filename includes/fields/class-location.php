@@ -34,9 +34,10 @@ class Location extends Text {
 	public static function init( $meta = [] ) {
 		$meta = hp\merge_arrays(
 			[
-				'label'      => null,
-				'filterable' => false,
-				'sortable'   => false,
+				'label'       => null,
+				'filterable'  => false,
+				'sortable'    => false,
+				'prefillable' => false,
 			],
 			$meta
 		);

@@ -1,0 +1,7 @@
+{
+	"dependencies": {
+		"@google/markerclustererplus": "^5.0.4",
+		"geocomplete": "^1.7.0",
+		"npm-overlapping-marker-spiderfier": "^1.0.3"
+	}
+}
