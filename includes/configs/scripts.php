@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 return [
 	'geocomplete'         => [
 		'handle'  => 'geocomplete',
-		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/jquery.geocomplete.min.js',
+		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/vendor/geocomplete/jquery.geocomplete.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
 		'deps'    => [ 'google-maps' ],
 		'scope'   => [ 'frontend', 'backend' ],
@@ -21,7 +21,7 @@ return [
 
 	'markerclustererplus' => [
 		'handle'  => 'markerclustererplus',
-		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/markerclustererplus.min.js',
+		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/vendor/@google/markerclustererplus/dist/markerclustererplus.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
 		'deps'    => [ 'google-maps' ],
 		'scope'   => [ 'frontend', 'backend' ],
@@ -29,7 +29,7 @@ return [
 
 	'markerspiderfier'    => [
 		'handle'  => 'markerspiderfier',
-		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/js/oms.min.js',
+		'src'     => hivepress()->get_url( 'geolocation' ) . '/assets/vendor/npm-overlapping-marker-spiderfier/lib/oms.min.js',
 		'version' => hivepress()->get_version( 'geolocation' ),
 		'deps'    => [ 'google-maps' ],
 		'scope'   => [ 'frontend', 'backend' ],

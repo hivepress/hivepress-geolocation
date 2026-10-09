@@ -405,7 +405,7 @@
 
 				// Cluster markers
 				var clusterer = new MarkerClusterer(map, markers, {
-					imagePath: hivepressGeolocationData.assetURL + '/images/markerclustererplus/m',
+					imagePath: hivepressGeolocationData.assetURL + '/vendor/@google/markerclustererplus/images/m',
 					maxZoom: maxZoom - 1,
 				});
 
